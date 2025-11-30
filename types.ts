@@ -35,3 +35,11 @@ export type PlaybackRate = 0.8 | 1.0 | 1.2;
 export interface ProgressMap {
   [wordId: string]: boolean; // format: "sentenceIndex-wordIndex": true if solved
 }
+
+export interface DictResult {
+  word: string;
+  phonetic?: string;
+  translations: string[];
+  definition?: string;
+  examples?: string[];
+}

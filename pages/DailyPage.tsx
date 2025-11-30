@@ -1,16 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { CONVERSATION_DATA } from '../constants';
-import { AppMode, PlaybackRate, ProgressMap, Sentence, DictationDifficulty } from '../types';
+import { AppMode, PlaybackRate, ProgressMap, DictationDifficulty, DictResult } from '../types';
 import AudioPlayer from '../components/AudioPlayer';
 import Transcript from '../components/Transcript';
 import ModeSelector from '../components/ModeSelector';
-import { Headphones, CheckCircle2, RotateCcw } from 'lucide-react';
+import DictionaryModal from '../components/DictionaryModal';
+import { Headphones, CheckCircle2, RotateCcw, ArrowLeft } from 'lucide-react';
+import OpenAI from 'openai';
 
 const DailyPage: React.FC = () => {
-    // Data
-    const conversation = CONVERSATION_DATA[0]; // MVP: Load the first one
-    const audioSrc = `/assets/${conversation.audio_source}`;
-    const fullAudioRange = conversation.full_audio_range;
+    const { lessonId } = useParams<{ lessonId: string }>();
+
+    // Find the conversation based on URL param
+    const conversation = CONVERSATION_DATA.find(c => c.id === lessonId);
+
+    // If not found, we will render a redirect or error later, but we need hooks to run first.
+    const validConversation = conversation || CONVERSATION_DATA[0];
+
+    const audioSrc = `assets/${validConversation.audio_source}`;
+    const fullAudioRange = validConversation.full_audio_range;
+
+    // QR Code
     const angelQrSrc = '/assets/wx.png';
     const milkTeaQrSrc = '/assets/wxzf.png';
     const documentationUrl = 'https://ai.feishu.cn/wiki/FRYBw8zXUiv4nWkd9FOcXhWRnTc?from=from_copylink';
@@ -25,184 +36,247 @@ const DailyPage: React.FC = () => {
     const [mode, setMode] = useState<AppMode>(AppMode.STUDY);
     const [dictationDifficulty, setDictationDifficulty] = useState<DictationDifficulty>('easy');
     const [progress, setProgress] = useState<ProgressMap>({});
-    const [activeModal, setActiveModal] = useState<'angel' | 'milk' | null>(null);
 
-    // Load progress from local storage
+    // Dictionary State
+    const [dictModalOpen, setDictModalOpen] = useState(false);
+    const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const [dictData, setDictData] = useState<DictResult | null>(null);
+    const [dictLoading, setDictLoading] = useState(false);
+    const [dictError, setDictError] = useState<string | null>(null);
+    const [targetWordEndTime, setTargetWordEndTime] = useState<number | null>(null);
+
+    // Dictionary Cache
+    const dictCache = useRef<Record<string, DictResult>>({});
+
+    // Reset state when lesson changes
     useEffect(() => {
-        const saved = localStorage.getItem(`echo-progress-${conversation.id}`);
-        if (saved) {
-            try {
-                setProgress(JSON.parse(saved));
-            } catch (e) { console.error("Failed to load progress", e); }
-        }
-    }, [conversation.id]);
+        if (conversation) {
+            setIsPlaying(false);
+            setCurrentTime(conversation.full_audio_range.start);
 
-    // Save progress
+            const saved = localStorage.getItem(`echo-progress-${conversation.id}`);
+            if (saved) {
+                try {
+                    setProgress(JSON.parse(saved));
+                } catch (e) { console.error("Failed to load progress", e); }
+            } else {
+                setProgress({});
+            }
+        }
+    }, [conversation?.id]);
+
     const handleWordSolved = (wordId: string) => {
         const newProgress = { ...progress, [wordId]: true };
         setProgress(newProgress);
-        localStorage.setItem(`echo-progress-${conversation.id}`, JSON.stringify(newProgress));
+        if (conversation) {
+            localStorage.setItem(`echo-progress-${conversation.id}`, JSON.stringify(newProgress));
+        }
     };
 
     const handleResetProgress = () => {
         if (window.confirm("Are you sure you want to reset your progress? This starts the lesson over.")) {
             setProgress({});
-            localStorage.removeItem(`echo-progress-${conversation.id}`);
-            // Optionally jump back to start
-            setCurrentTime(fullAudioRange.start);
+            if (conversation) {
+                localStorage.removeItem(`echo-progress-${conversation.id}`);
+                setCurrentTime(fullAudioRange.start);
+            }
         }
     };
 
-    const handleWordClick = (time: number) => {
-        // In Dictation mode, clicking words is disabled to prevent cheating/breaking flow
-        // unless we are in the "Solved" state.
-        // But for better UX, if user clicks a solved word in dictation, we can jump there.
-        setCurrentTime(time);
+    const fetchDictionary = async (word: string) => {
+        const clean = word.replace(/[^\w'-]/g, '').toLowerCase();
+        if (!clean) return;
+
+        if (dictCache.current[clean]) {
+            setDictData(dictCache.current[clean]);
+            setDictError(null);
+            setDictLoading(false);
+            return;
+        }
+
+        setDictLoading(true);
+        setDictError(null);
+        setDictData(null);
+
+        try {
+            // Initialize OpenAI Client for DeepSeek
+            const client = new OpenAI({
+                baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || "https://api.deepseek.com",
+                apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || "", // 从环境变量读取
+                dangerouslyAllowBrowser: true // Required for client-side usage
+            });
+
+            const prompt = `Explain the word "${word}" for an English learner.
+        Output MUST be a valid JSON object with this exact structure:
+        {
+          "word": "${word}",
+          "phonetic": "IPA or phonetic spelling",
+          "translations": ["Common Chinese translation 1", "Translation 2"],
+          "definition": "A clear English definition.",
+          "examples": ["Example sentence 1.", "Example sentence 2."]
+        }`;
+
+            const completion = await client.chat.completions.create({
+                model: "deepseek-chat",
+                messages: [{ role: "user", content: prompt }],
+            });
+
+            let content = completion.choices[0].message.content;
+
+            if (content) {
+                // Remove markdown code blocks if present
+                content = content.replace(/```json\s*|\s*```/g, "").trim();
+
+                try {
+                    const result: DictResult = JSON.parse(content);
+                    dictCache.current[clean] = result;
+                    setDictData(result);
+                } catch (parseError) {
+                    console.error("JSON Parse failed:", content);
+                    throw new Error("Failed to parse AI response.");
+                }
+            } else {
+                throw new Error("No definition found.");
+            }
+
+        } catch (e: any) {
+            console.error("Dictionary lookup failed:", e);
+            if (e.message?.includes('401')) {
+                setDictError('Authentication Error: Invalid API Key.');
+            } else if (e.message?.includes('Network Error') || e.message?.includes('fetch')) {
+                setDictError('Network Error: Please check your connection or CORS settings.');
+            } else {
+                setDictError(e.message || 'Unknown error');
+            }
+        } finally {
+            setDictLoading(false);
+        }
     };
 
-    // --- Dictation Logic: Find the Active Sentence ---
+    // 修改 handleWordClick（第 149 行）：
+    const handleWordClick = (time: number, endTime: number, word: string) => {
+        setCurrentTime(time);
+
+        // Only open dictionary in Study Mode
+        if (mode === AppMode.STUDY) {
+            setSelectedWord(word);
+            setDictModalOpen(true);
+            fetchDictionary(word);
+            // 记录目标单词的结束时间，用于自动暂停
+            setTargetWordEndTime(endTime);
+        } else {
+            // 非 Study 模式清空目标时间
+            setTargetWordEndTime(null);
+        }
+    };
+
+    // 在 handleWordClick 后面（大约第 159 行之后）添加新的 useEffect：
+    useEffect(() => {
+        // 只在 Study 模式下，且有目标结束时间，且正在播放时，才检查
+        if (mode === AppMode.STUDY && targetWordEndTime !== null && isPlaying) {
+            // 当播放时间到达或超过单词结束时间时，暂停
+            if (currentTime >= targetWordEndTime) {
+                setIsPlaying(false);
+                setTargetWordEndTime(null); // 清空目标，避免重复触发
+            }
+        }
+    }, [currentTime, targetWordEndTime, isPlaying, mode]);
+
     const activeDictationSentenceIdx = useMemo(() => {
         if (mode !== AppMode.DICTATION) return -1;
 
         let globalWordIndexCounter = 0;
 
-        // Find the first sentence that has ANY missing words based on current difficulty
-        return conversation.sentences.findIndex((sentence, sIdx) => {
-            // Check if this sentence is "complete"
+        return validConversation.sentences.findIndex((sentence, sIdx) => {
             const isSentenceComplete = sentence.words.every((word, wIdx) => {
                 const uniqueId = `${sIdx}-${wIdx}`;
                 const isSolved = progress[uniqueId];
 
-                // Calculate if this word is supposed to be hidden
                 const currentGlobalIndex = globalWordIndexCounter++;
                 let isTarget = false;
 
                 if (dictationDifficulty === 'hard') {
                     isTarget = true;
                 } else if (dictationDifficulty === 'middle') {
-                    // Middle (50%): odd global indices are targets (1, 3, 5...)
                     if (currentGlobalIndex % 2 !== 0) isTarget = true;
                 } else {
-                    // Easy (20%): every 5th word (4, 9, 14...)
                     if ((currentGlobalIndex + 1) % 5 === 0) isTarget = true;
                 }
 
-                // If it's a target word and not solved, the sentence is NOT complete
                 if (isTarget && !isSolved) return false;
-
                 return true;
             });
 
             return !isSentenceComplete;
         });
-    }, [conversation, progress, mode, dictationDifficulty]);
+    }, [validConversation, progress, mode, dictationDifficulty]);
 
-    // --- Derived Audio Bounds ---
-    // If in Dictation, we lock to the active sentence. Otherwise, full range.
     const effectiveStartTime = useMemo(() => {
         if (mode === AppMode.DICTATION && activeDictationSentenceIdx !== -1) {
-            return conversation.sentences[activeDictationSentenceIdx].start;
+            return validConversation.sentences[activeDictationSentenceIdx].start;
         }
         return fullAudioRange.start;
-    }, [mode, activeDictationSentenceIdx, conversation, fullAudioRange]);
+    }, [mode, activeDictationSentenceIdx, validConversation, fullAudioRange]);
 
     const effectiveEndTime = useMemo(() => {
         if (mode === AppMode.DICTATION && activeDictationSentenceIdx !== -1) {
-            return conversation.sentences[activeDictationSentenceIdx].end;
+            return validConversation.sentences[activeDictationSentenceIdx].end;
         }
         return fullAudioRange.end;
-    }, [mode, activeDictationSentenceIdx, conversation, fullAudioRange]);
+    }, [mode, activeDictationSentenceIdx, validConversation, fullAudioRange]);
 
-    // Auto-jump logic: When active sentence changes (because user solved it),
-    // update current time to the new start time.
     useEffect(() => {
         if (mode === AppMode.DICTATION && activeDictationSentenceIdx !== -1) {
-            const newStart = conversation.sentences[activeDictationSentenceIdx].start;
-            // Only jump if we are far away (e.g., previous sentence)
+            const newStart = validConversation.sentences[activeDictationSentenceIdx].start;
             if (Math.abs(currentTime - newStart) > 1.0) {
                 setCurrentTime(newStart);
-                // Ensure we keep playing if we were playing
-                if (isPlaying) {
-                    // The AudioPlayer effect will handle the seek
-                }
             }
         }
     }, [activeDictationSentenceIdx, mode]);
 
+    if (!conversation) {
+        return <Navigate to="/" replace />;
+    }
 
-    const totalWords = useMemo(() => {
-        return conversation.sentences.reduce((acc, s) => acc + s.words.length, 0);
-    }, [conversation]);
-
+    const totalWords = validConversation.sentences.reduce((acc, s) => acc + s.words.length, 0);
     const solvedCount = Object.keys(progress).length;
-    const progressPercent = Math.round((solvedCount / totalWords) * 100);
+    const progressPercent = totalWords > 0 ? Math.round((solvedCount / totalWords) * 100) : 0;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
 
             {/* Header */}
-            <header className="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+            <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50">
                 <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-indigo-600 p-2 rounded-lg">
-                            <Headphones className="text-white" size={24} />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Echo</h1>
-                            <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Daily Training</p>
+                    <div className="flex items-center gap-4">
+                        <Link to="/" className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors" title="Back to Menu">
+                            <ArrowLeft size={24} />
+                        </Link>
+                        <div className="flex items-center gap-3">
+                            <div className="bg-indigo-600 p-1.5 rounded-lg hidden sm:block">
+                                <Headphones className="text-white" size={20} />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none">{conversation.title}</h1>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-3">
-                        <div className="flex flex-wrap justify-end gap-2">
+                    <div className="flex items-center gap-3">
+                        {solvedCount > 0 && (
                             <button
-                                onClick={() => setActiveModal('angel')}
-                                className="flex items-center gap-1 rounded-full bg-pink-100 text-pink-700 border border-pink-200 px-3 py-1.5 text-sm font-medium transition hover:bg-pink-200"
+                                onClick={handleResetProgress}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors text-sm font-medium"
+                                title="Reset all progress"
                             >
-                                <span role="img" aria-label="gift">🎁</span>
-                                成为天使客户
+                                <RotateCcw size={14} />
+                                <span className="hidden sm:inline">Remake</span>
                             </button>
-                            <button
-                                onClick={() => setActiveModal('milk')}
-                                className="flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 text-sm font-medium transition hover:bg-amber-200"
-                            >
-                                <span role="img" aria-label="coffee">☕</span>
-                                请作者喝杯奶茶
-                            </button>
-                            <a
-                                href={documentationUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-                            >
-                                文档
-                            </a>
-                            <a
-                                href={githubUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-                            >
-                                GitHub
-                            </a>
-                        </div>
+                        )}
 
-                        <div className="flex items-center gap-3">
-                            {solvedCount > 0 && (
-                                <button
-                                    onClick={handleResetProgress}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors text-sm font-medium"
-                                    title="Reset all progress"
-                                >
-                                    <RotateCcw size={14} />
-                                    <span className="hidden sm:inline">Remake</span>
-                                </button>
-                            )}
-
-                            <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                                <CheckCircle2 size={16} className={progressPercent === 100 ? "text-green-600" : "text-slate-400"} />
-                                <span className="text-sm font-semibold text-slate-600">{progressPercent}% Solved</span>
-                            </div>
+                        <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                            <CheckCircle2 size={16} className={progressPercent === 100 ? "text-green-600" : "text-slate-400"} />
+                            <span className="text-sm font-semibold text-slate-600">{progressPercent}%</span>
                         </div>
                     </div>
                 </div>
@@ -218,13 +292,12 @@ const DailyPage: React.FC = () => {
             <main className="flex-1 w-full">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center py-6 px-4">
-                        <h2 className="text-2xl font-serif text-slate-800 font-medium mb-1">{conversation.title}</h2>
                         {mode === AppMode.DICTATION ? (
                             <p className="text-indigo-600 font-medium text-sm animate-pulse">
                                 Focus on the current sentence. It will loop until you finish it.
                             </p>
                         ) : (
-                            <p className="text-slate-500 text-sm">Listen carefully and fill in the blanks.</p>
+                            <p className="text-slate-400 text-sm italic">Tap any word to jump to that point in audio{mode === AppMode.STUDY ? ' & see definition' : ''}</p>
                         )}
                     </div>
 
@@ -241,6 +314,7 @@ const DailyPage: React.FC = () => {
             </main>
 
             <AudioPlayer
+                key={conversation.id}
                 src={audioSrc}
                 isPlaying={isPlaying}
                 onPlayPause={() => setIsPlaying(!isPlaying)}
@@ -254,36 +328,14 @@ const DailyPage: React.FC = () => {
                 loop={mode === AppMode.DICTATION && activeDictationSentenceIdx !== -1}
             />
 
-            {activeModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-slate-900/60"
-                        onClick={() => setActiveModal(null)}
-                    />
-                    <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-                        <div className="text-right">
-                            <button
-                                onClick={() => setActiveModal(null)}
-                                className="text-slate-400 hover:text-slate-600"
-                                aria-label="关闭弹窗"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                        <div className="text-center space-y-3">
-                            <h3 className="text-xl font-semibold text-slate-900">
-                                {activeModal === 'angel' ? '成为天使客户' : '请作者喝杯奶茶'}
-                            </h3>
-                            <p className="text-sm text-slate-500">微信扫码完成支持</p>
-                            <img
-                                src={activeModal === 'angel' ? angelQrSrc : milkTeaQrSrc}
-                                alt={activeModal === 'angel' ? '微信支付二维码' : '微信账号二维码'}
-                                className="w-full rounded-xl border border-slate-100"
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <DictionaryModal
+                isOpen={dictModalOpen}
+                onClose={() => setDictModalOpen(false)}
+                word={selectedWord}
+                data={dictData}
+                loading={dictLoading}
+                error={dictError}
+            />
         </div>
     );
 };
