@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { CONVERSATION_DATA } from '../constants';
 import { AppMode, PlaybackRate, ProgressMap, DictationDifficulty, DictResult } from '../types';
@@ -8,6 +8,8 @@ import ModeSelector from '../components/ModeSelector';
 import DictionaryModal from '../components/DictionaryModal';
 import { Headphones, CheckCircle2, RotateCcw, ArrowLeft } from 'lucide-react';
 import OpenAI from 'openai';
+import { checkAndUpdateAchievements } from '../utils/achievements';
+import { updateListeningTime, incrementDictatedWords, getStatistics } from '../utils/statistics';
 
 const DailyPage: React.FC = () => {
     const { lessonId } = useParams<{ lessonId: string }>();
@@ -45,6 +47,10 @@ const DailyPage: React.FC = () => {
     const [dictError, setDictError] = useState<string | null>(null);
     const [targetWordEndTime, setTargetWordEndTime] = useState<number | null>(null);
 
+    // Pending word state for K key activation
+    const [pendingWord, setPendingWord] = useState<string | null>(null);
+    const [showKeyHint, setShowKeyHint] = useState(false);
+
     // Dictionary Cache
     const dictCache = useRef<Record<string, DictResult>>({});
 
@@ -62,14 +68,33 @@ const DailyPage: React.FC = () => {
             } else {
                 setProgress({});
             }
+
+            // 清除待翻译状态
+            setPendingWord(null);
+            setShowKeyHint(false);
         }
     }, [conversation?.id]);
+
+    // 当模式切换时，清除待翻译状态
+    useEffect(() => {
+        if (mode !== AppMode.STUDY) {
+            setPendingWord(null);
+            setShowKeyHint(false);
+        }
+    }, [mode]);
 
     const handleWordSolved = (wordId: string) => {
         const newProgress = { ...progress, [wordId]: true };
         setProgress(newProgress);
         if (conversation) {
             localStorage.setItem(`echo-progress-${conversation.id}`, JSON.stringify(newProgress));
+            // 检查并更新成就
+            checkAndUpdateAchievements();
+
+            // 在 Dictation 模式下统计拼写单词数
+            if (mode === AppMode.DICTATION) {
+                incrementDictatedWords();
+            }
         }
     };
 
@@ -83,7 +108,7 @@ const DailyPage: React.FC = () => {
         }
     };
 
-    const fetchDictionary = async (word: string) => {
+    const fetchDictionary = useCallback(async (word: string) => {
         const clean = word.replace(/[^\w'-]/g, '').toLowerCase();
         if (!clean) return;
 
@@ -151,24 +176,59 @@ const DailyPage: React.FC = () => {
         } finally {
             setDictLoading(false);
         }
-    };
+    }, []);
 
-    // 修改 handleWordClick（第 149 行）：
+    // 修改 handleWordClick：在 Study 模式下只设置待翻译单词，不立即调用 AI
     const handleWordClick = (time: number, endTime: number, word: string) => {
         setCurrentTime(time);
 
-        // Only open dictionary in Study Mode
+        // Only handle in Study Mode
         if (mode === AppMode.STUDY) {
-            setSelectedWord(word);
-            setDictModalOpen(true);
-            fetchDictionary(word);
+            // 设置待翻译单词，显示提示，不立即调用 AI
+            setPendingWord(word);
+            setShowKeyHint(true);
             // 记录目标单词的结束时间，用于自动暂停
             setTargetWordEndTime(endTime);
         } else {
             // 非 Study 模式清空目标时间
             setTargetWordEndTime(null);
+            setPendingWord(null);
+            setShowKeyHint(false);
         }
     };
+
+    // 键盘事件监听：监听 'k' 键启用 AI 翻译
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // 防止在输入框中触发
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+                return;
+            }
+
+            // 监听 'k' 键启用 AI 翻译（只在 Study 模式下且有待翻译单词时响应）
+            if (mode === AppMode.STUDY && pendingWord && (event.key === 'k' || event.key === 'K')) {
+                event.preventDefault();
+                // 调用 AI 翻译并打开字典模态框
+                setSelectedWord(pendingWord);
+                setDictModalOpen(true);
+                fetchDictionary(pendingWord);
+                // 清除待翻译状态和提示
+                setPendingWord(null);
+                setShowKeyHint(false);
+            }
+
+            // 监听空格键暂停/继续音频（所有模式）
+            if (event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                setIsPlaying(prev => !prev);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [mode, pendingWord, fetchDictionary]);
 
     // 在 handleWordClick 后面（大约第 159 行之后）添加新的 useEffect：
     useEffect(() => {
@@ -234,6 +294,44 @@ const DailyPage: React.FC = () => {
         }
     }, [activeDictationSentenceIdx, mode]);
 
+    // 监听进度变化，检查成就
+    useEffect(() => {
+        if (conversation && Object.keys(progress).length > 0) {
+            checkAndUpdateAchievements();
+        }
+    }, [progress, conversation?.id]);
+
+    // 追踪听音频时间
+    const maxListeningTimeRef = useRef<number>(0);
+
+    useEffect(() => {
+        if (!conversation) return;
+
+        // 初始化当前 lesson 的最大播放时间
+        const stats = getStatistics();
+        maxListeningTimeRef.current = stats.listeningTime[conversation.id] || 0;
+    }, [conversation?.id]);
+
+    useEffect(() => {
+        if (!conversation || !isPlaying) return;
+
+        // 每5秒更新一次统计数据
+        const interval = setInterval(() => {
+            if (currentTime > maxListeningTimeRef.current) {
+                maxListeningTimeRef.current = currentTime;
+                updateListeningTime(conversation.id, currentTime);
+            }
+        }, 5000); // 每5秒更新一次
+
+        // 立即检查并更新（如果当前时间已经超过记录的最大时间）
+        if (currentTime > maxListeningTimeRef.current) {
+            maxListeningTimeRef.current = currentTime;
+            updateListeningTime(conversation.id, currentTime);
+        }
+
+        return () => clearInterval(interval);
+    }, [conversation?.id, isPlaying, currentTime]);
+
     if (!conversation) {
         return <Navigate to="/" replace />;
     }
@@ -291,13 +389,33 @@ const DailyPage: React.FC = () => {
 
             <main className="flex-1 w-full">
                 <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-6 px-4">
+                    <div className="text-center py-6 px-4 space-y-2">
                         {mode === AppMode.DICTATION ? (
                             <p className="text-indigo-600 font-medium text-sm animate-pulse">
                                 Focus on the current sentence. It will loop until you finish it.
                             </p>
                         ) : (
-                            <p className="text-slate-400 text-sm italic">Tap any word to jump to that point in audio{mode === AppMode.STUDY ? ' & see definition' : ''}</p>
+                            <p className="text-slate-400 text-sm italic">
+                                Tap any word to jump to that point in audio{mode === AppMode.STUDY ? ' & see definition by pressing K' : ''}
+                            </p>
+                        )}
+                        {/* K 键提示 */}
+                        {showKeyHint && pendingWord && mode === AppMode.STUDY && (
+                            <div className="flex items-center justify-center gap-2 mt-3 animate-fade-in">
+                                <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm">
+                                    <kbd className="px-2 py-1 bg-white border border-indigo-300 rounded text-xs font-mono font-semibold text-indigo-700 shadow-sm">
+                                        K
+                                    </kbd>
+                                    <span className="text-sm text-indigo-700 font-medium">
+                                        按 K 键启用 AI 翻译
+                                    </span>
+                                    {pendingWord && (
+                                        <span className="text-xs text-indigo-500 ml-1">
+                                            ({pendingWord})
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         )}
                     </div>
 
@@ -330,7 +448,12 @@ const DailyPage: React.FC = () => {
 
             <DictionaryModal
                 isOpen={dictModalOpen}
-                onClose={() => setDictModalOpen(false)}
+                onClose={() => {
+                    setDictModalOpen(false);
+                    // 关闭模态框时清除待翻译状态
+                    setPendingWord(null);
+                    setShowKeyHint(false);
+                }}
                 word={selectedWord}
                 data={dictData}
                 loading={dictLoading}

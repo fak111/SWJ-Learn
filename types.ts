@@ -43,3 +43,40 @@ export interface DictResult {
   definition?: string;
   examples?: string[];
 }
+
+export type AchievementId = 'blind1' | 'blind2' | 'perfect1' | 'perfect2' | 'angel100';
+
+export interface Achievement {
+  id: AchievementId;
+  unlocked: boolean;
+  unlockedAt?: number; // timestamp
+}
+
+export interface AchievementState {
+  [key: string]: Achievement;
+}
+
+// 成就系列定义
+export type AchievementSeries = 'blind' | 'perfect' | 'angel';
+
+// 成就显示项（用于UI展示）
+export interface DisplayAchievement {
+  id: AchievementId;
+  name: string;
+  description: string; // 成就描述
+  imagePath: string;
+  series: AchievementSeries;
+  level: number; // 1 = 低级, 2 = 高级
+  unlocked: boolean;
+  unlockedAt?: number;
+  ringColor: string; // Tailwind ring color class
+  shadowColor: string; // Tailwind shadow color class
+}
+
+// 统计数据接口
+export interface Statistics {
+  listeningTime: {
+    [lessonId: string]: number; // 每个 lesson 的最大播放时间（秒）
+  };
+  totalDictatedWords: number; // 总拼写单词数
+}
