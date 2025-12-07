@@ -35,7 +35,7 @@ const DailyPage: React.FC = () => {
     const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(1.0);
 
     // App State
-    const [mode, setMode] = useState<AppMode>(AppMode.STUDY);
+    const [mode, setMode] = useState<AppMode>(AppMode.BLIND);
     const [dictationDifficulty, setDictationDifficulty] = useState<DictationDifficulty>('easy');
     const [progress, setProgress] = useState<ProgressMap>({});
 
@@ -347,7 +347,7 @@ const DailyPage: React.FC = () => {
             <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50">
                 <div className="max-w-4xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link to="/" className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors" title="Back to Menu">
+                        <Link to="/levels" className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors" title="Back to Menu">
                             <ArrowLeft size={24} />
                         </Link>
                         <div className="flex items-center gap-3">
@@ -396,7 +396,7 @@ const DailyPage: React.FC = () => {
                             </p>
                         ) : (
                             <p className="text-slate-400 text-sm italic">
-                                Tap any word to jump to that point in audio{mode === AppMode.STUDY ? ' & see definition by pressing K' : ''}
+                                Focus on every single pronunciation{mode === AppMode.STUDY ? ' & see definition by pressing K' : ''}
                             </p>
                         )}
                         {/* K 键提示 */}
