@@ -1,0 +1,4721 @@
+[
+    {
+        "id": "chapter_0",
+        "title": "Chapter 1",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 6.46,
+            "end": 54.703
+        },
+        "sentences": [
+            {
+                "text": "A very new, young officer was at a railway station. He was going to visit his mother, and he wanted to telephone her to tell her the time of his train. He looked in all his pockets, but found that he did not have the coins for the telephone, so he went outside and looked around for someone to help him.",
+                "start": 6.46,
+                "end": 21.983,
+                "words": [
+                    {
+                        "word": "A",
+                        "start": 6.46,
+                        "end": 6.481
+                    },
+                    {
+                        "word": "very",
+                        "start": 6.541,
+                        "end": 6.761
+                    },
+                    {
+                        "word": "new",
+                        "start": 6.841,
+                        "end": 7.041
+                    },
+                    {
+                        "word": "young",
+                        "start": 7.121,
+                        "end": 7.322
+                    },
+                    {
+                        "word": "officer",
+                        "start": 7.422,
+                        "end": 7.782
+                    },
+                    {
+                        "word": "was",
+                        "start": 7.863,
+                        "end": 7.983
+                    },
+                    {
+                        "word": "at",
+                        "start": 8.043,
+                        "end": 8.083
+                    },
+                    {
+                        "word": "a",
+                        "start": 8.143,
+                        "end": 8.163
+                    },
+                    {
+                        "word": "railway",
+                        "start": 8.223,
+                        "end": 8.584
+                    },
+                    {
+                        "word": "station.",
+                        "start": 8.644,
+                        "end": 9.064
+                    },
+                    {
+                        "word": "He",
+                        "start": 9.485,
+                        "end": 9.545
+                    },
+                    {
+                        "word": "was",
+                        "start": 9.565,
+                        "end": 9.665
+                    },
+                    {
+                        "word": "going",
+                        "start": 9.705,
+                        "end": 9.866
+                    },
+                    {
+                        "word": "to",
+                        "start": 9.906,
+                        "end": 9.966
+                    },
+                    {
+                        "word": "visit",
+                        "start": 10.006,
+                        "end": 10.246
+                    },
+                    {
+                        "word": "his",
+                        "start": 10.286,
+                        "end": 10.386
+                    },
+                    {
+                        "word": "mother",
+                        "start": 10.446,
+                        "end": 10.727
+                    },
+                    {
+                        "word": "and",
+                        "start": 10.747,
+                        "end": 11.087
+                    },
+                    {
+                        "word": "he",
+                        "start": 11.127,
+                        "end": 11.167
+                    },
+                    {
+                        "word": "wanted",
+                        "start": 11.228,
+                        "end": 11.448
+                    },
+                    {
+                        "word": "to",
+                        "start": 11.508,
+                        "end": 11.588
+                    },
+                    {
+                        "word": "telephone",
+                        "start": 11.648,
+                        "end": 12.129
+                    },
+                    {
+                        "word": "her",
+                        "start": 12.149,
+                        "end": 12.229
+                    },
+                    {
+                        "word": "to",
+                        "start": 12.329,
+                        "end": 12.429
+                    },
+                    {
+                        "word": "tell",
+                        "start": 12.469,
+                        "end": 12.63
+                    },
+                    {
+                        "word": "her",
+                        "start": 12.67,
+                        "end": 12.73
+                    },
+                    {
+                        "word": "the",
+                        "start": 12.77,
+                        "end": 12.87
+                    },
+                    {
+                        "word": "time",
+                        "start": 12.93,
+                        "end": 13.11
+                    },
+                    {
+                        "word": "of",
+                        "start": 13.17,
+                        "end": 13.21
+                    },
+                    {
+                        "word": "his",
+                        "start": 13.271,
+                        "end": 13.351
+                    },
+                    {
+                        "word": "train.",
+                        "start": 13.431,
+                        "end": 13.731
+                    },
+                    {
+                        "word": "He",
+                        "start": 14.492,
+                        "end": 14.572
+                    },
+                    {
+                        "word": "looked",
+                        "start": 14.633,
+                        "end": 14.833
+                    },
+                    {
+                        "word": "in",
+                        "start": 14.873,
+                        "end": 14.933
+                    },
+                    {
+                        "word": "all",
+                        "start": 14.993,
+                        "end": 15.113
+                    },
+                    {
+                        "word": "his",
+                        "start": 15.153,
+                        "end": 15.233
+                    },
+                    {
+                        "word": "pockets",
+                        "start": 15.294,
+                        "end": 15.714
+                    },
+                    {
+                        "word": "but",
+                        "start": 16.335,
+                        "end": 16.455
+                    },
+                    {
+                        "word": "found",
+                        "start": 16.535,
+                        "end": 16.776
+                    },
+                    {
+                        "word": "that",
+                        "start": 16.796,
+                        "end": 16.896
+                    },
+                    {
+                        "word": "he",
+                        "start": 16.956,
+                        "end": 17.036
+                    },
+                    {
+                        "word": "did",
+                        "start": 17.096,
+                        "end": 17.236
+                    },
+                    {
+                        "word": "not",
+                        "start": 17.296,
+                        "end": 17.497
+                    },
+                    {
+                        "word": "have",
+                        "start": 17.557,
+                        "end": 17.677
+                    },
+                    {
+                        "word": "the",
+                        "start": 17.717,
+                        "end": 17.797
+                    },
+                    {
+                        "word": "coins",
+                        "start": 17.857,
+                        "end": 18.158
+                    },
+                    {
+                        "word": "for",
+                        "start": 18.198,
+                        "end": 18.318
+                    },
+                    {
+                        "word": "the",
+                        "start": 18.338,
+                        "end": 18.438
+                    },
+                    {
+                        "word": "telephone",
+                        "start": 18.478,
+                        "end": 18.959
+                    },
+                    {
+                        "word": "so",
+                        "start": 19.279,
+                        "end": 19.4
+                    },
+                    {
+                        "word": "he",
+                        "start": 19.46,
+                        "end": 19.54
+                    },
+                    {
+                        "word": "went",
+                        "start": 19.58,
+                        "end": 19.74
+                    },
+                    {
+                        "word": "outside",
+                        "start": 19.8,
+                        "end": 20.241
+                    },
+                    {
+                        "word": "and",
+                        "start": 20.281,
+                        "end": 20.501
+                    },
+                    {
+                        "word": "looked",
+                        "start": 20.541,
+                        "end": 20.722
+                    },
+                    {
+                        "word": "around",
+                        "start": 20.782,
+                        "end": 21.022
+                    },
+                    {
+                        "word": "for",
+                        "start": 21.062,
+                        "end": 21.162
+                    },
+                    {
+                        "word": "someone",
+                        "start": 21.222,
+                        "end": 21.483
+                    },
+                    {
+                        "word": "to",
+                        "start": 21.503,
+                        "end": 21.563
+                    },
+                    {
+                        "word": "help",
+                        "start": 21.623,
+                        "end": 21.803
+                    },
+                    {
+                        "word": "him.",
+                        "start": 21.863,
+                        "end": 21.983
+                    }
+                ]
+            },
+            {
+                "text": "At last an old soldier came by, and the young officer stopped him and said, \"Have you got change for ten pence?\"",
+                "start": 23.845,
+                "end": 31.477,
+                "words": [
+                    {
+                        "word": "At.",
+                        "start": 23.845,
+                        "end": 24.706
+                    },
+                    {
+                        "word": "Last.",
+                        "start": 25.127,
+                        "end": 25.527
+                    },
+                    {
+                        "word": "An",
+                        "start": 26.068,
+                        "end": 26.128
+                    },
+                    {
+                        "word": "old",
+                        "start": 26.189,
+                        "end": 26.309
+                    },
+                    {
+                        "word": "soldier",
+                        "start": 26.389,
+                        "end": 26.729
+                    },
+                    {
+                        "word": "came",
+                        "start": 26.79,
+                        "end": 26.97
+                    },
+                    {
+                        "word": "by,",
+                        "start": 27.03,
+                        "end": 27.25
+                    },
+                    {
+                        "word": "and",
+                        "start": 27.29,
+                        "end": 27.611
+                    },
+                    {
+                        "word": "the",
+                        "start": 27.651,
+                        "end": 27.711
+                    },
+                    {
+                        "word": "young",
+                        "start": 27.771,
+                        "end": 27.931
+                    },
+                    {
+                        "word": "officer",
+                        "start": 27.952,
+                        "end": 28.352
+                    },
+                    {
+                        "word": "stopped",
+                        "start": 28.412,
+                        "end": 28.713
+                    },
+                    {
+                        "word": "him",
+                        "start": 28.753,
+                        "end": 28.833
+                    },
+                    {
+                        "word": "and",
+                        "start": 28.873,
+                        "end": 28.953
+                    },
+                    {
+                        "word": "said,",
+                        "start": 29.013,
+                        "end": 29.234
+                    },
+                    {
+                        "word": "Have",
+                        "start": 29.875,
+                        "end": 29.995
+                    },
+                    {
+                        "word": "you",
+                        "start": 30.035,
+                        "end": 30.115
+                    },
+                    {
+                        "word": "got",
+                        "start": 30.175,
+                        "end": 30.316
+                    },
+                    {
+                        "word": "change",
+                        "start": 30.396,
+                        "end": 30.716
+                    },
+                    {
+                        "word": "for",
+                        "start": 30.776,
+                        "end": 30.876
+                    },
+                    {
+                        "word": "ten",
+                        "start": 30.937,
+                        "end": 31.137
+                    },
+                    {
+                        "word": "pence?",
+                        "start": 31.157,
+                        "end": 31.477
+                    }
+                ]
+            },
+            {
+                "text": "\"Wait a moment,\" the old soldier answered, beginning to put his hand in his pocket. \"I'll see whether I can help you.\"",
+                "start": 34.623,
+                "end": 40.653,
+                "words": [
+                    {
+                        "word": "Wait",
+                        "start": 34.623,
+                        "end": 34.803
+                    },
+                    {
+                        "word": "a",
+                        "start": 34.843,
+                        "end": 34.863
+                    },
+                    {
+                        "word": "moment,",
+                        "start": 34.903,
+                        "end": 35.204
+                    },
+                    {
+                        "word": "the",
+                        "start": 35.604,
+                        "end": 35.685
+                    },
+                    {
+                        "word": "old",
+                        "start": 35.765,
+                        "end": 35.885
+                    },
+                    {
+                        "word": "soldier",
+                        "start": 35.945,
+                        "end": 36.286
+                    },
+                    {
+                        "word": "answered,",
+                        "start": 36.406,
+                        "end": 36.726
+                    },
+                    {
+                        "word": "beginning",
+                        "start": 37.227,
+                        "end": 37.568
+                    },
+                    {
+                        "word": "to",
+                        "start": 37.608,
+                        "end": 37.648
+                    },
+                    {
+                        "word": "put",
+                        "start": 37.688,
+                        "end": 37.808
+                    },
+                    {
+                        "word": "his",
+                        "start": 37.848,
+                        "end": 37.928
+                    },
+                    {
+                        "word": "hand",
+                        "start": 37.968,
+                        "end": 38.189
+                    },
+                    {
+                        "word": "in",
+                        "start": 38.249,
+                        "end": 38.309
+                    },
+                    {
+                        "word": "his",
+                        "start": 38.349,
+                        "end": 38.429
+                    },
+                    {
+                        "word": "pocket.",
+                        "start": 38.509,
+                        "end": 38.89
+                    },
+                    {
+                        "word": "I'll",
+                        "start": 39.331,
+                        "end": 39.511
+                    },
+                    {
+                        "word": "see",
+                        "start": 39.551,
+                        "end": 39.691
+                    },
+                    {
+                        "word": "whether",
+                        "start": 39.731,
+                        "end": 39.952
+                    },
+                    {
+                        "word": "I",
+                        "start": 40.012,
+                        "end": 40.052
+                    },
+                    {
+                        "word": "can",
+                        "start": 40.112,
+                        "end": 40.232
+                    },
+                    {
+                        "word": "help",
+                        "start": 40.272,
+                        "end": 40.453
+                    },
+                    {
+                        "word": "you.",
+                        "start": 40.513,
+                        "end": 40.653
+                    }
+                ]
+            },
+            {
+                "text": "\"Don't you know how to speak to an officer?\" the young man said angrily. \"Now let's start again Have you got change for ten pence?\"",
+                "start": 42.516,
+                "end": 49.528,
+                "words": [
+                    {
+                        "word": "Don't",
+                        "start": 42.516,
+                        "end": 42.676
+                    },
+                    {
+                        "word": "you",
+                        "start": 42.717,
+                        "end": 42.797
+                    },
+                    {
+                        "word": "know",
+                        "start": 42.817,
+                        "end": 42.917
+                    },
+                    {
+                        "word": "how",
+                        "start": 42.957,
+                        "end": 43.037
+                    },
+                    {
+                        "word": "to",
+                        "start": 43.077,
+                        "end": 43.117
+                    },
+                    {
+                        "word": "speak",
+                        "start": 43.177,
+                        "end": 43.418
+                    },
+                    {
+                        "word": "to",
+                        "start": 43.458,
+                        "end": 43.538
+                    },
+                    {
+                        "word": "an",
+                        "start": 43.598,
+                        "end": 43.638
+                    },
+                    {
+                        "word": "officer?",
+                        "start": 43.718,
+                        "end": 44.079
+                    },
+                    {
+                        "word": "The",
+                        "start": 44.7,
+                        "end": 44.8
+                    },
+                    {
+                        "word": "young",
+                        "start": 44.84,
+                        "end": 45.0
+                    },
+                    {
+                        "word": "man",
+                        "start": 45.04,
+                        "end": 45.201
+                    },
+                    {
+                        "word": "said",
+                        "start": 45.261,
+                        "end": 45.421
+                    },
+                    {
+                        "word": "angrily.",
+                        "start": 45.501,
+                        "end": 45.842
+                    },
+                    {
+                        "word": "Now",
+                        "start": 46.483,
+                        "end": 46.603
+                    },
+                    {
+                        "word": "let's",
+                        "start": 46.643,
+                        "end": 46.823
+                    },
+                    {
+                        "word": "start",
+                        "start": 46.843,
+                        "end": 47.084
+                    },
+                    {
+                        "word": "again.",
+                        "start": 47.144,
+                        "end": 47.445
+                    },
+                    {
+                        "word": "Have",
+                        "start": 47.665,
+                        "end": 47.765
+                    },
+                    {
+                        "word": "you",
+                        "start": 47.805,
+                        "end": 47.905
+                    },
+                    {
+                        "word": "got",
+                        "start": 47.965,
+                        "end": 48.106
+                    },
+                    {
+                        "word": "change",
+                        "start": 48.166,
+                        "end": 48.446
+                    },
+                    {
+                        "word": "for",
+                        "start": 48.506,
+                        "end": 48.606
+                    },
+                    {
+                        "word": "ten",
+                        "start": 48.647,
+                        "end": 48.867
+                    },
+                    {
+                        "word": "pence?",
+                        "start": 48.887,
+                        "end": 49.528
+                    }
+                ]
+            },
+            {
+                "text": "\"No, sir,\" the old soldier answered quickly.",
+                "start": 52.339,
+                "end": 54.703,
+                "words": [
+                    {
+                        "word": "No,",
+                        "start": 52.339,
+                        "end": 52.5
+                    },
+                    {
+                        "word": "sir.",
+                        "start": 52.56,
+                        "end": 52.8
+                    },
+                    {
+                        "word": "The",
+                        "start": 53.241,
+                        "end": 53.341
+                    },
+                    {
+                        "word": "old",
+                        "start": 53.401,
+                        "end": 53.521
+                    },
+                    {
+                        "word": "soldier",
+                        "start": 53.601,
+                        "end": 53.901
+                    },
+                    {
+                        "word": "answered",
+                        "start": 54.022,
+                        "end": 54.262
+                    },
+                    {
+                        "word": "quickly.",
+                        "start": 54.322,
+                        "end": 54.703
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chapter_1",
+        "title": "Chapter 2",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 60.25,
+            "end": 124.234
+        },
+        "sentences": [
+            {
+                "text": "Mrs. Green has lived near the park of the city for forty years. She's very rich and has got a lot of money. But she never buys something expensive for her family and always does all the housework herself. She sweeps all the rooms every day.",
+                "start": 60.25,
+                "end": 73.747,
+                "words": [
+                    {
+                        "word": "Mrs.",
+                        "start": 60.25,
+                        "end": 60.59
+                    },
+                    {
+                        "word": "Green",
+                        "start": 60.65,
+                        "end": 60.951
+                    },
+                    {
+                        "word": "has",
+                        "start": 60.991,
+                        "end": 61.111
+                    },
+                    {
+                        "word": "lived",
+                        "start": 61.191,
+                        "end": 61.391
+                    },
+                    {
+                        "word": "near",
+                        "start": 61.411,
+                        "end": 61.551
+                    },
+                    {
+                        "word": "the",
+                        "start": 61.591,
+                        "end": 61.652
+                    },
+                    {
+                        "word": "park",
+                        "start": 61.712,
+                        "end": 61.932
+                    },
+                    {
+                        "word": "of",
+                        "start": 61.972,
+                        "end": 62.012
+                    },
+                    {
+                        "word": "the",
+                        "start": 62.052,
+                        "end": 62.132
+                    },
+                    {
+                        "word": "city",
+                        "start": 62.192,
+                        "end": 62.433
+                    },
+                    {
+                        "word": "for",
+                        "start": 62.513,
+                        "end": 62.633
+                    },
+                    {
+                        "word": "40",
+                        "start": 62.653,
+                        "end": 63.013
+                    },
+                    {
+                        "word": "years.",
+                        "start": 63.073,
+                        "end": 63.394
+                    },
+                    {
+                        "word": "She's",
+                        "start": 64.075,
+                        "end": 64.275
+                    },
+                    {
+                        "word": "very",
+                        "start": 64.355,
+                        "end": 64.595
+                    },
+                    {
+                        "word": "rich",
+                        "start": 64.716,
+                        "end": 65.016
+                    },
+                    {
+                        "word": "and",
+                        "start": 65.256,
+                        "end": 65.336
+                    },
+                    {
+                        "word": "has",
+                        "start": 65.376,
+                        "end": 65.456
+                    },
+                    {
+                        "word": "got",
+                        "start": 65.497,
+                        "end": 65.657
+                    },
+                    {
+                        "word": "a",
+                        "start": 65.717,
+                        "end": 65.737
+                    },
+                    {
+                        "word": "lot",
+                        "start": 65.797,
+                        "end": 65.997
+                    },
+                    {
+                        "word": "of",
+                        "start": 66.037,
+                        "end": 66.077
+                    },
+                    {
+                        "word": "money.",
+                        "start": 66.137,
+                        "end": 66.338
+                    },
+                    {
+                        "word": "But",
+                        "start": 66.758,
+                        "end": 66.858
+                    },
+                    {
+                        "word": "she",
+                        "start": 66.918,
+                        "end": 67.039
+                    },
+                    {
+                        "word": "never",
+                        "start": 67.099,
+                        "end": 67.279
+                    },
+                    {
+                        "word": "buys",
+                        "start": 67.339,
+                        "end": 67.539
+                    },
+                    {
+                        "word": "something",
+                        "start": 67.599,
+                        "end": 67.86
+                    },
+                    {
+                        "word": "expensive",
+                        "start": 67.94,
+                        "end": 68.44
+                    },
+                    {
+                        "word": "for",
+                        "start": 68.46,
+                        "end": 68.561
+                    },
+                    {
+                        "word": "her",
+                        "start": 68.601,
+                        "end": 68.681
+                    },
+                    {
+                        "word": "family",
+                        "start": 68.761,
+                        "end": 69.121
+                    },
+                    {
+                        "word": "and",
+                        "start": 69.141,
+                        "end": 69.462
+                    },
+                    {
+                        "word": "always",
+                        "start": 69.522,
+                        "end": 69.782
+                    },
+                    {
+                        "word": "does",
+                        "start": 69.822,
+                        "end": 70.022
+                    },
+                    {
+                        "word": "all",
+                        "start": 70.042,
+                        "end": 70.283
+                    },
+                    {
+                        "word": "the",
+                        "start": 70.323,
+                        "end": 70.403
+                    },
+                    {
+                        "word": "housework",
+                        "start": 70.443,
+                        "end": 70.843
+                    },
+                    {
+                        "word": "herself.",
+                        "start": 70.884,
+                        "end": 71.344
+                    },
+                    {
+                        "word": "She",
+                        "start": 72.045,
+                        "end": 72.185
+                    },
+                    {
+                        "word": "sweeps",
+                        "start": 72.225,
+                        "end": 72.506
+                    },
+                    {
+                        "word": "all",
+                        "start": 72.546,
+                        "end": 72.806
+                    },
+                    {
+                        "word": "the",
+                        "start": 72.846,
+                        "end": 72.926
+                    },
+                    {
+                        "word": "rooms",
+                        "start": 72.986,
+                        "end": 73.227
+                    },
+                    {
+                        "word": "every",
+                        "start": 73.327,
+                        "end": 73.507
+                    },
+                    {
+                        "word": "day.",
+                        "start": 73.547,
+                        "end": 73.747
+                    }
+                ]
+            },
+            {
+                "text": "\"No, no.\" She said, \"My handbag was lost three years ago. I want to know if she found it.\"",
+                "start": 76.991,
+                "end": 83.462,
+                "words": [
+                    {
+                        "word": "No.",
+                        "start": 76.991,
+                        "end": 77.252
+                    },
+                    {
+                        "word": "No.",
+                        "start": 77.813,
+                        "end": 78.053
+                    },
+                    {
+                        "word": "She",
+                        "start": 78.754,
+                        "end": 78.874
+                    },
+                    {
+                        "word": "said.",
+                        "start": 78.934,
+                        "end": 79.735
+                    },
+                    {
+                        "word": "My",
+                        "start": 79.715,
+                        "end": 79.996
+                    },
+                    {
+                        "word": "handbag",
+                        "start": 80.056,
+                        "end": 80.456
+                    },
+                    {
+                        "word": "was",
+                        "start": 80.497,
+                        "end": 80.577
+                    },
+                    {
+                        "word": "lost",
+                        "start": 80.617,
+                        "end": 80.857
+                    },
+                    {
+                        "word": "three",
+                        "start": 80.917,
+                        "end": 81.098
+                    },
+                    {
+                        "word": "years",
+                        "start": 81.118,
+                        "end": 81.338
+                    },
+                    {
+                        "word": "ago.",
+                        "start": 81.398,
+                        "end": 81.619
+                    },
+                    {
+                        "word": "I",
+                        "start": 81.659,
+                        "end": 82.36
+                    },
+                    {
+                        "word": "want",
+                        "start": 82.4,
+                        "end": 82.501
+                    },
+                    {
+                        "word": "to",
+                        "start": 82.541,
+                        "end": 82.581
+                    },
+                    {
+                        "word": "know",
+                        "start": 82.621,
+                        "end": 82.721
+                    },
+                    {
+                        "word": "if",
+                        "start": 82.781,
+                        "end": 82.821
+                    },
+                    {
+                        "word": "she",
+                        "start": 82.881,
+                        "end": 83.022
+                    },
+                    {
+                        "word": "found",
+                        "start": 83.082,
+                        "end": 83.322
+                    },
+                    {
+                        "word": "it.",
+                        "start": 83.362,
+                        "end": 83.462
+                    }
+                ]
+            },
+            {
+                "text": "Last morning, when she got up, she felt terrible. After breakfast she felt even worse. She found some medicine and took it. But it was useless to her and she had to go to a hospital.",
+                "start": 86.168,
+                "end": 95.847,
+                "words": [
+                    {
+                        "word": "Last",
+                        "start": 86.168,
+                        "end": 86.388
+                    },
+                    {
+                        "word": "morning",
+                        "start": 86.468,
+                        "end": 86.709
+                    },
+                    {
+                        "word": "when",
+                        "start": 86.749,
+                        "end": 86.849
+                    },
+                    {
+                        "word": "she",
+                        "start": 86.889,
+                        "end": 86.969
+                    },
+                    {
+                        "word": "got",
+                        "start": 87.029,
+                        "end": 87.19
+                    },
+                    {
+                        "word": "up,",
+                        "start": 87.31,
+                        "end": 87.39
+                    },
+                    {
+                        "word": "she",
+                        "start": 87.651,
+                        "end": 87.751
+                    },
+                    {
+                        "word": "felt",
+                        "start": 87.811,
+                        "end": 87.971
+                    },
+                    {
+                        "word": "terrible.",
+                        "start": 88.031,
+                        "end": 88.452
+                    },
+                    {
+                        "word": "After",
+                        "start": 88.893,
+                        "end": 89.094
+                    },
+                    {
+                        "word": "breakfast,",
+                        "start": 89.154,
+                        "end": 89.575
+                    },
+                    {
+                        "word": "she",
+                        "start": 89.675,
+                        "end": 89.775
+                    },
+                    {
+                        "word": "felt",
+                        "start": 89.835,
+                        "end": 89.995
+                    },
+                    {
+                        "word": "even",
+                        "start": 90.076,
+                        "end": 90.236
+                    },
+                    {
+                        "word": "worse.",
+                        "start": 90.316,
+                        "end": 90.657
+                    },
+                    {
+                        "word": "She",
+                        "start": 91.057,
+                        "end": 91.158
+                    },
+                    {
+                        "word": "found",
+                        "start": 91.218,
+                        "end": 91.378
+                    },
+                    {
+                        "word": "some",
+                        "start": 91.438,
+                        "end": 91.558
+                    },
+                    {
+                        "word": "medicine",
+                        "start": 91.619,
+                        "end": 92.019
+                    },
+                    {
+                        "word": "and",
+                        "start": 92.18,
+                        "end": 92.26
+                    },
+                    {
+                        "word": "took",
+                        "start": 92.32,
+                        "end": 92.52
+                    },
+                    {
+                        "word": "it.",
+                        "start": 92.6,
+                        "end": 92.661
+                    },
+                    {
+                        "word": "But",
+                        "start": 93.342,
+                        "end": 93.442
+                    },
+                    {
+                        "word": "it",
+                        "start": 93.482,
+                        "end": 93.522
+                    },
+                    {
+                        "word": "was",
+                        "start": 93.562,
+                        "end": 93.663
+                    },
+                    {
+                        "word": "useless",
+                        "start": 93.803,
+                        "end": 94.124
+                    },
+                    {
+                        "word": "to",
+                        "start": 94.144,
+                        "end": 94.224
+                    },
+                    {
+                        "word": "her",
+                        "start": 94.284,
+                        "end": 94.444
+                    },
+                    {
+                        "word": "and",
+                        "start": 94.524,
+                        "end": 94.604
+                    },
+                    {
+                        "word": "she",
+                        "start": 94.685,
+                        "end": 94.785
+                    },
+                    {
+                        "word": "had",
+                        "start": 94.825,
+                        "end": 94.925
+                    },
+                    {
+                        "word": "to",
+                        "start": 94.965,
+                        "end": 95.005
+                    },
+                    {
+                        "word": "go",
+                        "start": 95.025,
+                        "end": 95.105
+                    },
+                    {
+                        "word": "to",
+                        "start": 95.125,
+                        "end": 95.186
+                    },
+                    {
+                        "word": "a",
+                        "start": 95.206,
+                        "end": 95.226
+                    },
+                    {
+                        "word": "hospital.",
+                        "start": 95.326,
+                        "end": 95.847
+                    }
+                ]
+            },
+            {
+                "text": "The doctor looked her over and asked her to be in hospital, but she refused and went home on foot. As soon as she got home, the telephone rang. She hurried to answer it. It was the doctor. He told her she had left her purse in the hospital and a nurse had found it.",
+                "start": 98.412,
+                "end": 112.174,
+                "words": [
+                    {
+                        "word": "in.",
+                        "start": 96.829,
+                        "end": 98.432
+                    },
+                    {
+                        "word": "The",
+                        "start": 98.412,
+                        "end": 98.652
+                    },
+                    {
+                        "word": "doctor",
+                        "start": 98.712,
+                        "end": 98.993
+                    },
+                    {
+                        "word": "looked",
+                        "start": 99.053,
+                        "end": 99.233
+                    },
+                    {
+                        "word": "her",
+                        "start": 99.273,
+                        "end": 99.374
+                    },
+                    {
+                        "word": "over",
+                        "start": 99.454,
+                        "end": 99.634
+                    },
+                    {
+                        "word": "and",
+                        "start": 99.714,
+                        "end": 99.774
+                    },
+                    {
+                        "word": "asked",
+                        "start": 99.874,
+                        "end": 100.035
+                    },
+                    {
+                        "word": "her",
+                        "start": 100.055,
+                        "end": 100.155
+                    },
+                    {
+                        "word": "to",
+                        "start": 100.175,
+                        "end": 100.235
+                    },
+                    {
+                        "word": "be",
+                        "start": 100.275,
+                        "end": 100.355
+                    },
+                    {
+                        "word": "in",
+                        "start": 100.415,
+                        "end": 100.455
+                    },
+                    {
+                        "word": "hospital,",
+                        "start": 100.535,
+                        "end": 101.016
+                    },
+                    {
+                        "word": "but",
+                        "start": 101.136,
+                        "end": 101.297
+                    },
+                    {
+                        "word": "she",
+                        "start": 101.377,
+                        "end": 101.477
+                    },
+                    {
+                        "word": "refused",
+                        "start": 101.537,
+                        "end": 102.118
+                    },
+                    {
+                        "word": "and",
+                        "start": 102.218,
+                        "end": 102.298
+                    },
+                    {
+                        "word": "went",
+                        "start": 102.358,
+                        "end": 102.519
+                    },
+                    {
+                        "word": "home",
+                        "start": 102.559,
+                        "end": 102.719
+                    },
+                    {
+                        "word": "on",
+                        "start": 102.799,
+                        "end": 102.859
+                    },
+                    {
+                        "word": "foot.",
+                        "start": 102.939,
+                        "end": 103.22
+                    },
+                    {
+                        "word": "As",
+                        "start": 103.721,
+                        "end": 103.781
+                    },
+                    {
+                        "word": "soon",
+                        "start": 103.821,
+                        "end": 103.981
+                    },
+                    {
+                        "word": "as",
+                        "start": 104.021,
+                        "end": 104.081
+                    },
+                    {
+                        "word": "she",
+                        "start": 104.121,
+                        "end": 104.201
+                    },
+                    {
+                        "word": "got",
+                        "start": 104.262,
+                        "end": 104.422
+                    },
+                    {
+                        "word": "home,",
+                        "start": 104.462,
+                        "end": 104.702
+                    },
+                    {
+                        "word": "the",
+                        "start": 104.762,
+                        "end": 105.023
+                    },
+                    {
+                        "word": "telephone",
+                        "start": 105.063,
+                        "end": 105.524
+                    },
+                    {
+                        "word": "rang.",
+                        "start": 105.584,
+                        "end": 105.784
+                    },
+                    {
+                        "word": "She",
+                        "start": 106.105,
+                        "end": 106.205
+                    },
+                    {
+                        "word": "hurried",
+                        "start": 106.285,
+                        "end": 106.525
+                    },
+                    {
+                        "word": "to",
+                        "start": 106.565,
+                        "end": 106.625
+                    },
+                    {
+                        "word": "answer",
+                        "start": 106.726,
+                        "end": 106.986
+                    },
+                    {
+                        "word": "it.",
+                        "start": 107.046,
+                        "end": 107.126
+                    },
+                    {
+                        "word": "It",
+                        "start": 107.647,
+                        "end": 107.687
+                    },
+                    {
+                        "word": "was",
+                        "start": 107.747,
+                        "end": 107.847
+                    },
+                    {
+                        "word": "the",
+                        "start": 107.867,
+                        "end": 107.968
+                    },
+                    {
+                        "word": "doctor.",
+                        "start": 108.028,
+                        "end": 108.388
+                    },
+                    {
+                        "word": "He",
+                        "start": 108.749,
+                        "end": 108.849
+                    },
+                    {
+                        "word": "told",
+                        "start": 108.909,
+                        "end": 109.069
+                    },
+                    {
+                        "word": "her",
+                        "start": 109.129,
+                        "end": 109.21
+                    },
+                    {
+                        "word": "she",
+                        "start": 109.27,
+                        "end": 109.35
+                    },
+                    {
+                        "word": "had",
+                        "start": 109.39,
+                        "end": 109.47
+                    },
+                    {
+                        "word": "left",
+                        "start": 109.53,
+                        "end": 109.69
+                    },
+                    {
+                        "word": "her",
+                        "start": 109.75,
+                        "end": 109.831
+                    },
+                    {
+                        "word": "purse",
+                        "start": 109.891,
+                        "end": 110.111
+                    },
+                    {
+                        "word": "in",
+                        "start": 110.171,
+                        "end": 110.211
+                    },
+                    {
+                        "word": "the",
+                        "start": 110.251,
+                        "end": 110.311
+                    },
+                    {
+                        "word": "hospital",
+                        "start": 110.351,
+                        "end": 110.852
+                    },
+                    {
+                        "word": "and",
+                        "start": 110.892,
+                        "end": 111.153
+                    },
+                    {
+                        "word": "a",
+                        "start": 111.213,
+                        "end": 111.233
+                    },
+                    {
+                        "word": "nurse",
+                        "start": 111.313,
+                        "end": 111.553
+                    },
+                    {
+                        "word": "had",
+                        "start": 111.573,
+                        "end": 111.674
+                    },
+                    {
+                        "word": "found",
+                        "start": 111.734,
+                        "end": 112.014
+                    },
+                    {
+                        "word": "it.",
+                        "start": 112.094,
+                        "end": 112.174
+                    }
+                ]
+            },
+            {
+                "text": "\"Could you tell me her name, please?\" asked Mrs. Green.",
+                "start": 114.919,
+                "end": 118.224,
+                "words": [
+                    {
+                        "word": "Could",
+                        "start": 114.919,
+                        "end": 115.039
+                    },
+                    {
+                        "word": "you",
+                        "start": 115.079,
+                        "end": 115.159
+                    },
+                    {
+                        "word": "tell",
+                        "start": 115.219,
+                        "end": 115.36
+                    },
+                    {
+                        "word": "me",
+                        "start": 115.4,
+                        "end": 115.48
+                    },
+                    {
+                        "word": "her",
+                        "start": 115.52,
+                        "end": 115.64
+                    },
+                    {
+                        "word": "name",
+                        "start": 115.68,
+                        "end": 115.88
+                    },
+                    {
+                        "word": "please?",
+                        "start": 115.921,
+                        "end": 116.221
+                    },
+                    {
+                        "word": "asked",
+                        "start": 116.642,
+                        "end": 116.802
+                    },
+                    {
+                        "word": "Mrs.",
+                        "start": 116.842,
+                        "end": 117.183
+                    },
+                    {
+                        "word": "Green.",
+                        "start": 117.824,
+                        "end": 118.224
+                    }
+                ]
+            },
+            {
+                "text": "\"Of course, Mrs. Green. Are you going to thank her?\" asked the doctor.",
+                "start": 119.907,
+                "end": 124.234,
+                "words": [
+                    {
+                        "word": "Of",
+                        "start": 119.907,
+                        "end": 119.967
+                    },
+                    {
+                        "word": "course,",
+                        "start": 120.047,
+                        "end": 120.348
+                    },
+                    {
+                        "word": "Mrs.",
+                        "start": 120.668,
+                        "end": 120.989
+                    },
+                    {
+                        "word": "Green.",
+                        "start": 121.049,
+                        "end": 121.409
+                    },
+                    {
+                        "word": "Are",
+                        "start": 121.73,
+                        "end": 121.81
+                    },
+                    {
+                        "word": "you",
+                        "start": 121.85,
+                        "end": 121.93
+                    },
+                    {
+                        "word": "going",
+                        "start": 121.97,
+                        "end": 122.151
+                    },
+                    {
+                        "word": "to",
+                        "start": 122.171,
+                        "end": 122.231
+                    },
+                    {
+                        "word": "thank",
+                        "start": 122.291,
+                        "end": 122.491
+                    },
+                    {
+                        "word": "her?",
+                        "start": 122.531,
+                        "end": 122.651
+                    },
+                    {
+                        "word": "asked",
+                        "start": 122.992,
+                        "end": 123.152
+                    },
+                    {
+                        "word": "the",
+                        "start": 123.172,
+                        "end": 123.252
+                    },
+                    {
+                        "word": "doctor.",
+                        "start": 123.293,
+                        "end": 124.234
+                    },
+                    {
+                        "word": "ID.",
+                        "start": 124.214,
+                        "end": 124.815
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chapter_2",
+        "title": "Chapter 3",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 129.044,
+            "end": 168.283
+        },
+        "sentences": [
+            {
+                "text": "Tod was able to swim, but Sam couldn't. The dog bit the rope and got out of the bag. It tried its best to swim to save Sam. The man was saved, so he was very thankful to the dog. He did not want to kill the dog any more. From then on, he gave the dog as much food as it wanted.",
+                "start": 129.044,
+                "end": 145.598,
+                "words": [
+                    {
+                        "word": "Todd",
+                        "start": 129.044,
+                        "end": 129.284
+                    },
+                    {
+                        "word": "was",
+                        "start": 129.325,
+                        "end": 129.445
+                    },
+                    {
+                        "word": "able",
+                        "start": 129.505,
+                        "end": 129.665
+                    },
+                    {
+                        "word": "to",
+                        "start": 129.705,
+                        "end": 129.765
+                    },
+                    {
+                        "word": "swim,",
+                        "start": 129.846,
+                        "end": 130.146
+                    },
+                    {
+                        "word": "but",
+                        "start": 130.487,
+                        "end": 130.587
+                    },
+                    {
+                        "word": "Sam",
+                        "start": 130.667,
+                        "end": 130.908
+                    },
+                    {
+                        "word": "couldn't.",
+                        "start": 130.988,
+                        "end": 131.289
+                    },
+                    {
+                        "word": "The",
+                        "start": 131.629,
+                        "end": 131.729
+                    },
+                    {
+                        "word": "dog",
+                        "start": 131.77,
+                        "end": 132.01
+                    },
+                    {
+                        "word": "bit",
+                        "start": 132.05,
+                        "end": 132.21
+                    },
+                    {
+                        "word": "the",
+                        "start": 132.231,
+                        "end": 132.331
+                    },
+                    {
+                        "word": "rope",
+                        "start": 132.391,
+                        "end": 132.611
+                    },
+                    {
+                        "word": "and",
+                        "start": 132.752,
+                        "end": 132.832
+                    },
+                    {
+                        "word": "got",
+                        "start": 132.912,
+                        "end": 133.072
+                    },
+                    {
+                        "word": "out",
+                        "start": 133.112,
+                        "end": 133.192
+                    },
+                    {
+                        "word": "of",
+                        "start": 133.233,
+                        "end": 133.273
+                    },
+                    {
+                        "word": "the",
+                        "start": 133.293,
+                        "end": 133.373
+                    },
+                    {
+                        "word": "bag.",
+                        "start": 133.433,
+                        "end": 133.754
+                    },
+                    {
+                        "word": "It",
+                        "start": 134.315,
+                        "end": 134.375
+                    },
+                    {
+                        "word": "tried",
+                        "start": 134.415,
+                        "end": 134.635
+                    },
+                    {
+                        "word": "its",
+                        "start": 134.676,
+                        "end": 134.776
+                    },
+                    {
+                        "word": "best",
+                        "start": 134.836,
+                        "end": 135.056
+                    },
+                    {
+                        "word": "to",
+                        "start": 135.096,
+                        "end": 135.197
+                    },
+                    {
+                        "word": "swim",
+                        "start": 135.257,
+                        "end": 135.517
+                    },
+                    {
+                        "word": "to",
+                        "start": 135.557,
+                        "end": 135.638
+                    },
+                    {
+                        "word": "save",
+                        "start": 135.698,
+                        "end": 135.958
+                    },
+                    {
+                        "word": "Sam.",
+                        "start": 136.018,
+                        "end": 136.319
+                    },
+                    {
+                        "word": "The",
+                        "start": 136.98,
+                        "end": 137.06
+                    },
+                    {
+                        "word": "man",
+                        "start": 137.101,
+                        "end": 137.321
+                    },
+                    {
+                        "word": "was",
+                        "start": 137.381,
+                        "end": 137.521
+                    },
+                    {
+                        "word": "saved,",
+                        "start": 137.602,
+                        "end": 137.982
+                    },
+                    {
+                        "word": "so",
+                        "start": 138.383,
+                        "end": 138.544
+                    },
+                    {
+                        "word": "he",
+                        "start": 138.624,
+                        "end": 138.684
+                    },
+                    {
+                        "word": "was",
+                        "start": 138.724,
+                        "end": 138.844
+                    },
+                    {
+                        "word": "very",
+                        "start": 138.924,
+                        "end": 139.145
+                    },
+                    {
+                        "word": "thankful",
+                        "start": 139.185,
+                        "end": 139.505
+                    },
+                    {
+                        "word": "to",
+                        "start": 139.546,
+                        "end": 139.646
+                    },
+                    {
+                        "word": "the",
+                        "start": 139.706,
+                        "end": 139.766
+                    },
+                    {
+                        "word": "dog.",
+                        "start": 139.806,
+                        "end": 140.127
+                    },
+                    {
+                        "word": "He",
+                        "start": 140.588,
+                        "end": 140.648
+                    },
+                    {
+                        "word": "did",
+                        "start": 140.688,
+                        "end": 140.808
+                    },
+                    {
+                        "word": "not",
+                        "start": 140.848,
+                        "end": 140.989
+                    },
+                    {
+                        "word": "want",
+                        "start": 141.029,
+                        "end": 141.149
+                    },
+                    {
+                        "word": "to",
+                        "start": 141.169,
+                        "end": 141.209
+                    },
+                    {
+                        "word": "kill",
+                        "start": 141.249,
+                        "end": 141.429
+                    },
+                    {
+                        "word": "the",
+                        "start": 141.47,
+                        "end": 141.53
+                    },
+                    {
+                        "word": "dog",
+                        "start": 141.57,
+                        "end": 141.79
+                    },
+                    {
+                        "word": "anymore.",
+                        "start": 141.85,
+                        "end": 142.251
+                    },
+                    {
+                        "word": "From",
+                        "start": 142.672,
+                        "end": 142.812
+                    },
+                    {
+                        "word": "then",
+                        "start": 142.852,
+                        "end": 143.033
+                    },
+                    {
+                        "word": "on,",
+                        "start": 143.173,
+                        "end": 143.273
+                    },
+                    {
+                        "word": "he",
+                        "start": 143.474,
+                        "end": 143.554
+                    },
+                    {
+                        "word": "gave",
+                        "start": 143.614,
+                        "end": 143.774
+                    },
+                    {
+                        "word": "the",
+                        "start": 143.794,
+                        "end": 143.874
+                    },
+                    {
+                        "word": "dog",
+                        "start": 143.915,
+                        "end": 144.115
+                    },
+                    {
+                        "word": "as",
+                        "start": 144.155,
+                        "end": 144.215
+                    },
+                    {
+                        "word": "much",
+                        "start": 144.295,
+                        "end": 144.476
+                    },
+                    {
+                        "word": "food",
+                        "start": 144.536,
+                        "end": 144.736
+                    },
+                    {
+                        "word": "as",
+                        "start": 144.776,
+                        "end": 144.836
+                    },
+                    {
+                        "word": "it",
+                        "start": 144.897,
+                        "end": 144.937
+                    },
+                    {
+                        "word": "wanted.",
+                        "start": 145.017,
+                        "end": 145.598
+                    }
+                ]
+            },
+            {
+                "text": "Sam had a dog. Its name was Tod. It was very helpful, but it ate too much. So Sam didn't like it, and he wanted to kill Tod. He tied Tod in a bag and put it in a small boat. He rowed the boat to the middle of a big river. Just as he threw the poor animal into the river, the boat began to go down. Both Sam and Tod fell into the river.",
+                "start": 147.337,
+                "end": 168.283,
+                "words": [
+                    {
+                        "word": "Sam",
+                        "start": 147.337,
+                        "end": 147.697
+                    },
+                    {
+                        "word": "had",
+                        "start": 147.877,
+                        "end": 148.018
+                    },
+                    {
+                        "word": "a",
+                        "start": 148.078,
+                        "end": 148.098
+                    },
+                    {
+                        "word": "dog.",
+                        "start": 148.138,
+                        "end": 148.478
+                    },
+                    {
+                        "word": "Its",
+                        "start": 148.879,
+                        "end": 148.999
+                    },
+                    {
+                        "word": "name",
+                        "start": 149.059,
+                        "end": 149.219
+                    },
+                    {
+                        "word": "was",
+                        "start": 149.259,
+                        "end": 149.379
+                    },
+                    {
+                        "word": "Todd.",
+                        "start": 149.439,
+                        "end": 149.8
+                    },
+                    {
+                        "word": "It",
+                        "start": 150.481,
+                        "end": 150.521
+                    },
+                    {
+                        "word": "was",
+                        "start": 150.561,
+                        "end": 150.661
+                    },
+                    {
+                        "word": "very",
+                        "start": 150.741,
+                        "end": 151.001
+                    },
+                    {
+                        "word": "helpful,",
+                        "start": 151.061,
+                        "end": 151.462
+                    },
+                    {
+                        "word": "but",
+                        "start": 151.722,
+                        "end": 151.943
+                    },
+                    {
+                        "word": "it",
+                        "start": 152.143,
+                        "end": 152.203
+                    },
+                    {
+                        "word": "ate",
+                        "start": 152.263,
+                        "end": 152.403
+                    },
+                    {
+                        "word": "too",
+                        "start": 152.443,
+                        "end": 152.603
+                    },
+                    {
+                        "word": "much.",
+                        "start": 152.643,
+                        "end": 152.924
+                    },
+                    {
+                        "word": "So",
+                        "start": 153.404,
+                        "end": 153.605
+                    },
+                    {
+                        "word": "Sam",
+                        "start": 153.785,
+                        "end": 154.025
+                    },
+                    {
+                        "word": "didn't",
+                        "start": 154.065,
+                        "end": 154.266
+                    },
+                    {
+                        "word": "like",
+                        "start": 154.306,
+                        "end": 154.506
+                    },
+                    {
+                        "word": "it,",
+                        "start": 154.586,
+                        "end": 154.646
+                    },
+                    {
+                        "word": "and",
+                        "start": 154.886,
+                        "end": 154.946
+                    },
+                    {
+                        "word": "he",
+                        "start": 154.986,
+                        "end": 155.026
+                    },
+                    {
+                        "word": "wanted",
+                        "start": 155.087,
+                        "end": 155.287
+                    },
+                    {
+                        "word": "to",
+                        "start": 155.327,
+                        "end": 155.367
+                    },
+                    {
+                        "word": "kill",
+                        "start": 155.407,
+                        "end": 155.607
+                    },
+                    {
+                        "word": "Todd.",
+                        "start": 155.687,
+                        "end": 156.048
+                    },
+                    {
+                        "word": "He",
+                        "start": 156.468,
+                        "end": 156.588
+                    },
+                    {
+                        "word": "tied",
+                        "start": 156.648,
+                        "end": 156.909
+                    },
+                    {
+                        "word": "Todd",
+                        "start": 156.949,
+                        "end": 157.169
+                    },
+                    {
+                        "word": "in",
+                        "start": 157.209,
+                        "end": 157.269
+                    },
+                    {
+                        "word": "a",
+                        "start": 157.309,
+                        "end": 157.329
+                    },
+                    {
+                        "word": "bag",
+                        "start": 157.389,
+                        "end": 157.69
+                    },
+                    {
+                        "word": "and",
+                        "start": 157.75,
+                        "end": 157.83
+                    },
+                    {
+                        "word": "put",
+                        "start": 157.89,
+                        "end": 158.03
+                    },
+                    {
+                        "word": "it",
+                        "start": 158.09,
+                        "end": 158.13
+                    },
+                    {
+                        "word": "in",
+                        "start": 158.19,
+                        "end": 158.251
+                    },
+                    {
+                        "word": "a",
+                        "start": 158.291,
+                        "end": 158.311
+                    },
+                    {
+                        "word": "small",
+                        "start": 158.391,
+                        "end": 158.651
+                    },
+                    {
+                        "word": "boat.",
+                        "start": 158.691,
+                        "end": 158.971
+                    },
+                    {
+                        "word": "He",
+                        "start": 159.312,
+                        "end": 159.412
+                    },
+                    {
+                        "word": "rode",
+                        "start": 159.472,
+                        "end": 159.692
+                    },
+                    {
+                        "word": "the",
+                        "start": 159.712,
+                        "end": 159.792
+                    },
+                    {
+                        "word": "boat",
+                        "start": 159.833,
+                        "end": 160.033
+                    },
+                    {
+                        "word": "to",
+                        "start": 160.073,
+                        "end": 160.193
+                    },
+                    {
+                        "word": "the",
+                        "start": 160.213,
+                        "end": 160.293
+                    },
+                    {
+                        "word": "middle",
+                        "start": 160.333,
+                        "end": 160.533
+                    },
+                    {
+                        "word": "of",
+                        "start": 160.593,
+                        "end": 160.634
+                    },
+                    {
+                        "word": "a",
+                        "start": 160.694,
+                        "end": 160.734
+                    },
+                    {
+                        "word": "big",
+                        "start": 160.794,
+                        "end": 160.974
+                    },
+                    {
+                        "word": "river.",
+                        "start": 161.014,
+                        "end": 161.334
+                    },
+                    {
+                        "word": "Just",
+                        "start": 161.975,
+                        "end": 162.155
+                    },
+                    {
+                        "word": "as",
+                        "start": 162.216,
+                        "end": 162.276
+                    },
+                    {
+                        "word": "he",
+                        "start": 162.316,
+                        "end": 162.396
+                    },
+                    {
+                        "word": "threw",
+                        "start": 162.456,
+                        "end": 162.636
+                    },
+                    {
+                        "word": "the",
+                        "start": 162.676,
+                        "end": 162.756
+                    },
+                    {
+                        "word": "poor",
+                        "start": 162.776,
+                        "end": 162.976
+                    },
+                    {
+                        "word": "animal",
+                        "start": 163.077,
+                        "end": 163.377
+                    },
+                    {
+                        "word": "into",
+                        "start": 163.457,
+                        "end": 163.597
+                    },
+                    {
+                        "word": "the",
+                        "start": 163.637,
+                        "end": 163.697
+                    },
+                    {
+                        "word": "river,",
+                        "start": 163.777,
+                        "end": 164.018
+                    },
+                    {
+                        "word": "the",
+                        "start": 164.378,
+                        "end": 164.478
+                    },
+                    {
+                        "word": "boat",
+                        "start": 164.518,
+                        "end": 164.719
+                    },
+                    {
+                        "word": "began",
+                        "start": 164.779,
+                        "end": 165.039
+                    },
+                    {
+                        "word": "to",
+                        "start": 165.079,
+                        "end": 165.119
+                    },
+                    {
+                        "word": "go",
+                        "start": 165.159,
+                        "end": 165.299
+                    },
+                    {
+                        "word": "down.",
+                        "start": 165.339,
+                        "end": 165.64
+                    },
+                    {
+                        "word": "Both",
+                        "start": 166.04,
+                        "end": 166.261
+                    },
+                    {
+                        "word": "Sam",
+                        "start": 166.321,
+                        "end": 166.601
+                    },
+                    {
+                        "word": "and",
+                        "start": 166.761,
+                        "end": 166.881
+                    },
+                    {
+                        "word": "Todd",
+                        "start": 166.981,
+                        "end": 167.302
+                    },
+                    {
+                        "word": "fell",
+                        "start": 167.462,
+                        "end": 167.642
+                    },
+                    {
+                        "word": "into",
+                        "start": 167.702,
+                        "end": 167.863
+                    },
+                    {
+                        "word": "the",
+                        "start": 167.903,
+                        "end": 167.983
+                    },
+                    {
+                        "word": "river.",
+                        "start": 168.043,
+                        "end": 168.283
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chapter_3",
+        "title": "Chapter 4",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 173.811,
+            "end": 219.991
+        },
+        "sentences": [
+            {
+                "text": "In England, if you are under the age of eighteen, you're not allowed to drink in a public bar.",
+                "start": 173.811,
+                "end": 177.959,
+                "words": [
+                    {
+                        "word": "In",
+                        "start": 173.811,
+                        "end": 173.871
+                    },
+                    {
+                        "word": "England,",
+                        "start": 173.951,
+                        "end": 174.272
+                    },
+                    {
+                        "word": "if",
+                        "start": 174.492,
+                        "end": 174.552
+                    },
+                    {
+                        "word": "you",
+                        "start": 174.592,
+                        "end": 174.672
+                    },
+                    {
+                        "word": "are",
+                        "start": 174.753,
+                        "end": 174.833
+                    },
+                    {
+                        "word": "under",
+                        "start": 174.873,
+                        "end": 175.033
+                    },
+                    {
+                        "word": "the",
+                        "start": 175.053,
+                        "end": 175.173
+                    },
+                    {
+                        "word": "age",
+                        "start": 175.233,
+                        "end": 175.374
+                    },
+                    {
+                        "word": "of",
+                        "start": 175.414,
+                        "end": 175.454
+                    },
+                    {
+                        "word": "18,",
+                        "start": 175.474,
+                        "end": 175.915
+                    },
+                    {
+                        "word": "you're",
+                        "start": 176.175,
+                        "end": 176.356
+                    },
+                    {
+                        "word": "not",
+                        "start": 176.416,
+                        "end": 176.516
+                    },
+                    {
+                        "word": "allowed",
+                        "start": 176.576,
+                        "end": 176.797
+                    },
+                    {
+                        "word": "to",
+                        "start": 176.837,
+                        "end": 176.897
+                    },
+                    {
+                        "word": "drink",
+                        "start": 176.937,
+                        "end": 177.137
+                    },
+                    {
+                        "word": "in",
+                        "start": 177.197,
+                        "end": 177.237
+                    },
+                    {
+                        "word": "a",
+                        "start": 177.277,
+                        "end": 177.298
+                    },
+                    {
+                        "word": "public",
+                        "start": 177.378,
+                        "end": 177.638
+                    },
+                    {
+                        "word": "bar.",
+                        "start": 177.698,
+                        "end": 177.959
+                    }
+                ]
+            },
+            {
+                "text": "Mr. Thompson used to go to a bar near his house, but he never took his son, Tom, because he was too young. Then when Tom had his eighteenth birthday, Mr. Thompson took him to his usual bar for the first time.",
+                "start": 180.283,
+                "end": 192.848,
+                "words": [
+                    {
+                        "word": "Thompson",
+                        "start": 180.283,
+                        "end": 180.624
+                    },
+                    {
+                        "word": "used",
+                        "start": 180.724,
+                        "end": 180.844
+                    },
+                    {
+                        "word": "to",
+                        "start": 180.865,
+                        "end": 180.925
+                    },
+                    {
+                        "word": "go",
+                        "start": 180.985,
+                        "end": 181.065
+                    },
+                    {
+                        "word": "to",
+                        "start": 181.105,
+                        "end": 181.165
+                    },
+                    {
+                        "word": "a",
+                        "start": 181.205,
+                        "end": 181.265
+                    },
+                    {
+                        "word": "bar",
+                        "start": 181.325,
+                        "end": 181.546
+                    },
+                    {
+                        "word": "near",
+                        "start": 181.586,
+                        "end": 181.726
+                    },
+                    {
+                        "word": "his",
+                        "start": 181.786,
+                        "end": 181.866
+                    },
+                    {
+                        "word": "house,",
+                        "start": 181.907,
+                        "end": 182.247
+                    },
+                    {
+                        "word": "but",
+                        "start": 182.528,
+                        "end": 182.688
+                    },
+                    {
+                        "word": "he",
+                        "start": 182.909,
+                        "end": 182.969
+                    },
+                    {
+                        "word": "never",
+                        "start": 183.029,
+                        "end": 183.189
+                    },
+                    {
+                        "word": "took",
+                        "start": 183.249,
+                        "end": 183.389
+                    },
+                    {
+                        "word": "his",
+                        "start": 183.43,
+                        "end": 183.51
+                    },
+                    {
+                        "word": "son,",
+                        "start": 183.59,
+                        "end": 183.83
+                    },
+                    {
+                        "word": "Tom,",
+                        "start": 183.89,
+                        "end": 184.532
+                    },
+                    {
+                        "word": "because",
+                        "start": 184.812,
+                        "end": 185.033
+                    },
+                    {
+                        "word": "he",
+                        "start": 185.073,
+                        "end": 185.133
+                    },
+                    {
+                        "word": "was",
+                        "start": 185.193,
+                        "end": 185.273
+                    },
+                    {
+                        "word": "too",
+                        "start": 185.333,
+                        "end": 185.474
+                    },
+                    {
+                        "word": "young.",
+                        "start": 185.554,
+                        "end": 185.794
+                    },
+                    {
+                        "word": "Then",
+                        "start": 186.576,
+                        "end": 186.716
+                    },
+                    {
+                        "word": "when",
+                        "start": 186.776,
+                        "end": 186.916
+                    },
+                    {
+                        "word": "Tom",
+                        "start": 186.997,
+                        "end": 187.237
+                    },
+                    {
+                        "word": "had",
+                        "start": 187.277,
+                        "end": 187.397
+                    },
+                    {
+                        "word": "his",
+                        "start": 187.437,
+                        "end": 187.518
+                    },
+                    {
+                        "word": "18th",
+                        "start": 187.538,
+                        "end": 188.099
+                    },
+                    {
+                        "word": "birthday,",
+                        "start": 188.159,
+                        "end": 188.58
+                    },
+                    {
+                        "word": "Mister,",
+                        "start": 188.92,
+                        "end": 189.281
+                    },
+                    {
+                        "word": "Thompson",
+                        "start": 189.922,
+                        "end": 190.303
+                    },
+                    {
+                        "word": "took",
+                        "start": 190.363,
+                        "end": 190.523
+                    },
+                    {
+                        "word": "him",
+                        "start": 190.564,
+                        "end": 190.644
+                    },
+                    {
+                        "word": "to",
+                        "start": 190.684,
+                        "end": 190.764
+                    },
+                    {
+                        "word": "his",
+                        "start": 190.824,
+                        "end": 190.924
+                    },
+                    {
+                        "word": "usual",
+                        "start": 191.024,
+                        "end": 191.305
+                    },
+                    {
+                        "word": "bar",
+                        "start": 191.365,
+                        "end": 191.566
+                    },
+                    {
+                        "word": "for",
+                        "start": 191.626,
+                        "end": 191.706
+                    },
+                    {
+                        "word": "the",
+                        "start": 191.746,
+                        "end": 191.826
+                    },
+                    {
+                        "word": "first",
+                        "start": 191.866,
+                        "end": 192.087
+                    },
+                    {
+                        "word": "time.",
+                        "start": 192.147,
+                        "end": 192.848
+                    }
+                ]
+            },
+            {
+                "text": "\"But, Dad,\" said Tom, \"I can only see one light at the end of the bar.\"",
+                "start": 195.229,
+                "end": 199.313,
+                "words": [
+                    {
+                        "word": "but",
+                        "start": 195.229,
+                        "end": 195.389
+                    },
+                    {
+                        "word": "dad,",
+                        "start": 195.489,
+                        "end": 195.869
+                    },
+                    {
+                        "word": "said",
+                        "start": 196.33,
+                        "end": 196.47
+                    },
+                    {
+                        "word": "Tom.",
+                        "start": 196.55,
+                        "end": 196.83
+                    },
+                    {
+                        "word": "I",
+                        "start": 197.371,
+                        "end": 197.431
+                    },
+                    {
+                        "word": "can",
+                        "start": 197.451,
+                        "end": 197.571
+                    },
+                    {
+                        "word": "only",
+                        "start": 197.611,
+                        "end": 197.771
+                    },
+                    {
+                        "word": "see",
+                        "start": 197.831,
+                        "end": 197.971
+                    },
+                    {
+                        "word": "one",
+                        "start": 198.131,
+                        "end": 198.232
+                    },
+                    {
+                        "word": "light",
+                        "start": 198.312,
+                        "end": 198.512
+                    },
+                    {
+                        "word": "at",
+                        "start": 198.552,
+                        "end": 198.592
+                    },
+                    {
+                        "word": "the",
+                        "start": 198.632,
+                        "end": 198.712
+                    },
+                    {
+                        "word": "end",
+                        "start": 198.752,
+                        "end": 198.832
+                    },
+                    {
+                        "word": "of",
+                        "start": 198.872,
+                        "end": 198.912
+                    },
+                    {
+                        "word": "the",
+                        "start": 198.932,
+                        "end": 199.012
+                    },
+                    {
+                        "word": "bar.",
+                        "start": 199.052,
+                        "end": 199.313
+                    }
+                ]
+            },
+            {
+                "text": "They drank for half an hour, and then Mr. Thompson said to his son, \"Now, Tom, I want to teach you a lesson, You must always be careful not to drink too much. And how do you know when you've had enough? Well, I'll tell you. Do you see those two lights at the end of the bar? When they seem to have become four, you've had enough and should go home.\"",
+                "start": 201.174,
+                "end": 219.991,
+                "words": [
+                    {
+                        "word": "they",
+                        "start": 201.174,
+                        "end": 201.354
+                    },
+                    {
+                        "word": "drank",
+                        "start": 201.394,
+                        "end": 201.635
+                    },
+                    {
+                        "word": "for",
+                        "start": 201.695,
+                        "end": 201.795
+                    },
+                    {
+                        "word": "half",
+                        "start": 201.855,
+                        "end": 202.055
+                    },
+                    {
+                        "word": "an",
+                        "start": 202.095,
+                        "end": 202.135
+                    },
+                    {
+                        "word": "hour",
+                        "start": 202.175,
+                        "end": 202.415
+                    },
+                    {
+                        "word": "and",
+                        "start": 202.435,
+                        "end": 202.716
+                    },
+                    {
+                        "word": "then",
+                        "start": 202.756,
+                        "end": 202.916
+                    },
+                    {
+                        "word": "missed",
+                        "start": 202.956,
+                        "end": 203.156
+                    },
+                    {
+                        "word": "air.",
+                        "start": 203.236,
+                        "end": 203.416
+                    },
+                    {
+                        "word": "Thompson",
+                        "start": 204.157,
+                        "end": 204.537
+                    },
+                    {
+                        "word": "said",
+                        "start": 204.597,
+                        "end": 204.738
+                    },
+                    {
+                        "word": "to",
+                        "start": 204.778,
+                        "end": 204.838
+                    },
+                    {
+                        "word": "his",
+                        "start": 204.898,
+                        "end": 204.978
+                    },
+                    {
+                        "word": "son,",
+                        "start": 205.038,
+                        "end": 205.298
+                    },
+                    {
+                        "word": "now",
+                        "start": 205.358,
+                        "end": 205.839
+                    },
+                    {
+                        "word": "Tom,",
+                        "start": 205.899,
+                        "end": 206.159
+                    },
+                    {
+                        "word": "I",
+                        "start": 206.319,
+                        "end": 206.379
+                    },
+                    {
+                        "word": "want",
+                        "start": 206.419,
+                        "end": 206.539
+                    },
+                    {
+                        "word": "to",
+                        "start": 206.559,
+                        "end": 206.619
+                    },
+                    {
+                        "word": "teach",
+                        "start": 206.639,
+                        "end": 206.819
+                    },
+                    {
+                        "word": "you",
+                        "start": 206.839,
+                        "end": 206.94
+                    },
+                    {
+                        "word": "a",
+                        "start": 207.0,
+                        "end": 207.02
+                    },
+                    {
+                        "word": "lesson.",
+                        "start": 207.08,
+                        "end": 207.44
+                    },
+                    {
+                        "word": "You",
+                        "start": 207.74,
+                        "end": 207.84
+                    },
+                    {
+                        "word": "must",
+                        "start": 207.88,
+                        "end": 208.021
+                    },
+                    {
+                        "word": "always",
+                        "start": 208.201,
+                        "end": 208.461
+                    },
+                    {
+                        "word": "be",
+                        "start": 208.501,
+                        "end": 208.621
+                    },
+                    {
+                        "word": "careful",
+                        "start": 208.661,
+                        "end": 208.981
+                    },
+                    {
+                        "word": "not",
+                        "start": 209.061,
+                        "end": 209.202
+                    },
+                    {
+                        "word": "to",
+                        "start": 209.242,
+                        "end": 209.322
+                    },
+                    {
+                        "word": "drink",
+                        "start": 209.362,
+                        "end": 209.562
+                    },
+                    {
+                        "word": "too",
+                        "start": 209.602,
+                        "end": 209.742
+                    },
+                    {
+                        "word": "much.",
+                        "start": 209.782,
+                        "end": 210.022
+                    },
+                    {
+                        "word": "And",
+                        "start": 210.503,
+                        "end": 210.603
+                    },
+                    {
+                        "word": "how",
+                        "start": 210.663,
+                        "end": 210.783
+                    },
+                    {
+                        "word": "do",
+                        "start": 210.803,
+                        "end": 210.863
+                    },
+                    {
+                        "word": "you",
+                        "start": 210.903,
+                        "end": 210.983
+                    },
+                    {
+                        "word": "know",
+                        "start": 211.023,
+                        "end": 211.183
+                    },
+                    {
+                        "word": "when",
+                        "start": 211.223,
+                        "end": 211.324
+                    },
+                    {
+                        "word": "you've",
+                        "start": 211.344,
+                        "end": 211.484
+                    },
+                    {
+                        "word": "had",
+                        "start": 211.524,
+                        "end": 211.664
+                    },
+                    {
+                        "word": "enough?",
+                        "start": 211.724,
+                        "end": 212.044
+                    },
+                    {
+                        "word": "Well,",
+                        "start": 212.485,
+                        "end": 212.725
+                    },
+                    {
+                        "word": "I'll",
+                        "start": 213.085,
+                        "end": 213.265
+                    },
+                    {
+                        "word": "tell",
+                        "start": 213.305,
+                        "end": 213.486
+                    },
+                    {
+                        "word": "you.",
+                        "start": 213.526,
+                        "end": 213.686
+                    },
+                    {
+                        "word": "Do",
+                        "start": 214.166,
+                        "end": 214.266
+                    },
+                    {
+                        "word": "you",
+                        "start": 214.286,
+                        "end": 214.386
+                    },
+                    {
+                        "word": "see",
+                        "start": 214.446,
+                        "end": 214.567
+                    },
+                    {
+                        "word": "those",
+                        "start": 214.607,
+                        "end": 214.767
+                    },
+                    {
+                        "word": "two",
+                        "start": 214.787,
+                        "end": 214.967
+                    },
+                    {
+                        "word": "lights",
+                        "start": 215.047,
+                        "end": 215.287
+                    },
+                    {
+                        "word": "at",
+                        "start": 215.347,
+                        "end": 215.387
+                    },
+                    {
+                        "word": "the",
+                        "start": 215.427,
+                        "end": 215.527
+                    },
+                    {
+                        "word": "end",
+                        "start": 215.567,
+                        "end": 215.648
+                    },
+                    {
+                        "word": "of",
+                        "start": 215.668,
+                        "end": 215.708
+                    },
+                    {
+                        "word": "the",
+                        "start": 215.748,
+                        "end": 215.828
+                    },
+                    {
+                        "word": "bar?",
+                        "start": 215.848,
+                        "end": 216.088
+                    },
+                    {
+                        "word": "When",
+                        "start": 216.528,
+                        "end": 216.648
+                    },
+                    {
+                        "word": "they",
+                        "start": 216.668,
+                        "end": 216.789
+                    },
+                    {
+                        "word": "seem",
+                        "start": 216.829,
+                        "end": 217.009
+                    },
+                    {
+                        "word": "to",
+                        "start": 217.049,
+                        "end": 217.089
+                    },
+                    {
+                        "word": "have",
+                        "start": 217.129,
+                        "end": 217.209
+                    },
+                    {
+                        "word": "become",
+                        "start": 217.249,
+                        "end": 217.509
+                    },
+                    {
+                        "word": "four,",
+                        "start": 217.629,
+                        "end": 217.91
+                    },
+                    {
+                        "word": "you've",
+                        "start": 218.27,
+                        "end": 218.47
+                    },
+                    {
+                        "word": "had",
+                        "start": 218.51,
+                        "end": 218.61
+                    },
+                    {
+                        "word": "enough",
+                        "start": 218.67,
+                        "end": 218.951
+                    },
+                    {
+                        "word": "and",
+                        "start": 219.171,
+                        "end": 219.271
+                    },
+                    {
+                        "word": "should",
+                        "start": 219.331,
+                        "end": 219.531
+                    },
+                    {
+                        "word": "go",
+                        "start": 219.571,
+                        "end": 219.691
+                    },
+                    {
+                        "word": "home.",
+                        "start": 219.771,
+                        "end": 219.991
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chapter_4",
+        "title": "Chapter 5",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 225.598,
+            "end": 272.835
+        },
+        "sentences": [
+            {
+                "text": "A week before her mother's birthday, she went shopping after a quick and simple lunch. When she had been looking for half an hour, she found a shop that was selling cheap umbrellas, and decided to take a black one. Her mother had lost hers the month before.",
+                "start": 225.598,
+                "end": 238.595,
+                "words": [
+                    {
+                        "word": "A",
+                        "start": 225.598,
+                        "end": 225.638
+                    },
+                    {
+                        "word": "week",
+                        "start": 225.678,
+                        "end": 225.879
+                    },
+                    {
+                        "word": "before",
+                        "start": 225.919,
+                        "end": 226.179
+                    },
+                    {
+                        "word": "her",
+                        "start": 226.239,
+                        "end": 226.299
+                    },
+                    {
+                        "word": "mother's",
+                        "start": 226.359,
+                        "end": 226.64
+                    },
+                    {
+                        "word": "birthday,",
+                        "start": 226.68,
+                        "end": 227.14
+                    },
+                    {
+                        "word": "she",
+                        "start": 227.28,
+                        "end": 227.381
+                    },
+                    {
+                        "word": "went",
+                        "start": 227.441,
+                        "end": 227.581
+                    },
+                    {
+                        "word": "shopping",
+                        "start": 227.621,
+                        "end": 228.041
+                    },
+                    {
+                        "word": "after",
+                        "start": 228.122,
+                        "end": 228.302
+                    },
+                    {
+                        "word": "a",
+                        "start": 228.342,
+                        "end": 228.382
+                    },
+                    {
+                        "word": "quick",
+                        "start": 228.462,
+                        "end": 228.682
+                    },
+                    {
+                        "word": "and",
+                        "start": 228.742,
+                        "end": 228.802
+                    },
+                    {
+                        "word": "simple",
+                        "start": 228.883,
+                        "end": 229.163
+                    },
+                    {
+                        "word": "lunch.",
+                        "start": 229.203,
+                        "end": 229.503
+                    },
+                    {
+                        "word": "When",
+                        "start": 230.244,
+                        "end": 230.385
+                    },
+                    {
+                        "word": "she",
+                        "start": 230.425,
+                        "end": 230.505
+                    },
+                    {
+                        "word": "had",
+                        "start": 230.545,
+                        "end": 230.625
+                    },
+                    {
+                        "word": "been",
+                        "start": 230.645,
+                        "end": 230.765
+                    },
+                    {
+                        "word": "looking",
+                        "start": 230.805,
+                        "end": 231.065
+                    },
+                    {
+                        "word": "for",
+                        "start": 231.105,
+                        "end": 231.206
+                    },
+                    {
+                        "word": "half",
+                        "start": 231.266,
+                        "end": 231.426
+                    },
+                    {
+                        "word": "an",
+                        "start": 231.486,
+                        "end": 231.526
+                    },
+                    {
+                        "word": "hour,",
+                        "start": 231.566,
+                        "end": 231.806
+                    },
+                    {
+                        "word": "she",
+                        "start": 232.047,
+                        "end": 232.147
+                    },
+                    {
+                        "word": "found",
+                        "start": 232.207,
+                        "end": 232.367
+                    },
+                    {
+                        "word": "a",
+                        "start": 232.427,
+                        "end": 232.467
+                    },
+                    {
+                        "word": "shop",
+                        "start": 232.527,
+                        "end": 232.768
+                    },
+                    {
+                        "word": "that",
+                        "start": 232.788,
+                        "end": 232.888
+                    },
+                    {
+                        "word": "was",
+                        "start": 232.928,
+                        "end": 233.028
+                    },
+                    {
+                        "word": "selling",
+                        "start": 233.068,
+                        "end": 233.348
+                    },
+                    {
+                        "word": "cheap",
+                        "start": 233.429,
+                        "end": 233.649
+                    },
+                    {
+                        "word": "umbrellas",
+                        "start": 233.729,
+                        "end": 234.21
+                    },
+                    {
+                        "word": "and",
+                        "start": 234.79,
+                        "end": 234.93
+                    },
+                    {
+                        "word": "decided",
+                        "start": 234.951,
+                        "end": 235.351
+                    },
+                    {
+                        "word": "to",
+                        "start": 235.391,
+                        "end": 235.471
+                    },
+                    {
+                        "word": "take",
+                        "start": 235.531,
+                        "end": 235.692
+                    },
+                    {
+                        "word": "a",
+                        "start": 235.752,
+                        "end": 235.772
+                    },
+                    {
+                        "word": "black",
+                        "start": 235.812,
+                        "end": 236.072
+                    },
+                    {
+                        "word": "one.",
+                        "start": 236.192,
+                        "end": 236.292
+                    },
+                    {
+                        "word": "Her",
+                        "start": 236.693,
+                        "end": 236.793
+                    },
+                    {
+                        "word": "mother",
+                        "start": 236.853,
+                        "end": 237.093
+                    },
+                    {
+                        "word": "had",
+                        "start": 237.153,
+                        "end": 237.254
+                    },
+                    {
+                        "word": "lost",
+                        "start": 237.294,
+                        "end": 237.514
+                    },
+                    {
+                        "word": "hers",
+                        "start": 237.574,
+                        "end": 237.814
+                    },
+                    {
+                        "word": "the",
+                        "start": 237.834,
+                        "end": 237.975
+                    },
+                    {
+                        "word": "month",
+                        "start": 238.015,
+                        "end": 238.195
+                    },
+                    {
+                        "word": "before.",
+                        "start": 238.235,
+                        "end": 238.595
+                    }
+                ]
+            },
+            {
+                "text": "Sally was a student. It was going to be her mother's birthday. She wanted to buy her a present that would be nice and useful but not expensive.",
+                "start": 240.237,
+                "end": 248.248,
+                "words": [
+                    {
+                        "word": "Sally",
+                        "start": 240.237,
+                        "end": 240.578
+                    },
+                    {
+                        "word": "was",
+                        "start": 240.618,
+                        "end": 240.758
+                    },
+                    {
+                        "word": "a",
+                        "start": 240.818,
+                        "end": 240.838
+                    },
+                    {
+                        "word": "student.",
+                        "start": 240.898,
+                        "end": 241.299
+                    },
+                    {
+                        "word": "It",
+                        "start": 241.739,
+                        "end": 241.8
+                    },
+                    {
+                        "word": "was",
+                        "start": 241.84,
+                        "end": 241.94
+                    },
+                    {
+                        "word": "going",
+                        "start": 241.98,
+                        "end": 242.2
+                    },
+                    {
+                        "word": "to",
+                        "start": 242.22,
+                        "end": 242.28
+                    },
+                    {
+                        "word": "be",
+                        "start": 242.3,
+                        "end": 242.38
+                    },
+                    {
+                        "word": "her",
+                        "start": 242.42,
+                        "end": 242.5
+                    },
+                    {
+                        "word": "mother's",
+                        "start": 242.541,
+                        "end": 242.801
+                    },
+                    {
+                        "word": "birthday.",
+                        "start": 242.841,
+                        "end": 243.302
+                    },
+                    {
+                        "word": "She",
+                        "start": 244.022,
+                        "end": 244.123
+                    },
+                    {
+                        "word": "wanted",
+                        "start": 244.183,
+                        "end": 244.383
+                    },
+                    {
+                        "word": "to",
+                        "start": 244.423,
+                        "end": 244.463
+                    },
+                    {
+                        "word": "buy",
+                        "start": 244.523,
+                        "end": 244.683
+                    },
+                    {
+                        "word": "her",
+                        "start": 244.723,
+                        "end": 244.803
+                    },
+                    {
+                        "word": "a",
+                        "start": 244.844,
+                        "end": 244.884
+                    },
+                    {
+                        "word": "present",
+                        "start": 244.944,
+                        "end": 245.284
+                    },
+                    {
+                        "word": "that",
+                        "start": 245.304,
+                        "end": 245.424
+                    },
+                    {
+                        "word": "would",
+                        "start": 245.444,
+                        "end": 245.564
+                    },
+                    {
+                        "word": "be",
+                        "start": 245.605,
+                        "end": 245.665
+                    },
+                    {
+                        "word": "nice",
+                        "start": 245.725,
+                        "end": 246.005
+                    },
+                    {
+                        "word": "and",
+                        "start": 246.065,
+                        "end": 246.125
+                    },
+                    {
+                        "word": "useful",
+                        "start": 246.265,
+                        "end": 246.586
+                    },
+                    {
+                        "word": "but",
+                        "start": 246.706,
+                        "end": 246.866
+                    },
+                    {
+                        "word": "not",
+                        "start": 247.086,
+                        "end": 247.267
+                    },
+                    {
+                        "word": "expensive.",
+                        "start": 247.327,
+                        "end": 248.248
+                    }
+                ]
+            },
+            {
+                "text": "On her way home in the train that evening she felt hungry because she had such a small lunch that she went along to the buffet car for a sandwich and a cup of coffee.",
+                "start": 250.915,
+                "end": 259.551,
+                "words": [
+                    {
+                        "word": "On",
+                        "start": 250.915,
+                        "end": 250.976
+                    },
+                    {
+                        "word": "her",
+                        "start": 250.996,
+                        "end": 251.096
+                    },
+                    {
+                        "word": "way",
+                        "start": 251.156,
+                        "end": 251.276
+                    },
+                    {
+                        "word": "home",
+                        "start": 251.336,
+                        "end": 251.497
+                    },
+                    {
+                        "word": "in",
+                        "start": 251.557,
+                        "end": 251.597
+                    },
+                    {
+                        "word": "the",
+                        "start": 251.637,
+                        "end": 251.697
+                    },
+                    {
+                        "word": "train",
+                        "start": 251.757,
+                        "end": 251.957
+                    },
+                    {
+                        "word": "that",
+                        "start": 251.997,
+                        "end": 252.118
+                    },
+                    {
+                        "word": "evening,",
+                        "start": 252.218,
+                        "end": 252.498
+                    },
+                    {
+                        "word": "she",
+                        "start": 252.739,
+                        "end": 252.839
+                    },
+                    {
+                        "word": "felt",
+                        "start": 252.899,
+                        "end": 253.079
+                    },
+                    {
+                        "word": "hungry",
+                        "start": 253.139,
+                        "end": 253.44
+                    },
+                    {
+                        "word": "because",
+                        "start": 253.52,
+                        "end": 253.781
+                    },
+                    {
+                        "word": "she",
+                        "start": 253.841,
+                        "end": 253.941
+                    },
+                    {
+                        "word": "had",
+                        "start": 254.001,
+                        "end": 254.121
+                    },
+                    {
+                        "word": "such",
+                        "start": 254.181,
+                        "end": 254.342
+                    },
+                    {
+                        "word": "a",
+                        "start": 254.382,
+                        "end": 254.422
+                    },
+                    {
+                        "word": "small",
+                        "start": 254.442,
+                        "end": 254.782
+                    },
+                    {
+                        "word": "lunch",
+                        "start": 254.843,
+                        "end": 255.123
+                    },
+                    {
+                        "word": "that",
+                        "start": 255.203,
+                        "end": 255.323
+                    },
+                    {
+                        "word": "she",
+                        "start": 255.364,
+                        "end": 255.464
+                    },
+                    {
+                        "word": "went",
+                        "start": 255.524,
+                        "end": 255.664
+                    },
+                    {
+                        "word": "along",
+                        "start": 255.724,
+                        "end": 255.965
+                    },
+                    {
+                        "word": "to",
+                        "start": 256.005,
+                        "end": 256.085
+                    },
+                    {
+                        "word": "the",
+                        "start": 256.105,
+                        "end": 256.165
+                    },
+                    {
+                        "word": "buffet",
+                        "start": 256.225,
+                        "end": 256.566
+                    },
+                    {
+                        "word": "car",
+                        "start": 256.626,
+                        "end": 256.846
+                    },
+                    {
+                        "word": "for",
+                        "start": 256.906,
+                        "end": 257.047
+                    },
+                    {
+                        "word": "a",
+                        "start": 257.087,
+                        "end": 257.147
+                    },
+                    {
+                        "word": "sandwich",
+                        "start": 257.848,
+                        "end": 258.309
+                    },
+                    {
+                        "word": "and",
+                        "start": 258.589,
+                        "end": 258.669
+                    },
+                    {
+                        "word": "a",
+                        "start": 258.71,
+                        "end": 258.75
+                    },
+                    {
+                        "word": "cup",
+                        "start": 258.81,
+                        "end": 258.99
+                    },
+                    {
+                        "word": "of",
+                        "start": 259.05,
+                        "end": 259.09
+                    },
+                    {
+                        "word": "coffee.",
+                        "start": 259.17,
+                        "end": 259.551
+                    }
+                ]
+            },
+            {
+                "text": "She thought, \"You could carry that when you are wearing clothes of any color.\" So she decided to buy a lovely black umbrella and took it back to the school with her until her classes had finished.",
+                "start": 261.875,
+                "end": 272.835,
+                "words": [
+                    {
+                        "word": "she",
+                        "start": 261.875,
+                        "end": 261.995
+                    },
+                    {
+                        "word": "thought,",
+                        "start": 262.076,
+                        "end": 262.396
+                    },
+                    {
+                        "word": "you",
+                        "start": 262.757,
+                        "end": 262.897
+                    },
+                    {
+                        "word": "could",
+                        "start": 262.937,
+                        "end": 263.057
+                    },
+                    {
+                        "word": "carry",
+                        "start": 263.118,
+                        "end": 263.378
+                    },
+                    {
+                        "word": "that",
+                        "start": 263.438,
+                        "end": 263.598
+                    },
+                    {
+                        "word": "when",
+                        "start": 263.679,
+                        "end": 263.799
+                    },
+                    {
+                        "word": "you",
+                        "start": 263.819,
+                        "end": 263.899
+                    },
+                    {
+                        "word": "were",
+                        "start": 263.939,
+                        "end": 264.059
+                    },
+                    {
+                        "word": "wearing",
+                        "start": 264.099,
+                        "end": 264.34
+                    },
+                    {
+                        "word": "clothes",
+                        "start": 264.4,
+                        "end": 264.72
+                    },
+                    {
+                        "word": "of",
+                        "start": 264.781,
+                        "end": 264.821
+                    },
+                    {
+                        "word": "any",
+                        "start": 264.861,
+                        "end": 265.241
+                    },
+                    {
+                        "word": "color.",
+                        "start": 265.321,
+                        "end": 265.622
+                    },
+                    {
+                        "word": "So",
+                        "start": 266.323,
+                        "end": 266.444
+                    },
+                    {
+                        "word": "she",
+                        "start": 266.504,
+                        "end": 266.604
+                    },
+                    {
+                        "word": "decided",
+                        "start": 266.664,
+                        "end": 267.065
+                    },
+                    {
+                        "word": "to",
+                        "start": 267.105,
+                        "end": 267.165
+                    },
+                    {
+                        "word": "buy",
+                        "start": 267.225,
+                        "end": 267.405
+                    },
+                    {
+                        "word": "a",
+                        "start": 267.465,
+                        "end": 267.485
+                    },
+                    {
+                        "word": "lovely",
+                        "start": 267.566,
+                        "end": 267.886
+                    },
+                    {
+                        "word": "black",
+                        "start": 267.966,
+                        "end": 268.247
+                    },
+                    {
+                        "word": "umbrella",
+                        "start": 268.347,
+                        "end": 268.748
+                    },
+                    {
+                        "word": "and",
+                        "start": 269.088,
+                        "end": 269.208
+                    },
+                    {
+                        "word": "took",
+                        "start": 269.309,
+                        "end": 269.469
+                    },
+                    {
+                        "word": "it",
+                        "start": 269.529,
+                        "end": 269.569
+                    },
+                    {
+                        "word": "back",
+                        "start": 269.629,
+                        "end": 269.77
+                    },
+                    {
+                        "word": "to",
+                        "start": 269.83,
+                        "end": 269.91
+                    },
+                    {
+                        "word": "the",
+                        "start": 269.95,
+                        "end": 270.03
+                    },
+                    {
+                        "word": "school",
+                        "start": 270.09,
+                        "end": 270.331
+                    },
+                    {
+                        "word": "with",
+                        "start": 270.351,
+                        "end": 270.471
+                    },
+                    {
+                        "word": "her",
+                        "start": 270.511,
+                        "end": 270.631
+                    },
+                    {
+                        "word": "until",
+                        "start": 270.671,
+                        "end": 271.092
+                    },
+                    {
+                        "word": "her",
+                        "start": 271.152,
+                        "end": 271.252
+                    },
+                    {
+                        "word": "classes",
+                        "start": 271.312,
+                        "end": 271.713
+                    },
+                    {
+                        "word": "had",
+                        "start": 271.753,
+                        "end": 271.853
+                    },
+                    {
+                        "word": "finished.",
+                        "start": 271.913,
+                        "end": 272.835
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "chapter_5",
+        "title": "Chapter 6",
+        "audio_source": "eazy.mp3",
+        "full_audio_range": {
+            "start": 278.173,
+            "end": 320.794
+        },
+        "sentences": [
+            {
+                "text": "Steve, our monitor, is my best friend We go skating, play football, talk about sports, and go to a concert. When I broke my leg, he always came over to play games; in school, he carried my schoolbag for me and got my lunch for me. I know I can always count on him, and he also knows that he can count on me.",
+                "start": 278.173,
+                "end": 296.275,
+                "words": [
+                    {
+                        "word": "Steve,",
+                        "start": 278.173,
+                        "end": 278.574
+                    },
+                    {
+                        "word": "our",
+                        "start": 278.794,
+                        "end": 278.894
+                    },
+                    {
+                        "word": "monitor,",
+                        "start": 278.934,
+                        "end": 279.335
+                    },
+                    {
+                        "word": "is",
+                        "start": 279.495,
+                        "end": 279.555
+                    },
+                    {
+                        "word": "my",
+                        "start": 279.615,
+                        "end": 279.735
+                    },
+                    {
+                        "word": "best",
+                        "start": 279.795,
+                        "end": 280.015
+                    },
+                    {
+                        "word": "friend.",
+                        "start": 280.076,
+                        "end": 280.356
+                    },
+                    {
+                        "word": "We",
+                        "start": 280.776,
+                        "end": 280.877
+                    },
+                    {
+                        "word": "go",
+                        "start": 280.917,
+                        "end": 281.057
+                    },
+                    {
+                        "word": "skating,",
+                        "start": 281.097,
+                        "end": 281.557
+                    },
+                    {
+                        "word": "play",
+                        "start": 281.738,
+                        "end": 281.918
+                    },
+                    {
+                        "word": "football,",
+                        "start": 281.978,
+                        "end": 282.438
+                    },
+                    {
+                        "word": "talk",
+                        "start": 282.639,
+                        "end": 282.819
+                    },
+                    {
+                        "word": "about",
+                        "start": 282.859,
+                        "end": 283.039
+                    },
+                    {
+                        "word": "sports,",
+                        "start": 283.099,
+                        "end": 283.52
+                    },
+                    {
+                        "word": "and",
+                        "start": 283.74,
+                        "end": 283.84
+                    },
+                    {
+                        "word": "go",
+                        "start": 283.9,
+                        "end": 284.0
+                    },
+                    {
+                        "word": "to",
+                        "start": 284.04,
+                        "end": 284.1
+                    },
+                    {
+                        "word": "a",
+                        "start": 284.14,
+                        "end": 284.201
+                    },
+                    {
+                        "word": "concert.",
+                        "start": 284.241,
+                        "end": 284.741
+                    },
+                    {
+                        "word": "When",
+                        "start": 285.462,
+                        "end": 285.582
+                    },
+                    {
+                        "word": "I",
+                        "start": 285.642,
+                        "end": 285.682
+                    },
+                    {
+                        "word": "broke",
+                        "start": 285.722,
+                        "end": 285.923
+                    },
+                    {
+                        "word": "my",
+                        "start": 285.963,
+                        "end": 286.083
+                    },
+                    {
+                        "word": "leg,",
+                        "start": 286.143,
+                        "end": 286.423
+                    },
+                    {
+                        "word": "he",
+                        "start": 286.483,
+                        "end": 286.563
+                    },
+                    {
+                        "word": "always",
+                        "start": 286.663,
+                        "end": 286.884
+                    },
+                    {
+                        "word": "came",
+                        "start": 286.964,
+                        "end": 287.124
+                    },
+                    {
+                        "word": "over",
+                        "start": 287.184,
+                        "end": 287.324
+                    },
+                    {
+                        "word": "to",
+                        "start": 287.364,
+                        "end": 287.424
+                    },
+                    {
+                        "word": "play",
+                        "start": 287.484,
+                        "end": 287.665
+                    },
+                    {
+                        "word": "games.",
+                        "start": 287.705,
+                        "end": 288.065
+                    },
+                    {
+                        "word": "In",
+                        "start": 288.606,
+                        "end": 288.706
+                    },
+                    {
+                        "word": "school,",
+                        "start": 288.766,
+                        "end": 289.086
+                    },
+                    {
+                        "word": "he",
+                        "start": 289.267,
+                        "end": 289.347
+                    },
+                    {
+                        "word": "carried",
+                        "start": 289.407,
+                        "end": 289.667
+                    },
+                    {
+                        "word": "my",
+                        "start": 289.707,
+                        "end": 289.807
+                    },
+                    {
+                        "word": "school",
+                        "start": 289.867,
+                        "end": 290.148
+                    },
+                    {
+                        "word": "bag",
+                        "start": 290.168,
+                        "end": 290.368
+                    },
+                    {
+                        "word": "for",
+                        "start": 290.428,
+                        "end": 290.568
+                    },
+                    {
+                        "word": "me",
+                        "start": 290.608,
+                        "end": 290.728
+                    },
+                    {
+                        "word": "and",
+                        "start": 290.949,
+                        "end": 291.029
+                    },
+                    {
+                        "word": "got",
+                        "start": 291.069,
+                        "end": 291.189
+                    },
+                    {
+                        "word": "my",
+                        "start": 291.229,
+                        "end": 291.329
+                    },
+                    {
+                        "word": "lunch",
+                        "start": 291.389,
+                        "end": 291.589
+                    },
+                    {
+                        "word": "for",
+                        "start": 291.649,
+                        "end": 291.79
+                    },
+                    {
+                        "word": "me.",
+                        "start": 291.85,
+                        "end": 291.97
+                    },
+                    {
+                        "word": "I",
+                        "start": 292.35,
+                        "end": 292.39
+                    },
+                    {
+                        "word": "know",
+                        "start": 292.45,
+                        "end": 292.611
+                    },
+                    {
+                        "word": "I",
+                        "start": 292.691,
+                        "end": 292.711
+                    },
+                    {
+                        "word": "can",
+                        "start": 292.771,
+                        "end": 292.891
+                    },
+                    {
+                        "word": "always",
+                        "start": 292.931,
+                        "end": 293.131
+                    },
+                    {
+                        "word": "count",
+                        "start": 293.191,
+                        "end": 293.412
+                    },
+                    {
+                        "word": "on",
+                        "start": 293.492,
+                        "end": 293.532
+                    },
+                    {
+                        "word": "him,",
+                        "start": 293.592,
+                        "end": 293.772
+                    },
+                    {
+                        "word": "and",
+                        "start": 294.112,
+                        "end": 294.193
+                    },
+                    {
+                        "word": "he",
+                        "start": 294.213,
+                        "end": 294.273
+                    },
+                    {
+                        "word": "also",
+                        "start": 294.353,
+                        "end": 294.613
+                    },
+                    {
+                        "word": "knows",
+                        "start": 294.673,
+                        "end": 294.873
+                    },
+                    {
+                        "word": "that",
+                        "start": 294.933,
+                        "end": 295.034
+                    },
+                    {
+                        "word": "he",
+                        "start": 295.094,
+                        "end": 295.154
+                    },
+                    {
+                        "word": "can",
+                        "start": 295.194,
+                        "end": 295.334
+                    },
+                    {
+                        "word": "count",
+                        "start": 295.354,
+                        "end": 295.574
+                    },
+                    {
+                        "word": "on",
+                        "start": 295.634,
+                        "end": 295.694
+                    },
+                    {
+                        "word": "me.",
+                        "start": 295.774,
+                        "end": 296.275
+                    }
+                ]
+            },
+            {
+                "text": "Friends are different things to different people. To my little sister, a friend is someone who likes to swim and ride bikes. My mom's idea of a friend is someone like Mrs. Smith who walks and talks with her every morning. My dad's friends are neighbors who help him with the work like building shelves and planting trees.",
+                "start": 297.736,
+                "end": 313.836,
+                "words": [
+                    {
+                        "word": "friends",
+                        "start": 297.736,
+                        "end": 297.956
+                    },
+                    {
+                        "word": "are",
+                        "start": 298.036,
+                        "end": 298.117
+                    },
+                    {
+                        "word": "different",
+                        "start": 298.197,
+                        "end": 298.498
+                    },
+                    {
+                        "word": "things",
+                        "start": 298.558,
+                        "end": 298.818
+                    },
+                    {
+                        "word": "to",
+                        "start": 298.899,
+                        "end": 298.999
+                    },
+                    {
+                        "word": "different",
+                        "start": 299.079,
+                        "end": 299.38
+                    },
+                    {
+                        "word": "people.",
+                        "start": 299.42,
+                        "end": 299.761
+                    },
+                    {
+                        "word": "To",
+                        "start": 300.402,
+                        "end": 300.503
+                    },
+                    {
+                        "word": "my",
+                        "start": 300.543,
+                        "end": 300.643
+                    },
+                    {
+                        "word": "little",
+                        "start": 300.703,
+                        "end": 300.884
+                    },
+                    {
+                        "word": "sister,",
+                        "start": 300.944,
+                        "end": 301.265
+                    },
+                    {
+                        "word": "a",
+                        "start": 301.525,
+                        "end": 301.565
+                    },
+                    {
+                        "word": "friend",
+                        "start": 301.646,
+                        "end": 301.846
+                    },
+                    {
+                        "word": "is",
+                        "start": 301.906,
+                        "end": 301.966
+                    },
+                    {
+                        "word": "someone",
+                        "start": 302.006,
+                        "end": 302.247
+                    },
+                    {
+                        "word": "who",
+                        "start": 302.267,
+                        "end": 302.367
+                    },
+                    {
+                        "word": "likes",
+                        "start": 302.407,
+                        "end": 302.588
+                    },
+                    {
+                        "word": "to",
+                        "start": 302.648,
+                        "end": 302.728
+                    },
+                    {
+                        "word": "swim",
+                        "start": 302.788,
+                        "end": 303.089
+                    },
+                    {
+                        "word": "and",
+                        "start": 303.129,
+                        "end": 303.21
+                    },
+                    {
+                        "word": "ride",
+                        "start": 303.27,
+                        "end": 303.47
+                    },
+                    {
+                        "word": "bikes.",
+                        "start": 303.53,
+                        "end": 303.891
+                    },
+                    {
+                        "word": "My",
+                        "start": 304.393,
+                        "end": 304.513
+                    },
+                    {
+                        "word": "mom's",
+                        "start": 304.553,
+                        "end": 304.834
+                    },
+                    {
+                        "word": "idea",
+                        "start": 304.914,
+                        "end": 305.134
+                    },
+                    {
+                        "word": "of",
+                        "start": 305.174,
+                        "end": 305.215
+                    },
+                    {
+                        "word": "a",
+                        "start": 305.275,
+                        "end": 305.295
+                    },
+                    {
+                        "word": "friend",
+                        "start": 305.355,
+                        "end": 305.596
+                    },
+                    {
+                        "word": "is",
+                        "start": 305.676,
+                        "end": 305.736
+                    },
+                    {
+                        "word": "someone",
+                        "start": 305.776,
+                        "end": 306.077
+                    },
+                    {
+                        "word": "like",
+                        "start": 306.097,
+                        "end": 306.257
+                    },
+                    {
+                        "word": "Mrs.",
+                        "start": 306.317,
+                        "end": 306.598
+                    },
+                    {
+                        "word": "Smith",
+                        "start": 306.658,
+                        "end": 306.959
+                    },
+                    {
+                        "word": "who",
+                        "start": 307.079,
+                        "end": 307.2
+                    },
+                    {
+                        "word": "walks",
+                        "start": 307.26,
+                        "end": 307.561
+                    },
+                    {
+                        "word": "and",
+                        "start": 307.621,
+                        "end": 307.701
+                    },
+                    {
+                        "word": "talks",
+                        "start": 307.741,
+                        "end": 307.982
+                    },
+                    {
+                        "word": "with",
+                        "start": 308.022,
+                        "end": 308.142
+                    },
+                    {
+                        "word": "her",
+                        "start": 308.162,
+                        "end": 308.242
+                    },
+                    {
+                        "word": "every",
+                        "start": 308.302,
+                        "end": 308.463
+                    },
+                    {
+                        "word": "morning.",
+                        "start": 308.523,
+                        "end": 308.844
+                    },
+                    {
+                        "word": "My",
+                        "start": 309.245,
+                        "end": 309.365
+                    },
+                    {
+                        "word": "dad's",
+                        "start": 309.405,
+                        "end": 309.666
+                    },
+                    {
+                        "word": "friends",
+                        "start": 309.726,
+                        "end": 309.987
+                    },
+                    {
+                        "word": "are",
+                        "start": 310.047,
+                        "end": 310.127
+                    },
+                    {
+                        "word": "neighbors",
+                        "start": 310.167,
+                        "end": 310.508
+                    },
+                    {
+                        "word": "who",
+                        "start": 310.628,
+                        "end": 310.749
+                    },
+                    {
+                        "word": "help",
+                        "start": 310.809,
+                        "end": 310.969
+                    },
+                    {
+                        "word": "him",
+                        "start": 310.989,
+                        "end": 311.089
+                    },
+                    {
+                        "word": "with",
+                        "start": 311.11,
+                        "end": 311.23
+                    },
+                    {
+                        "word": "the",
+                        "start": 311.25,
+                        "end": 311.33
+                    },
+                    {
+                        "word": "work",
+                        "start": 311.41,
+                        "end": 311.651
+                    },
+                    {
+                        "word": "like",
+                        "start": 311.851,
+                        "end": 312.012
+                    },
+                    {
+                        "word": "building",
+                        "start": 312.072,
+                        "end": 312.373
+                    },
+                    {
+                        "word": "shelves",
+                        "start": 312.433,
+                        "end": 312.834
+                    },
+                    {
+                        "word": "and",
+                        "start": 312.914,
+                        "end": 312.994
+                    },
+                    {
+                        "word": "planting",
+                        "start": 313.095,
+                        "end": 313.435
+                    },
+                    {
+                        "word": "trees.",
+                        "start": 313.496,
+                        "end": 313.836
+                    }
+                ]
+            },
+            {
+                "text": "Some friends may be in your life for a while. Others will be there for a long time, maybe even forever.",
+                "start": 314.659,
+                "end": 320.794,
+                "words": [
+                    {
+                        "word": "Some",
+                        "start": 314.659,
+                        "end": 314.879
+                    },
+                    {
+                        "word": "friends",
+                        "start": 314.959,
+                        "end": 315.26
+                    },
+                    {
+                        "word": "may",
+                        "start": 315.34,
+                        "end": 315.501
+                    },
+                    {
+                        "word": "be",
+                        "start": 315.541,
+                        "end": 315.661
+                    },
+                    {
+                        "word": "in",
+                        "start": 315.701,
+                        "end": 315.741
+                    },
+                    {
+                        "word": "your",
+                        "start": 315.801,
+                        "end": 315.942
+                    },
+                    {
+                        "word": "life",
+                        "start": 315.982,
+                        "end": 316.182
+                    },
+                    {
+                        "word": "for",
+                        "start": 316.222,
+                        "end": 316.323
+                    },
+                    {
+                        "word": "a",
+                        "start": 316.383,
+                        "end": 316.403
+                    },
+                    {
+                        "word": "while.",
+                        "start": 316.463,
+                        "end": 316.764
+                    },
+                    {
+                        "word": "Others",
+                        "start": 317.546,
+                        "end": 317.766
+                    },
+                    {
+                        "word": "will",
+                        "start": 317.806,
+                        "end": 317.967
+                    },
+                    {
+                        "word": "be",
+                        "start": 317.987,
+                        "end": 318.067
+                    },
+                    {
+                        "word": "there",
+                        "start": 318.107,
+                        "end": 318.268
+                    },
+                    {
+                        "word": "for",
+                        "start": 318.308,
+                        "end": 318.448
+                    },
+                    {
+                        "word": "a",
+                        "start": 318.508,
+                        "end": 318.528
+                    },
+                    {
+                        "word": "long",
+                        "start": 318.588,
+                        "end": 318.829
+                    },
+                    {
+                        "word": "time,",
+                        "start": 318.909,
+                        "end": 319.21
+                    },
+                    {
+                        "word": "maybe",
+                        "start": 319.591,
+                        "end": 319.832
+                    },
+                    {
+                        "word": "even",
+                        "start": 319.892,
+                        "end": 320.052
+                    },
+                    {
+                        "word": "forever.",
+                        "start": 320.132,
+                        "end": 320.794
+                    }
+                ]
+            }
+        ]
+    }
+]

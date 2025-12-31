@@ -1,11 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { CONVERSATION_DATA } from '../constants';
-import { Lock, Play, CheckCircle2, BarChart3, Headphones } from 'lucide-react';
+import { Lock, Play, CheckCircle2, BarChart3, Headphones, Sparkles, ArrowLeft } from 'lucide-react';
 import { ProgressMap } from '../types';
 import { checkAndUpdateAchievements } from '../utils/achievements';
 import AchievementContainer from '../components/AchievementContainer';
 import StatisticsCard from '../components/StatisticsCard';
+
+// Helper function to infer categoryId from audio_source
+const inferCategoryId = (audioSource: string): string | null => {
+    const src = audioSource || '';
+    if (src.startsWith('theLittlePrince') || /^\d+\.mp3$/.test(src)) {
+        return 'little-prince';
+    }
+    if (src.toLowerCase().includes('cet6')) {
+        return 'cet6';
+    }
+    if (src.toLowerCase() === 'eazy.mp3') {
+        return 'eazy-stories';
+    }
+    return null;
+};
 
 interface LessonState {
     id: string;
@@ -16,6 +31,7 @@ interface LessonState {
 }
 
 export default function HomePage() {
+    const { categoryId } = useParams<{ categoryId?: string }>();
     const [lessonStates, setLessonStates] = useState<LessonState[]>([]);
     const [activeModal, setActiveModal] = useState<'angel' | 'milk' | null>(null);
 
@@ -25,9 +41,32 @@ export default function HomePage() {
     const documentationUrl = 'https://ai.feishu.cn/wiki/FRYBw8zXUiv4nWkd9FOcXhWRnTc?from=from_copylink';
     const githubUrl = 'https://github.com/fak111/SWJ-Learn';
 
+    const filteredConversations = useMemo(() => {
+        if (!categoryId) return CONVERSATION_DATA;
+
+        return CONVERSATION_DATA.filter((conv) => {
+            const src = conv.audio_source || '';
+
+            if (categoryId === 'little-prince') {
+                // 匹配 theLittlePrince 开头的，或者纯数字的 mp3 文件（1.mp3, 2.mp3, ...）
+                return src.startsWith('theLittlePrince') || /^\d+\.mp3$/.test(src);
+            }
+
+            if (categoryId === 'cet6') {
+                return src.toLowerCase().includes('cet6');
+            }
+
+            if (categoryId === 'eazy-stories') {
+                return src.toLowerCase() === 'eazy.mp3';
+            }
+
+            return true;
+        });
+    }, [categoryId]);
+
     useEffect(() => {
         // Calculate progress for all lessons based on localStorage
-        const states = CONVERSATION_DATA.map((conv) => {
+        const states = filteredConversations.map((conv) => {
             const saved = localStorage.getItem(`echo-progress-${conv.id}`);
             let progressMap: ProgressMap = {};
             if (saved) {
@@ -54,7 +93,7 @@ export default function HomePage() {
 
         // Check and update achievements
         checkAndUpdateAchievements();
-    }, []);
+    }, [filteredConversations]);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -75,6 +114,15 @@ export default function HomePage() {
                         <header className="mb-8">
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
                                 <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                    {categoryId && (
+                                        <Link
+                                            to="/world"
+                                            className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors"
+                                            title="返回世界列表"
+                                        >
+                                            <ArrowLeft size={24} />
+                                        </Link>
+                                    )}
                                     <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
                                         <Headphones className="text-white h-8 w-8" />
                                     </div>
@@ -121,6 +169,27 @@ export default function HomePage() {
                             </div>
                         </header>
 
+                        {/* Little Prince world: coming soon notice */}
+                        {categoryId === 'little-prince' && (
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/70 px-4 py-3 shadow-sm">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-amber-100 shadow-md shadow-indigo-300/50">
+                                        <Sparkles size={18} />
+                                    </div>
+                                    <div className="flex-1 text-sm">
+                                        <div className="mb-0.5 flex items-center gap-2">
+                                            <span className="inline-flex items-center rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 border border-indigo-100">
+                                                小王子 · 后续章节即将上线
+                                            </span>
+                                        </div>
+                                        <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed">
+                                            目前开放的是第 1 章节，后续星球正在精听打磨中。欢迎先体验本节课程，稍后回来解锁更多故事。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Level Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {lessonStates.map((lesson, index) => {
@@ -130,9 +199,14 @@ export default function HomePage() {
                                 const prevLesson = index > 0 ? lessonStates[index - 1] : null;
                                 const isUnlocked = index === 0 || (prevLesson && prevLesson.progress >= 50);
 
+                                // Get the conversation to infer categoryId if needed
+                                const conversation = filteredConversations.find(c => c.id === lesson.id);
+                                const lessonCategoryId = categoryId || (conversation ? inferCategoryId(conversation.audio_source) : null);
+                                const lessonLink = lessonCategoryId ? `/world/${lessonCategoryId}/${lesson.id}` : '#';
+
                                 return (
                                     <Link
-                                        to={isUnlocked ? `/lesson/${lesson.id}` : '#'}
+                                        to={isUnlocked ? lessonLink : '#'}
                                         key={lesson.id}
                                         className={`
                   group relative flex flex-col justify-between bg-white rounded-2xl border-2 transition-all duration-300 overflow-hidden

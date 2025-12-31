@@ -6,21 +6,53 @@ import AudioPlayer from '../components/AudioPlayer';
 import Transcript from '../components/Transcript';
 import ModeSelector from '../components/ModeSelector';
 import DictionaryModal from '../components/DictionaryModal';
+import SentenceVisualPanel from '../components/SentenceVisualPanel';
 import { Headphones, CheckCircle2, RotateCcw, ArrowLeft } from 'lucide-react';
 import OpenAI from 'openai';
 import { checkAndUpdateAchievements } from '../utils/achievements';
 import { updateListeningTime, incrementDictatedWords, getStatistics } from '../utils/statistics';
+import { getAudioUrl } from '../utils/audio';
+
+// Helper function to infer categoryId from audio_source
+const inferCategoryId = (audioSource: string): string | null => {
+    const src = audioSource || '';
+    if (src.startsWith('theLittlePrince') || /^\d+\.mp3$/.test(src)) {
+        return 'little-prince';
+    }
+    if (src.toLowerCase().includes('cet6')) {
+        return 'cet6';
+    }
+    if (src.toLowerCase() === 'eazy.mp3') {
+        return 'eazy-stories';
+    }
+    return null;
+};
 
 const DailyPage: React.FC = () => {
-    const { lessonId } = useParams<{ lessonId: string }>();
+    const { categoryId, chapterId } = useParams<{ categoryId?: string; chapterId?: string }>();
 
     // Find the conversation based on URL param
-    const conversation = CONVERSATION_DATA.find(c => c.id === lessonId);
+    const conversation = chapterId
+        ? CONVERSATION_DATA.find(c => c.id === chapterId)
+        : null;
+
+    // If chapterId is provided but conversation not found, redirect
+    if (chapterId && !conversation) {
+        return <Navigate to="/world" replace />;
+    }
+
+    // If no chapterId, redirect to world list
+    if (!chapterId) {
+        return <Navigate to="/world" replace />;
+    }
 
     // If not found, we will render a redirect or error later, but we need hooks to run first.
     const validConversation = conversation || CONVERSATION_DATA[0];
 
-    const audioSrc = `assets/${validConversation.audio_source}`;
+    // Infer categoryId if not provided
+    const effectiveCategoryId = categoryId || (validConversation ? inferCategoryId(validConversation.audio_source) : null);
+
+    const audioSrc = getAudioUrl(validConversation.audio_source);
     const fullAudioRange = validConversation.full_audio_range;
 
     // QR Code
@@ -303,6 +335,9 @@ const DailyPage: React.FC = () => {
 
     // 追踪听音频时间
     const maxListeningTimeRef = useRef<number>(0);
+    // 当前激活句在页面中的垂直中心位置（用于右侧图片对齐）
+    const [sentenceCenterY, setSentenceCenterY] = useState<number | null>(null);
+    const rightPanelRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!conversation) return;
@@ -332,6 +367,13 @@ const DailyPage: React.FC = () => {
         return () => clearInterval(interval);
     }, [conversation?.id, isPlaying, currentTime]);
 
+    // 当前激活句索引（基于当前播放时间）
+    const activeSentenceIndex = useMemo(() => {
+        return validConversation.sentences.findIndex(
+            (s) => currentTime >= s.start && currentTime <= s.end
+        );
+    }, [validConversation, currentTime]);
+
     if (!conversation) {
         return <Navigate to="/" replace />;
     }
@@ -345,9 +387,13 @@ const DailyPage: React.FC = () => {
 
             {/* Header */}
             <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                <div className="max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link to="/levels" className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors" title="Back to Menu">
+                        <Link
+                            to={effectiveCategoryId ? `/world/${effectiveCategoryId}/` : '/world'}
+                            className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors"
+                            title="返回章节列表"
+                        >
                             <ArrowLeft size={24} />
                         </Link>
                         <div className="flex items-center gap-3">
@@ -388,47 +434,98 @@ const DailyPage: React.FC = () => {
             />
 
             <main className="flex-1 w-full">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center py-6 px-4 space-y-2">
-                        {mode === AppMode.DICTATION ? (
-                            <p className="text-indigo-600 font-medium text-sm animate-pulse">
-                                Focus on the current sentence. It will loop until you finish it.
-                            </p>
-                        ) : (
-                            <p className="text-slate-400 text-sm italic">
-                                Focus on every single pronunciation{mode === AppMode.STUDY ? ' & see definition by pressing K' : ''}
-                            </p>
-                        )}
-                        {/* K 键提示 */}
-                        {showKeyHint && pendingWord && mode === AppMode.STUDY && (
-                            <div className="flex items-center justify-center gap-2 mt-3 animate-fade-in">
-                                <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm">
-                                    <kbd className="px-2 py-1 bg-white border border-indigo-300 rounded text-xs font-mono font-semibold text-indigo-700 shadow-sm">
-                                        K
-                                    </kbd>
-                                    <span className="text-sm text-indigo-700 font-medium">
-                                        按 K 键启用 AI 翻译
-                                    </span>
-                                    {pendingWord && (
-                                        <span className="text-xs text-indigo-500 ml-1">
-                                            ({pendingWord})
-                                        </span>
-                                    )}
-                                </div>
+                {mode === AppMode.STUDY ? (
+                    <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 px-4">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-center py-6 space-y-2">
+                                <p className="text-slate-400 text-sm italic">
+                                    Focus on every single pronunciation & see definition by pressing K
+                                </p>
+                                {/* K 键提示 */}
+                                {showKeyHint && pendingWord && (
+                                    <div className="flex items-center justify-center gap-2 mt-3 animate-fade-in">
+                                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm">
+                                            <kbd className="px-2 py-1 bg-white border border-indigo-300 rounded text-xs font-mono font-semibold text-indigo-700 shadow-sm">
+                                                K
+                                            </kbd>
+                                            <span className="text-sm text-indigo-700 font-medium">
+                                                按 K 键启用 AI 翻译
+                                            </span>
+                                            {pendingWord && (
+                                                <span className="text-xs text-indigo-500 ml-1">
+                                                    ({pendingWord})
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
 
-                    <Transcript
-                        conversation={conversation}
-                        mode={mode}
-                        currentTime={currentTime}
-                        dictationDifficulty={dictationDifficulty}
-                        onWordSolved={handleWordSolved}
-                        onWordClick={handleWordClick}
-                        progress={progress}
-                    />
-                </div>
+                            <Transcript
+                                conversation={conversation}
+                                mode={mode}
+                                currentTime={currentTime}
+                                dictationDifficulty={dictationDifficulty}
+                                onWordSolved={handleWordSolved}
+                                onWordClick={handleWordClick}
+                                progress={progress}
+                                onActiveSentenceCenterChange={(centerY) => setSentenceCenterY(centerY)}
+                            />
+                        </div>
+
+                        <div
+                            ref={rightPanelRef}
+                            className="w-full lg:w-[40%] xl:w-[45%] relative hidden lg:block pt-6"
+                        >
+                            {sentenceCenterY !== null && (
+                                <div
+                                    className="absolute left-0 right-0"
+                                    style={{
+                                        top: (() => {
+                                            if (!rightPanelRef.current) return '50%';
+                                            const rect = rightPanelRef.current.getBoundingClientRect();
+                                            const scrollY = window.scrollY || window.pageYOffset;
+                                            const panelTop = rect.top + scrollY;
+                                            const relativeCenter = sentenceCenterY - panelTop;
+                                            return `${relativeCenter}px`;
+                                        })(),
+                                        transform: 'translateY(-50%)',
+                                    }}
+                                >
+                                    <SentenceVisualPanel
+                                        conversation={conversation}
+                                        activeSentenceIndex={activeSentenceIndex}
+                                        mode={mode}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="max-w-4xl mx-auto px-4">
+                        <div className="text-center py-6 space-y-2">
+                            {mode === AppMode.DICTATION ? (
+                                <p className="text-indigo-600 font-medium text-sm animate-pulse">
+                                    Focus on the current sentence. It will loop until you finish it.
+                                </p>
+                            ) : (
+                                <p className="text-slate-400 text-sm italic">
+                                    Focus on every single pronunciation
+                                </p>
+                            )}
+                        </div>
+
+                        <Transcript
+                            conversation={conversation}
+                            mode={mode}
+                            currentTime={currentTime}
+                            dictationDifficulty={dictationDifficulty}
+                            onWordSolved={handleWordSolved}
+                            onWordClick={handleWordClick}
+                            progress={progress}
+                        />
+                    </div>
+                )}
             </main>
 
             <AudioPlayer

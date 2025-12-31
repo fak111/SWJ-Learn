@@ -9,6 +9,8 @@ interface TranscriptProps {
   onWordSolved: (wordId: string) => void;
   onWordClick: (startTime: number, endTime: number, word: string) => void;
   progress: ProgressMap;
+  // 当前激活句在页面中的垂直中心位置（用于让右侧图片跟随对齐）
+  onActiveSentenceCenterChange?: (centerY: number) => void;
 }
 
 const Transcript: React.FC<TranscriptProps> = ({
@@ -18,21 +20,31 @@ const Transcript: React.FC<TranscriptProps> = ({
   dictationDifficulty,
   onWordSolved,
   onWordClick,
-  progress
+  progress,
+  onActiveSentenceCenterChange,
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logic
+  // Auto-scroll logic：在 Dictation 等模式自动滚动，Study 模式下由用户手动滚动
   useEffect(() => {
     // Find active sentence
     const activeSentenceIdx = conversation.sentences.findIndex(
-      s => currentTime >= s.start && currentTime <= s.end
+      (s) => currentTime >= s.start && currentTime <= s.end
     );
 
-    if (activeSentenceIdx !== -1 && scrollRef.current) {
+    if (activeSentenceIdx !== -1) {
       const element = document.getElementById(`sentence-${activeSentenceIdx}`);
-      if (element) {
-        // In Study/Dictation mode, centering is good.
+
+      // Study 模式：仅上报位置，不滚动
+      if (element && onActiveSentenceCenterChange) {
+        const rect = element.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset;
+        const centerY = rect.top + scrollY + rect.height / 2;
+        onActiveSentenceCenterChange(centerY);
+      }
+
+      // 非 Study 模式：保持原有自动居中滚动体验
+      if (mode !== AppMode.STUDY && element && scrollRef.current) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }

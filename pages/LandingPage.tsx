@@ -33,7 +33,7 @@ export default function LandingPage() {
                     </p>
 
                     <Link
-                        to="/levels"
+                        to="/world"
                         className="group inline-flex items-center gap-3 bg-white text-amber-900 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300"
                     >
                         Start Your Journey
@@ -139,7 +139,7 @@ export default function LandingPage() {
                         拥抱连接世界的自由
                     </h2>
                     <Link
-                        to="/levels"
+                        to="/world"
                         className="inline-block bg-orange-500 hover:bg-orange-400 text-white px-10 py-5 rounded-full font-bold text-xl shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:-translate-y-1"
                     >
                         Start Listening Now

@@ -1,7 +1,5207 @@
 import { Conversation, Sentence, Word } from './types';
+import newDataJson from './public/1.json';
+
+// 处理新数据：重命名 ID 以避免冲突
+const processedNewData: Conversation[] = (newDataJson as Conversation[]).map(item => ({
+    ...item,
+    id: item.id.replace(/^chapter_/, 'chapter_eazy_')
+}));
 
 // 原始的对话数据（可能包含较长的句子）
-export const RAW_CONVERSATION_DATA: Conversation[] = [
+const existingData: Conversation[] = [
+    {
+        "id": "chapter_0",
+        "title": "Chapter 1",
+        // 服务器上实际文件名为 1.mp3，这里保持一致，方便通过 CDN 或本地加载
+        "audio_source": "1.mp3",
+        "full_audio_range": {
+            "start": 5.245,
+            "end": 247.388
+        },
+        "sentences": [
+            {
+                "text": "Once when I was six years old I saw a magnificent picture in a book, called True Stories from Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an animal. Here is a copy of the drawing.",
+                "start": 5.245,
+                "end": 25.43,
+                "words": [
+                    {
+                        "word": "Once",
+                        "start": 5.245,
+                        "end": 5.766
+                    },
+                    {
+                        "word": "when",
+                        "start": 5.886,
+                        "end": 6.026
+                    },
+                    {
+                        "word": "I",
+                        "start": 6.086,
+                        "end": 6.126
+                    },
+                    {
+                        "word": "was",
+                        "start": 6.186,
+                        "end": 6.326
+                    },
+                    {
+                        "word": "six",
+                        "start": 6.446,
+                        "end": 6.707
+                    },
+                    {
+                        "word": "years",
+                        "start": 6.747,
+                        "end": 6.947
+                    },
+                    {
+                        "word": "old,",
+                        "start": 7.127,
+                        "end": 7.308
+                    },
+                    {
+                        "word": "I",
+                        "start": 7.328,
+                        "end": 7.348
+                    },
+                    {
+                        "word": "saw",
+                        "start": 7.988,
+                        "end": 8.309
+                    },
+                    {
+                        "word": "a",
+                        "start": 8.649,
+                        "end": 8.669
+                    },
+                    {
+                        "word": "magnificent",
+                        "start": 8.689,
+                        "end": 9.33
+                    },
+                    {
+                        "word": "picture",
+                        "start": 9.41,
+                        "end": 9.831
+                    },
+                    {
+                        "word": "in",
+                        "start": 9.871,
+                        "end": 10.271
+                    },
+                    {
+                        "word": "a",
+                        "start": 10.371,
+                        "end": 10.391
+                    },
+                    {
+                        "word": "book",
+                        "start": 10.431,
+                        "end": 10.692
+                    },
+                    {
+                        "word": "called",
+                        "start": 11.232,
+                        "end": 11.513
+                    },
+                    {
+                        "word": "True",
+                        "start": 11.553,
+                        "end": 12.013
+                    },
+                    {
+                        "word": "Stories",
+                        "start": 12.073,
+                        "end": 12.514
+                    },
+                    {
+                        "word": "from",
+                        "start": 12.774,
+                        "end": 12.935
+                    },
+                    {
+                        "word": "Nature",
+                        "start": 12.975,
+                        "end": 13.395
+                    },
+                    {
+                        "word": "about",
+                        "start": 13.415,
+                        "end": 14.917
+                    },
+                    {
+                        "word": "the",
+                        "start": 14.957,
+                        "end": 15.177
+                    },
+                    {
+                        "word": "primeval",
+                        "start": 15.217,
+                        "end": 15.738
+                    },
+                    {
+                        "word": "forest.",
+                        "start": 15.798,
+                        "end": 16.219
+                    },
+                    {
+                        "word": "It",
+                        "start": 17.5,
+                        "end": 17.58
+                    },
+                    {
+                        "word": "was",
+                        "start": 17.66,
+                        "end": 17.841
+                    },
+                    {
+                        "word": "a",
+                        "start": 17.921,
+                        "end": 17.961
+                    },
+                    {
+                        "word": "picture",
+                        "start": 18.021,
+                        "end": 18.481
+                    },
+                    {
+                        "word": "of",
+                        "start": 18.521,
+                        "end": 18.782
+                    },
+                    {
+                        "word": "a",
+                        "start": 18.862,
+                        "end": 18.902
+                    },
+                    {
+                        "word": "boa",
+                        "start": 18.942,
+                        "end": 19.262
+                    },
+                    {
+                        "word": "constrictor",
+                        "start": 19.322,
+                        "end": 19.983
+                    },
+                    {
+                        "word": "in",
+                        "start": 20.324,
+                        "end": 20.384
+                    },
+                    {
+                        "word": "the",
+                        "start": 20.424,
+                        "end": 20.504
+                    },
+                    {
+                        "word": "act",
+                        "start": 20.744,
+                        "end": 20.985
+                    },
+                    {
+                        "word": "of",
+                        "start": 21.285,
+                        "end": 21.345
+                    },
+                    {
+                        "word": "swallowing",
+                        "start": 21.385,
+                        "end": 21.986
+                    },
+                    {
+                        "word": "an",
+                        "start": 22.006,
+                        "end": 22.046
+                    },
+                    {
+                        "word": "animal.",
+                        "start": 22.146,
+                        "end": 22.647
+                    },
+                    {
+                        "word": "Here",
+                        "start": 23.548,
+                        "end": 23.868
+                    },
+                    {
+                        "word": "is",
+                        "start": 23.908,
+                        "end": 24.148
+                    },
+                    {
+                        "word": "a",
+                        "start": 24.209,
+                        "end": 24.229
+                    },
+                    {
+                        "word": "copy",
+                        "start": 24.289,
+                        "end": 24.669
+                    },
+                    {
+                        "word": "of",
+                        "start": 24.909,
+                        "end": 24.949
+                    },
+                    {
+                        "word": "the",
+                        "start": 24.989,
+                        "end": 25.07
+                    },
+                    {
+                        "word": "drawing.",
+                        "start": 25.11,
+                        "end": 25.43
+                    }
+                ],
+                "img": "imgs/chapter_0/s0000.png"
+            },
+            {
+                "text": "In the book it said: \"Boa constrictors swallow their prey whole, without chewing it. After that they are not able to move, and they sleep through the six months that they need for digestion.\"",
+                "start": 26.591,
+                "end": 40.489,
+                "words": [
+                    {
+                        "word": "In",
+                        "start": 26.591,
+                        "end": 26.672
+                    },
+                    {
+                        "word": "the",
+                        "start": 26.732,
+                        "end": 26.832
+                    },
+                    {
+                        "word": "book,",
+                        "start": 26.892,
+                        "end": 27.152
+                    },
+                    {
+                        "word": "it",
+                        "start": 27.332,
+                        "end": 27.412
+                    },
+                    {
+                        "word": "said,",
+                        "start": 27.513,
+                        "end": 27.713
+                    },
+                    {
+                        "word": "Boa",
+                        "start": 28.173,
+                        "end": 28.494
+                    },
+                    {
+                        "word": "constrictors",
+                        "start": 28.534,
+                        "end": 29.175
+                    },
+                    {
+                        "word": "swallow",
+                        "start": 29.215,
+                        "end": 29.916
+                    },
+                    {
+                        "word": "their",
+                        "start": 29.976,
+                        "end": 30.136
+                    },
+                    {
+                        "word": "prey",
+                        "start": 30.236,
+                        "end": 30.556
+                    },
+                    {
+                        "word": "whole",
+                        "start": 30.697,
+                        "end": 30.997
+                    },
+                    {
+                        "word": "without",
+                        "start": 31.478,
+                        "end": 31.958
+                    },
+                    {
+                        "word": "chewing",
+                        "start": 32.158,
+                        "end": 32.499
+                    },
+                    {
+                        "word": "it.",
+                        "start": 32.559,
+                        "end": 33.48
+                    },
+                    {
+                        "word": "After",
+                        "start": 33.46,
+                        "end": 33.961
+                    },
+                    {
+                        "word": "that,",
+                        "start": 34.021,
+                        "end": 34.221
+                    },
+                    {
+                        "word": "they",
+                        "start": 34.601,
+                        "end": 34.782
+                    },
+                    {
+                        "word": "are",
+                        "start": 34.882,
+                        "end": 34.982
+                    },
+                    {
+                        "word": "not",
+                        "start": 35.062,
+                        "end": 35.262
+                    },
+                    {
+                        "word": "able",
+                        "start": 35.463,
+                        "end": 35.643
+                    },
+                    {
+                        "word": "to",
+                        "start": 35.703,
+                        "end": 35.783
+                    },
+                    {
+                        "word": "move,",
+                        "start": 35.863,
+                        "end": 36.163
+                    },
+                    {
+                        "word": "and",
+                        "start": 36.764,
+                        "end": 36.864
+                    },
+                    {
+                        "word": "they",
+                        "start": 36.924,
+                        "end": 37.065
+                    },
+                    {
+                        "word": "sleep",
+                        "start": 37.125,
+                        "end": 37.585
+                    },
+                    {
+                        "word": "through",
+                        "start": 37.785,
+                        "end": 38.006
+                    },
+                    {
+                        "word": "the",
+                        "start": 38.046,
+                        "end": 38.146
+                    },
+                    {
+                        "word": "six",
+                        "start": 38.226,
+                        "end": 38.446
+                    },
+                    {
+                        "word": "months",
+                        "start": 38.506,
+                        "end": 38.747
+                    },
+                    {
+                        "word": "that",
+                        "start": 38.807,
+                        "end": 38.967
+                    },
+                    {
+                        "word": "they",
+                        "start": 38.987,
+                        "end": 39.147
+                    },
+                    {
+                        "word": "need",
+                        "start": 39.187,
+                        "end": 39.508
+                    },
+                    {
+                        "word": "for",
+                        "start": 39.688,
+                        "end": 39.848
+                    },
+                    {
+                        "word": "digestion.",
+                        "start": 39.908,
+                        "end": 40.489
+                    }
+                ],
+                "img": "imgs/chapter_0/s0001.png"
+            },
+            {
+                "text": "I pondered deeply, then, over the adventures of the jungle. And after some work with a colored pencil I succeeded in making my first drawing. My Drawing Number One. It looked like this:",
+                "start": 41.49,
+                "end": 57.19,
+                "words": [
+                    {
+                        "word": "I",
+                        "start": 41.49,
+                        "end": 41.55
+                    },
+                    {
+                        "word": "pondered",
+                        "start": 41.75,
+                        "end": 42.211
+                    },
+                    {
+                        "word": "deeply",
+                        "start": 42.231,
+                        "end": 42.932
+                    },
+                    {
+                        "word": "then",
+                        "start": 42.952,
+                        "end": 43.553
+                    },
+                    {
+                        "word": "over",
+                        "start": 43.593,
+                        "end": 44.053
+                    },
+                    {
+                        "word": "the",
+                        "start": 44.093,
+                        "end": 44.214
+                    },
+                    {
+                        "word": "adventures",
+                        "start": 44.334,
+                        "end": 44.894
+                    },
+                    {
+                        "word": "of",
+                        "start": 44.914,
+                        "end": 45.175
+                    },
+                    {
+                        "word": "the",
+                        "start": 45.215,
+                        "end": 45.315
+                    },
+                    {
+                        "word": "jungle,",
+                        "start": 45.355,
+                        "end": 45.796
+                    },
+                    {
+                        "word": "and",
+                        "start": 46.757,
+                        "end": 46.877
+                    },
+                    {
+                        "word": "after",
+                        "start": 47.217,
+                        "end": 47.538
+                    },
+                    {
+                        "word": "some",
+                        "start": 47.578,
+                        "end": 47.898
+                    },
+                    {
+                        "word": "work",
+                        "start": 47.958,
+                        "end": 48.259
+                    },
+                    {
+                        "word": "with",
+                        "start": 48.399,
+                        "end": 48.539
+                    },
+                    {
+                        "word": "a",
+                        "start": 48.559,
+                        "end": 48.579
+                    },
+                    {
+                        "word": "coloured",
+                        "start": 48.619,
+                        "end": 49.18
+                    },
+                    {
+                        "word": "pencil,",
+                        "start": 49.3,
+                        "end": 49.801
+                    },
+                    {
+                        "word": "I",
+                        "start": 50.482,
+                        "end": 50.522
+                    },
+                    {
+                        "word": "succeeded",
+                        "start": 50.662,
+                        "end": 51.182
+                    },
+                    {
+                        "word": "in",
+                        "start": 51.222,
+                        "end": 51.623
+                    },
+                    {
+                        "word": "making",
+                        "start": 51.723,
+                        "end": 52.023
+                    },
+                    {
+                        "word": "my",
+                        "start": 52.084,
+                        "end": 52.224
+                    },
+                    {
+                        "word": "first",
+                        "start": 52.304,
+                        "end": 52.604
+                    },
+                    {
+                        "word": "drawing,",
+                        "start": 52.744,
+                        "end": 53.145
+                    },
+                    {
+                        "word": "my",
+                        "start": 53.926,
+                        "end": 54.086
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 54.126,
+                        "end": 54.427
+                    },
+                    {
+                        "word": "number",
+                        "start": 54.487,
+                        "end": 54.727
+                    },
+                    {
+                        "word": "one.",
+                        "start": 54.867,
+                        "end": 55.007
+                    },
+                    {
+                        "word": "It",
+                        "start": 55.868,
+                        "end": 55.948
+                    },
+                    {
+                        "word": "looks",
+                        "start": 56.089,
+                        "end": 56.429
+                    },
+                    {
+                        "word": "like",
+                        "start": 56.569,
+                        "end": 56.749
+                    },
+                    {
+                        "word": "this.",
+                        "start": 56.81,
+                        "end": 57.19
+                    }
+                ],
+                "img": "imgs/chapter_0/s0002.png"
+            },
+            {
+                "text": "I showed my masterpiece to the grown-ups, and asked them whether the drawing frightened them.",
+                "start": 58.3,
+                "end": 64.829,
+                "words": [
+                    {
+                        "word": "I",
+                        "start": 58.3,
+                        "end": 58.54
+                    },
+                    {
+                        "word": "showed",
+                        "start": 58.56,
+                        "end": 59.041
+                    },
+                    {
+                        "word": "my",
+                        "start": 59.081,
+                        "end": 59.361
+                    },
+                    {
+                        "word": "masterpiece",
+                        "start": 59.422,
+                        "end": 60.122
+                    },
+                    {
+                        "word": "to",
+                        "start": 60.363,
+                        "end": 60.483
+                    },
+                    {
+                        "word": "the",
+                        "start": 60.523,
+                        "end": 60.583
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 60.643,
+                        "end": 61.224
+                    },
+                    {
+                        "word": "and",
+                        "start": 61.825,
+                        "end": 61.925
+                    },
+                    {
+                        "word": "asked",
+                        "start": 61.965,
+                        "end": 62.406
+                    },
+                    {
+                        "word": "them",
+                        "start": 62.446,
+                        "end": 62.606
+                    },
+                    {
+                        "word": "whether",
+                        "start": 62.926,
+                        "end": 63.247
+                    },
+                    {
+                        "word": "the",
+                        "start": 63.287,
+                        "end": 63.507
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 63.567,
+                        "end": 63.968
+                    },
+                    {
+                        "word": "frightened",
+                        "start": 64.148,
+                        "end": 64.609
+                    },
+                    {
+                        "word": "them.",
+                        "start": 64.669,
+                        "end": 64.829
+                    }
+                ],
+                "img": "imgs/chapter_0/s0003.png"
+            },
+            {
+                "text": "But they answered: \"Frighten? Why should any one be frightened by a hat?\"",
+                "start": 65.89,
+                "end": 71.017,
+                "words": [
+                    {
+                        "word": "But",
+                        "start": 65.89,
+                        "end": 66.011
+                    },
+                    {
+                        "word": "they",
+                        "start": 66.091,
+                        "end": 66.271
+                    },
+                    {
+                        "word": "answered,",
+                        "start": 66.311,
+                        "end": 66.852
+                    },
+                    {
+                        "word": "frightened?",
+                        "start": 67.573,
+                        "end": 68.013
+                    },
+                    {
+                        "word": "Why",
+                        "start": 68.754,
+                        "end": 68.995
+                    },
+                    {
+                        "word": "should",
+                        "start": 69.015,
+                        "end": 69.295
+                    },
+                    {
+                        "word": "anyone",
+                        "start": 69.415,
+                        "end": 69.716
+                    },
+                    {
+                        "word": "be",
+                        "start": 69.756,
+                        "end": 69.836
+                    },
+                    {
+                        "word": "frightened",
+                        "start": 69.876,
+                        "end": 70.216
+                    },
+                    {
+                        "word": "by",
+                        "start": 70.296,
+                        "end": 70.457
+                    },
+                    {
+                        "word": "a",
+                        "start": 70.557,
+                        "end": 70.617
+                    },
+                    {
+                        "word": "hat?",
+                        "start": 70.677,
+                        "end": 71.017
+                    }
+                ],
+                "img": "imgs/chapter_0/s0004.png"
+            },
+            {
+                "text": "My drawing was not a picture of a hat. It was a picture of a boa constrictor digesting an elephant. But since the grown-ups were not able to understand it, I made another drawing: I drew the inside of the boa constrictor, so that the grown-ups could see it clearly. They always need to have things explained. My Drawing Number Two looked like this:",
+                "start": 72.6,
+                "end": 99.293,
+                "words": [
+                    {
+                        "word": "My",
+                        "start": 72.6,
+                        "end": 72.78
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 72.84,
+                        "end": 73.321
+                    },
+                    {
+                        "word": "was",
+                        "start": 73.581,
+                        "end": 73.741
+                    },
+                    {
+                        "word": "not",
+                        "start": 73.861,
+                        "end": 74.042
+                    },
+                    {
+                        "word": "a",
+                        "start": 74.162,
+                        "end": 74.202
+                    },
+                    {
+                        "word": "picture",
+                        "start": 74.262,
+                        "end": 74.682
+                    },
+                    {
+                        "word": "of",
+                        "start": 74.823,
+                        "end": 74.863
+                    },
+                    {
+                        "word": "a",
+                        "start": 74.963,
+                        "end": 75.003
+                    },
+                    {
+                        "word": "hat,",
+                        "start": 75.083,
+                        "end": 75.444
+                    },
+                    {
+                        "word": "it",
+                        "start": 75.844,
+                        "end": 75.904
+                    },
+                    {
+                        "word": "was",
+                        "start": 75.984,
+                        "end": 76.104
+                    },
+                    {
+                        "word": "a",
+                        "start": 76.185,
+                        "end": 76.205
+                    },
+                    {
+                        "word": "picture",
+                        "start": 76.265,
+                        "end": 76.685
+                    },
+                    {
+                        "word": "of",
+                        "start": 76.725,
+                        "end": 77.026
+                    },
+                    {
+                        "word": "a",
+                        "start": 77.106,
+                        "end": 77.126
+                    },
+                    {
+                        "word": "boa",
+                        "start": 77.166,
+                        "end": 77.486
+                    },
+                    {
+                        "word": "constrictor",
+                        "start": 77.506,
+                        "end": 78.187
+                    },
+                    {
+                        "word": "digesting",
+                        "start": 78.528,
+                        "end": 79.169
+                    },
+                    {
+                        "word": "an",
+                        "start": 79.349,
+                        "end": 79.509
+                    },
+                    {
+                        "word": "elephant.",
+                        "start": 79.569,
+                        "end": 80.19
+                    },
+                    {
+                        "word": "But",
+                        "start": 81.014,
+                        "end": 81.174
+                    },
+                    {
+                        "word": "since",
+                        "start": 81.315,
+                        "end": 81.575
+                    },
+                    {
+                        "word": "the",
+                        "start": 81.595,
+                        "end": 81.736
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 81.776,
+                        "end": 82.357
+                    },
+                    {
+                        "word": "were",
+                        "start": 82.497,
+                        "end": 82.637
+                    },
+                    {
+                        "word": "not",
+                        "start": 82.718,
+                        "end": 82.938
+                    },
+                    {
+                        "word": "able",
+                        "start": 83.159,
+                        "end": 83.339
+                    },
+                    {
+                        "word": "to",
+                        "start": 83.399,
+                        "end": 83.459
+                    },
+                    {
+                        "word": "understand",
+                        "start": 83.579,
+                        "end": 84.221
+                    },
+                    {
+                        "word": "it,",
+                        "start": 84.321,
+                        "end": 84.421
+                    },
+                    {
+                        "word": "I",
+                        "start": 85.043,
+                        "end": 85.103
+                    },
+                    {
+                        "word": "made",
+                        "start": 85.183,
+                        "end": 85.403
+                    },
+                    {
+                        "word": "another",
+                        "start": 85.443,
+                        "end": 85.945
+                    },
+                    {
+                        "word": "drawing.",
+                        "start": 85.985,
+                        "end": 86.887
+                    },
+                    {
+                        "word": "I",
+                        "start": 86.907,
+                        "end": 86.967
+                    },
+                    {
+                        "word": "drew",
+                        "start": 87.027,
+                        "end": 87.227
+                    },
+                    {
+                        "word": "the",
+                        "start": 87.247,
+                        "end": 87.468
+                    },
+                    {
+                        "word": "inside",
+                        "start": 87.608,
+                        "end": 88.129
+                    },
+                    {
+                        "word": "of",
+                        "start": 88.45,
+                        "end": 88.51
+                    },
+                    {
+                        "word": "the",
+                        "start": 88.55,
+                        "end": 88.63
+                    },
+                    {
+                        "word": "boa",
+                        "start": 88.67,
+                        "end": 88.991
+                    },
+                    {
+                        "word": "constrictor,",
+                        "start": 89.031,
+                        "end": 89.672
+                    },
+                    {
+                        "word": "so",
+                        "start": 90.354,
+                        "end": 90.534
+                    },
+                    {
+                        "word": "that",
+                        "start": 90.594,
+                        "end": 90.775
+                    },
+                    {
+                        "word": "the",
+                        "start": 90.995,
+                        "end": 91.096
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 91.136,
+                        "end": 91.657
+                    },
+                    {
+                        "word": "could",
+                        "start": 91.777,
+                        "end": 91.977
+                    },
+                    {
+                        "word": "see",
+                        "start": 92.038,
+                        "end": 92.198
+                    },
+                    {
+                        "word": "it",
+                        "start": 92.258,
+                        "end": 92.298
+                    },
+                    {
+                        "word": "clearly.",
+                        "start": 92.559,
+                        "end": 92.939
+                    },
+                    {
+                        "word": "They",
+                        "start": 93.42,
+                        "end": 93.621
+                    },
+                    {
+                        "word": "always",
+                        "start": 93.641,
+                        "end": 94.202
+                    },
+                    {
+                        "word": "need",
+                        "start": 94.242,
+                        "end": 94.723
+                    },
+                    {
+                        "word": "to",
+                        "start": 94.743,
+                        "end": 94.803
+                    },
+                    {
+                        "word": "have",
+                        "start": 94.844,
+                        "end": 94.964
+                    },
+                    {
+                        "word": "things",
+                        "start": 95.004,
+                        "end": 95.264
+                    },
+                    {
+                        "word": "explained.",
+                        "start": 95.305,
+                        "end": 95.986
+                    },
+                    {
+                        "word": "My",
+                        "start": 96.708,
+                        "end": 96.908
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 96.928,
+                        "end": 97.229
+                    },
+                    {
+                        "word": "number",
+                        "start": 97.289,
+                        "end": 97.549
+                    },
+                    {
+                        "word": "two",
+                        "start": 97.589,
+                        "end": 97.81
+                    },
+                    {
+                        "word": "looked",
+                        "start": 97.85,
+                        "end": 98.511
+                    },
+                    {
+                        "word": "like",
+                        "start": 98.672,
+                        "end": 98.852
+                    },
+                    {
+                        "word": "this.",
+                        "start": 98.912,
+                        "end": 99.293
+                    }
+                ],
+                "img": "imgs/chapter_0/s0005.png"
+            },
+            {
+                "text": "The grown-ups' response, this time, was to advise me to lay aside my drawings of boa constrictors, whether from the inside or the outside, and devote myself instead to geography, history, arithmetic and grammar. That is why, at the age of six, I gave up what might have been a magnificent career as a painter. I had been disheartened by the failure of my Drawing Number One and my Drawing Number Two. Grown-ups never understand anything by themselves, and it is tiresome for children to be always and forever explaining things to them.",
+                "start": 101.568,
+                "end": 147.166,
+                "words": [
+                    {
+                        "word": "The",
+                        "start": 101.568,
+                        "end": 101.788
+                    },
+                    {
+                        "word": "grown-up's",
+                        "start": 101.909,
+                        "end": 102.53
+                    },
+                    {
+                        "word": "response",
+                        "start": 102.61,
+                        "end": 103.071
+                    },
+                    {
+                        "word": "this",
+                        "start": 103.091,
+                        "end": 103.331
+                    },
+                    {
+                        "word": "time",
+                        "start": 103.391,
+                        "end": 103.632
+                    },
+                    {
+                        "word": "was",
+                        "start": 103.952,
+                        "end": 104.152
+                    },
+                    {
+                        "word": "to",
+                        "start": 104.233,
+                        "end": 104.373
+                    },
+                    {
+                        "word": "advise",
+                        "start": 104.393,
+                        "end": 104.934
+                    },
+                    {
+                        "word": "me",
+                        "start": 105.014,
+                        "end": 105.174
+                    },
+                    {
+                        "word": "to",
+                        "start": 105.455,
+                        "end": 105.575
+                    },
+                    {
+                        "word": "lay",
+                        "start": 105.675,
+                        "end": 105.936
+                    },
+                    {
+                        "word": "aside",
+                        "start": 105.976,
+                        "end": 106.476
+                    },
+                    {
+                        "word": "my",
+                        "start": 106.517,
+                        "end": 106.817
+                    },
+                    {
+                        "word": "drawings",
+                        "start": 106.877,
+                        "end": 107.398
+                    },
+                    {
+                        "word": "of",
+                        "start": 107.839,
+                        "end": 107.899
+                    },
+                    {
+                        "word": "boa",
+                        "start": 107.999,
+                        "end": 108.3
+                    },
+                    {
+                        "word": "constrictors,",
+                        "start": 108.34,
+                        "end": 109.081
+                    },
+                    {
+                        "word": "whether",
+                        "start": 109.822,
+                        "end": 110.163
+                    },
+                    {
+                        "word": "from",
+                        "start": 110.323,
+                        "end": 110.483
+                    },
+                    {
+                        "word": "the",
+                        "start": 110.503,
+                        "end": 110.624
+                    },
+                    {
+                        "word": "inside",
+                        "start": 110.764,
+                        "end": 111.285
+                    },
+                    {
+                        "word": "or",
+                        "start": 111.325,
+                        "end": 111.706
+                    },
+                    {
+                        "word": "the",
+                        "start": 111.746,
+                        "end": 111.926
+                    },
+                    {
+                        "word": "outside,",
+                        "start": 112.066,
+                        "end": 112.547
+                    },
+                    {
+                        "word": "and",
+                        "start": 113.348,
+                        "end": 113.469
+                    },
+                    {
+                        "word": "devote",
+                        "start": 113.509,
+                        "end": 114.11
+                    },
+                    {
+                        "word": "myself",
+                        "start": 114.15,
+                        "end": 114.691
+                    },
+                    {
+                        "word": "instead",
+                        "start": 114.851,
+                        "end": 115.272
+                    },
+                    {
+                        "word": "to",
+                        "start": 115.312,
+                        "end": 115.753
+                    },
+                    {
+                        "word": "geography,",
+                        "start": 115.833,
+                        "end": 116.474
+                    },
+                    {
+                        "word": "history,",
+                        "start": 117.075,
+                        "end": 117.516
+                    },
+                    {
+                        "word": "arithmetic,",
+                        "start": 118.157,
+                        "end": 118.818
+                    },
+                    {
+                        "word": "and",
+                        "start": 119.459,
+                        "end": 119.599
+                    },
+                    {
+                        "word": "grammar.",
+                        "start": 119.679,
+                        "end": 120.08
+                    },
+                    {
+                        "word": "That",
+                        "start": 121.262,
+                        "end": 121.482
+                    },
+                    {
+                        "word": "is",
+                        "start": 121.522,
+                        "end": 121.743
+                    },
+                    {
+                        "word": "why,",
+                        "start": 121.843,
+                        "end": 122.204
+                    },
+                    {
+                        "word": "at",
+                        "start": 122.244,
+                        "end": 122.584
+                    },
+                    {
+                        "word": "the",
+                        "start": 122.624,
+                        "end": 122.725
+                    },
+                    {
+                        "word": "age",
+                        "start": 122.905,
+                        "end": 123.085
+                    },
+                    {
+                        "word": "of",
+                        "start": 123.145,
+                        "end": 123.205
+                    },
+                    {
+                        "word": "six,",
+                        "start": 123.245,
+                        "end": 124.167
+                    },
+                    {
+                        "word": "I",
+                        "start": 124.147,
+                        "end": 124.468
+                    },
+                    {
+                        "word": "gave",
+                        "start": 124.488,
+                        "end": 124.729
+                    },
+                    {
+                        "word": "up",
+                        "start": 124.829,
+                        "end": 124.909
+                    },
+                    {
+                        "word": "what",
+                        "start": 125.15,
+                        "end": 125.33
+                    },
+                    {
+                        "word": "might",
+                        "start": 125.451,
+                        "end": 125.651
+                    },
+                    {
+                        "word": "have",
+                        "start": 125.731,
+                        "end": 125.872
+                    },
+                    {
+                        "word": "been",
+                        "start": 125.952,
+                        "end": 126.152
+                    },
+                    {
+                        "word": "a",
+                        "start": 126.172,
+                        "end": 126.193
+                    },
+                    {
+                        "word": "magnificent",
+                        "start": 126.493,
+                        "end": 127.296
+                    },
+                    {
+                        "word": "career",
+                        "start": 127.376,
+                        "end": 127.757
+                    },
+                    {
+                        "word": "as",
+                        "start": 127.777,
+                        "end": 128.198
+                    },
+                    {
+                        "word": "a",
+                        "start": 128.238,
+                        "end": 128.298
+                    },
+                    {
+                        "word": "painter.",
+                        "start": 128.358,
+                        "end": 128.719
+                    },
+                    {
+                        "word": "I",
+                        "start": 129.903,
+                        "end": 129.963
+                    },
+                    {
+                        "word": "had",
+                        "start": 130.043,
+                        "end": 130.163
+                    },
+                    {
+                        "word": "been",
+                        "start": 130.203,
+                        "end": 130.444
+                    },
+                    {
+                        "word": "disheartened",
+                        "start": 130.564,
+                        "end": 131.286
+                    },
+                    {
+                        "word": "by",
+                        "start": 131.326,
+                        "end": 131.888
+                    },
+                    {
+                        "word": "the",
+                        "start": 131.928,
+                        "end": 132.008
+                    },
+                    {
+                        "word": "failure",
+                        "start": 132.109,
+                        "end": 132.53
+                    },
+                    {
+                        "word": "of",
+                        "start": 132.831,
+                        "end": 132.891
+                    },
+                    {
+                        "word": "my",
+                        "start": 132.971,
+                        "end": 133.091
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 133.131,
+                        "end": 133.472
+                    },
+                    {
+                        "word": "number",
+                        "start": 133.532,
+                        "end": 133.833
+                    },
+                    {
+                        "word": "one",
+                        "start": 134.014,
+                        "end": 134.114
+                    },
+                    {
+                        "word": "and",
+                        "start": 134.676,
+                        "end": 134.836
+                    },
+                    {
+                        "word": "my",
+                        "start": 134.876,
+                        "end": 135.016
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 135.037,
+                        "end": 135.357
+                    },
+                    {
+                        "word": "number",
+                        "start": 135.397,
+                        "end": 135.618
+                    },
+                    {
+                        "word": "two.",
+                        "start": 135.658,
+                        "end": 135.979
+                    },
+                    {
+                        "word": "Grown-ups",
+                        "start": 137.191,
+                        "end": 137.912
+                    },
+                    {
+                        "word": "never",
+                        "start": 138.193,
+                        "end": 138.473
+                    },
+                    {
+                        "word": "understand",
+                        "start": 138.593,
+                        "end": 139.214
+                    },
+                    {
+                        "word": "anything",
+                        "start": 139.254,
+                        "end": 139.855
+                    },
+                    {
+                        "word": "by",
+                        "start": 140.035,
+                        "end": 140.156
+                    },
+                    {
+                        "word": "themselves,",
+                        "start": 140.216,
+                        "end": 140.797
+                    },
+                    {
+                        "word": "and",
+                        "start": 141.598,
+                        "end": 141.738
+                    },
+                    {
+                        "word": "it",
+                        "start": 141.778,
+                        "end": 141.818
+                    },
+                    {
+                        "word": "is",
+                        "start": 141.998,
+                        "end": 142.219
+                    },
+                    {
+                        "word": "tiresome",
+                        "start": 142.239,
+                        "end": 142.9
+                    },
+                    {
+                        "word": "for",
+                        "start": 143.12,
+                        "end": 143.26
+                    },
+                    {
+                        "word": "children",
+                        "start": 143.32,
+                        "end": 143.761
+                    },
+                    {
+                        "word": "to",
+                        "start": 144.102,
+                        "end": 144.202
+                    },
+                    {
+                        "word": "be",
+                        "start": 144.262,
+                        "end": 144.342
+                    },
+                    {
+                        "word": "always",
+                        "start": 144.522,
+                        "end": 144.903
+                    },
+                    {
+                        "word": "and",
+                        "start": 145.083,
+                        "end": 145.243
+                    },
+                    {
+                        "word": "forever",
+                        "start": 145.283,
+                        "end": 145.684
+                    },
+                    {
+                        "word": "explaining",
+                        "start": 145.724,
+                        "end": 146.465
+                    },
+                    {
+                        "word": "things",
+                        "start": 146.525,
+                        "end": 146.766
+                    },
+                    {
+                        "word": "to",
+                        "start": 146.826,
+                        "end": 146.966
+                    },
+                    {
+                        "word": "them.",
+                        "start": 147.026,
+                        "end": 147.166
+                    }
+                ],
+                "img": "imgs/chapter_0/s0006.png"
+            },
+            {
+                "text": "So then I chose another profession, and learned to pilot airplanes. I have flown a little over all parts of the world; and it is true that geography has been very useful to me. At a glance I can distinguish China from Arizona. If one gets lost in the night, such knowledge is valuable.",
+                "start": 148.028,
+                "end": 171.918,
+                "words": [
+                    {
+                        "word": "So",
+                        "start": 148.028,
+                        "end": 148.308
+                    },
+                    {
+                        "word": "then",
+                        "start": 148.348,
+                        "end": 148.749
+                    },
+                    {
+                        "word": "I",
+                        "start": 148.969,
+                        "end": 149.029
+                    },
+                    {
+                        "word": "chose",
+                        "start": 149.109,
+                        "end": 149.45
+                    },
+                    {
+                        "word": "another",
+                        "start": 149.49,
+                        "end": 150.031
+                    },
+                    {
+                        "word": "profession",
+                        "start": 150.111,
+                        "end": 150.612
+                    },
+                    {
+                        "word": "and",
+                        "start": 151.193,
+                        "end": 151.353
+                    },
+                    {
+                        "word": "learned",
+                        "start": 151.393,
+                        "end": 151.934
+                    },
+                    {
+                        "word": "to",
+                        "start": 151.954,
+                        "end": 151.994
+                    },
+                    {
+                        "word": "pilot",
+                        "start": 152.274,
+                        "end": 152.595
+                    },
+                    {
+                        "word": "airplanes.",
+                        "start": 152.715,
+                        "end": 153.256
+                    },
+                    {
+                        "word": "I",
+                        "start": 154.277,
+                        "end": 154.357
+                    },
+                    {
+                        "word": "have",
+                        "start": 154.418,
+                        "end": 154.558
+                    },
+                    {
+                        "word": "flown",
+                        "start": 154.638,
+                        "end": 154.978
+                    },
+                    {
+                        "word": "a",
+                        "start": 154.998,
+                        "end": 155.019
+                    },
+                    {
+                        "word": "little",
+                        "start": 155.219,
+                        "end": 155.459
+                    },
+                    {
+                        "word": "over",
+                        "start": 155.519,
+                        "end": 155.659
+                    },
+                    {
+                        "word": "all",
+                        "start": 155.86,
+                        "end": 156.02
+                    },
+                    {
+                        "word": "parts",
+                        "start": 156.1,
+                        "end": 156.381
+                    },
+                    {
+                        "word": "of",
+                        "start": 156.441,
+                        "end": 156.501
+                    },
+                    {
+                        "word": "the",
+                        "start": 156.521,
+                        "end": 156.641
+                    },
+                    {
+                        "word": "world,",
+                        "start": 156.681,
+                        "end": 157.002
+                    },
+                    {
+                        "word": "and",
+                        "start": 157.763,
+                        "end": 157.883
+                    },
+                    {
+                        "word": "it",
+                        "start": 157.903,
+                        "end": 157.943
+                    },
+                    {
+                        "word": "is",
+                        "start": 158.143,
+                        "end": 158.384
+                    },
+                    {
+                        "word": "true",
+                        "start": 158.404,
+                        "end": 158.804
+                    },
+                    {
+                        "word": "that",
+                        "start": 158.824,
+                        "end": 159.325
+                    },
+                    {
+                        "word": "geography",
+                        "start": 159.365,
+                        "end": 160.247
+                    },
+                    {
+                        "word": "has",
+                        "start": 160.387,
+                        "end": 160.547
+                    },
+                    {
+                        "word": "been",
+                        "start": 160.667,
+                        "end": 160.868
+                    },
+                    {
+                        "word": "very",
+                        "start": 161.088,
+                        "end": 161.428
+                    },
+                    {
+                        "word": "useful",
+                        "start": 161.609,
+                        "end": 161.969
+                    },
+                    {
+                        "word": "to",
+                        "start": 162.029,
+                        "end": 162.129
+                    },
+                    {
+                        "word": "me.",
+                        "start": 162.19,
+                        "end": 162.49
+                    },
+                    {
+                        "word": "At",
+                        "start": 163.246,
+                        "end": 163.466
+                    },
+                    {
+                        "word": "a",
+                        "start": 163.546,
+                        "end": 163.566
+                    },
+                    {
+                        "word": "glance,",
+                        "start": 163.647,
+                        "end": 164.107
+                    },
+                    {
+                        "word": "I",
+                        "start": 164.368,
+                        "end": 164.408
+                    },
+                    {
+                        "word": "can",
+                        "start": 164.468,
+                        "end": 164.588
+                    },
+                    {
+                        "word": "distinguish",
+                        "start": 164.668,
+                        "end": 165.309
+                    },
+                    {
+                        "word": "China",
+                        "start": 165.409,
+                        "end": 165.83
+                    },
+                    {
+                        "word": "from",
+                        "start": 166.13,
+                        "end": 166.27
+                    },
+                    {
+                        "word": "Arizona.",
+                        "start": 166.411,
+                        "end": 166.971
+                    },
+                    {
+                        "word": "If",
+                        "start": 167.813,
+                        "end": 167.893
+                    },
+                    {
+                        "word": "one",
+                        "start": 168.093,
+                        "end": 168.193
+                    },
+                    {
+                        "word": "gets",
+                        "start": 168.273,
+                        "end": 168.514
+                    },
+                    {
+                        "word": "lost",
+                        "start": 168.574,
+                        "end": 168.874
+                    },
+                    {
+                        "word": "in",
+                        "start": 168.914,
+                        "end": 169.054
+                    },
+                    {
+                        "word": "the",
+                        "start": 169.094,
+                        "end": 169.155
+                    },
+                    {
+                        "word": "night,",
+                        "start": 169.235,
+                        "end": 169.495
+                    },
+                    {
+                        "word": "such",
+                        "start": 170.116,
+                        "end": 170.356
+                    },
+                    {
+                        "word": "knowledge",
+                        "start": 170.436,
+                        "end": 170.797
+                    },
+                    {
+                        "word": "is",
+                        "start": 170.817,
+                        "end": 171.358
+                    },
+                    {
+                        "word": "valuable.",
+                        "start": 171.478,
+                        "end": 171.918
+                    }
+                ],
+                "img": "imgs/chapter_0/s0007.png"
+            },
+            {
+                "text": "In the course of this life I have had a great many encounters with a great many people who have been concerned with matters of consequence. I have lived a great deal among grown-ups. I have seen them intimately, close at hand. And that hasn't much improved my opinion of them.",
+                "start": 173.341,
+                "end": 196.442,
+                "words": [
+                    {
+                        "word": "In",
+                        "start": 173.341,
+                        "end": 173.421
+                    },
+                    {
+                        "word": "the",
+                        "start": 173.481,
+                        "end": 173.561
+                    },
+                    {
+                        "word": "course",
+                        "start": 173.641,
+                        "end": 173.961
+                    },
+                    {
+                        "word": "of",
+                        "start": 174.122,
+                        "end": 174.182
+                    },
+                    {
+                        "word": "this",
+                        "start": 174.202,
+                        "end": 174.522
+                    },
+                    {
+                        "word": "life,",
+                        "start": 174.642,
+                        "end": 174.903
+                    },
+                    {
+                        "word": "I",
+                        "start": 175.544,
+                        "end": 175.604
+                    },
+                    {
+                        "word": "have",
+                        "start": 175.684,
+                        "end": 175.884
+                    },
+                    {
+                        "word": "had",
+                        "start": 175.964,
+                        "end": 176.185
+                    },
+                    {
+                        "word": "a",
+                        "start": 176.205,
+                        "end": 176.225
+                    },
+                    {
+                        "word": "great",
+                        "start": 176.665,
+                        "end": 176.966
+                    },
+                    {
+                        "word": "many",
+                        "start": 177.046,
+                        "end": 177.246
+                    },
+                    {
+                        "word": "encounters",
+                        "start": 177.326,
+                        "end": 177.927
+                    },
+                    {
+                        "word": "with",
+                        "start": 177.967,
+                        "end": 178.368
+                    },
+                    {
+                        "word": "a",
+                        "start": 178.388,
+                        "end": 178.408
+                    },
+                    {
+                        "word": "great",
+                        "start": 178.608,
+                        "end": 178.848
+                    },
+                    {
+                        "word": "many",
+                        "start": 178.909,
+                        "end": 179.129
+                    },
+                    {
+                        "word": "people",
+                        "start": 179.189,
+                        "end": 179.509
+                    },
+                    {
+                        "word": "who",
+                        "start": 179.99,
+                        "end": 180.13
+                    },
+                    {
+                        "word": "have",
+                        "start": 180.17,
+                        "end": 180.291
+                    },
+                    {
+                        "word": "been",
+                        "start": 180.351,
+                        "end": 180.511
+                    },
+                    {
+                        "word": "concerned",
+                        "start": 180.591,
+                        "end": 181.252
+                    },
+                    {
+                        "word": "with",
+                        "start": 181.292,
+                        "end": 181.552
+                    },
+                    {
+                        "word": "matters",
+                        "start": 181.673,
+                        "end": 182.093
+                    },
+                    {
+                        "word": "of",
+                        "start": 182.133,
+                        "end": 182.374
+                    },
+                    {
+                        "word": "consequences.",
+                        "start": 182.414,
+                        "end": 183.415
+                    },
+                    {
+                        "word": "I",
+                        "start": 184.441,
+                        "end": 184.642
+                    },
+                    {
+                        "word": "have",
+                        "start": 184.682,
+                        "end": 184.842
+                    },
+                    {
+                        "word": "lived",
+                        "start": 184.943,
+                        "end": 185.284
+                    },
+                    {
+                        "word": "a",
+                        "start": 185.565,
+                        "end": 185.605
+                    },
+                    {
+                        "word": "great",
+                        "start": 185.685,
+                        "end": 185.906
+                    },
+                    {
+                        "word": "deal",
+                        "start": 185.966,
+                        "end": 186.207
+                    },
+                    {
+                        "word": "among",
+                        "start": 186.247,
+                        "end": 186.869
+                    },
+                    {
+                        "word": "grown-ups,",
+                        "start": 186.93,
+                        "end": 187.471
+                    },
+                    {
+                        "word": "I",
+                        "start": 188.575,
+                        "end": 188.635
+                    },
+                    {
+                        "word": "have",
+                        "start": 188.675,
+                        "end": 188.816
+                    },
+                    {
+                        "word": "seen",
+                        "start": 188.956,
+                        "end": 189.157
+                    },
+                    {
+                        "word": "them",
+                        "start": 189.197,
+                        "end": 189.338
+                    },
+                    {
+                        "word": "intimately,",
+                        "start": 189.559,
+                        "end": 190.141
+                    },
+                    {
+                        "word": "close",
+                        "start": 190.763,
+                        "end": 191.204
+                    },
+                    {
+                        "word": "at",
+                        "start": 191.304,
+                        "end": 191.365
+                    },
+                    {
+                        "word": "hand,",
+                        "start": 191.445,
+                        "end": 191.746
+                    },
+                    {
+                        "word": "and",
+                        "start": 192.649,
+                        "end": 192.79
+                    },
+                    {
+                        "word": "that",
+                        "start": 192.83,
+                        "end": 193.271
+                    },
+                    {
+                        "word": "hasn't",
+                        "start": 193.452,
+                        "end": 193.813
+                    },
+                    {
+                        "word": "much",
+                        "start": 193.913,
+                        "end": 194.134
+                    },
+                    {
+                        "word": "improved",
+                        "start": 194.315,
+                        "end": 194.997
+                    },
+                    {
+                        "word": "my",
+                        "start": 195.037,
+                        "end": 195.419
+                    },
+                    {
+                        "word": "opinion",
+                        "start": 195.559,
+                        "end": 196.021
+                    },
+                    {
+                        "word": "of",
+                        "start": 196.101,
+                        "end": 196.161
+                    },
+                    {
+                        "word": "them.",
+                        "start": 196.221,
+                        "end": 196.442
+                    }
+                ],
+                "img": "imgs/chapter_0/s0008.png"
+            },
+            {
+                "text": "Whenever I met one of them who seemed to me at all clear-sighted, I tried the experiment of showing him my Drawing Number One, which I have always kept. I would try to find out, so, if this was a person of true understanding. But, whoever it was, he, or she, would always say:",
+                "start": 197.435,
+                "end": 220.446,
+                "words": [
+                    {
+                        "word": "Whenever",
+                        "start": 197.435,
+                        "end": 197.976
+                    },
+                    {
+                        "word": "I",
+                        "start": 198.116,
+                        "end": 198.156
+                    },
+                    {
+                        "word": "met",
+                        "start": 198.276,
+                        "end": 198.517
+                    },
+                    {
+                        "word": "one",
+                        "start": 198.557,
+                        "end": 198.977
+                    },
+                    {
+                        "word": "of",
+                        "start": 199.038,
+                        "end": 199.098
+                    },
+                    {
+                        "word": "them",
+                        "start": 199.158,
+                        "end": 199.298
+                    },
+                    {
+                        "word": "who",
+                        "start": 199.458,
+                        "end": 199.598
+                    },
+                    {
+                        "word": "seemed",
+                        "start": 199.759,
+                        "end": 200.119
+                    },
+                    {
+                        "word": "to",
+                        "start": 200.139,
+                        "end": 200.34
+                    },
+                    {
+                        "word": "me",
+                        "start": 200.4,
+                        "end": 200.52
+                    },
+                    {
+                        "word": "at",
+                        "start": 200.56,
+                        "end": 200.84
+                    },
+                    {
+                        "word": "all",
+                        "start": 200.86,
+                        "end": 201.221
+                    },
+                    {
+                        "word": "clear-sighted,",
+                        "start": 201.361,
+                        "end": 202.042
+                    },
+                    {
+                        "word": "I",
+                        "start": 202.082,
+                        "end": 202.904
+                    },
+                    {
+                        "word": "tried",
+                        "start": 203.064,
+                        "end": 203.445
+                    },
+                    {
+                        "word": "the",
+                        "start": 203.465,
+                        "end": 203.805
+                    },
+                    {
+                        "word": "experiment",
+                        "start": 203.905,
+                        "end": 204.566
+                    },
+                    {
+                        "word": "of",
+                        "start": 204.807,
+                        "end": 204.867
+                    },
+                    {
+                        "word": "showing",
+                        "start": 205.007,
+                        "end": 205.328
+                    },
+                    {
+                        "word": "him",
+                        "start": 205.408,
+                        "end": 205.528
+                    },
+                    {
+                        "word": "my",
+                        "start": 205.788,
+                        "end": 206.049
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 206.149,
+                        "end": 206.469
+                    },
+                    {
+                        "word": "number",
+                        "start": 206.569,
+                        "end": 206.81
+                    },
+                    {
+                        "word": "one,",
+                        "start": 206.95,
+                        "end": 207.09
+                    },
+                    {
+                        "word": "which",
+                        "start": 207.852,
+                        "end": 208.032
+                    },
+                    {
+                        "word": "I",
+                        "start": 208.232,
+                        "end": 208.292
+                    },
+                    {
+                        "word": "have",
+                        "start": 208.352,
+                        "end": 208.493
+                    },
+                    {
+                        "word": "always",
+                        "start": 208.633,
+                        "end": 208.893
+                    },
+                    {
+                        "word": "kept.",
+                        "start": 209.013,
+                        "end": 209.314
+                    },
+                    {
+                        "word": "I",
+                        "start": 210.135,
+                        "end": 210.195
+                    },
+                    {
+                        "word": "would",
+                        "start": 210.235,
+                        "end": 210.416
+                    },
+                    {
+                        "word": "try",
+                        "start": 210.456,
+                        "end": 210.636
+                    },
+                    {
+                        "word": "to",
+                        "start": 210.676,
+                        "end": 210.776
+                    },
+                    {
+                        "word": "find",
+                        "start": 210.856,
+                        "end": 211.097
+                    },
+                    {
+                        "word": "out",
+                        "start": 211.277,
+                        "end": 211.397
+                    },
+                    {
+                        "word": "so",
+                        "start": 211.858,
+                        "end": 212.018
+                    },
+                    {
+                        "word": "if",
+                        "start": 212.399,
+                        "end": 212.459
+                    },
+                    {
+                        "word": "this",
+                        "start": 212.579,
+                        "end": 212.759
+                    },
+                    {
+                        "word": "was",
+                        "start": 212.839,
+                        "end": 213.0
+                    },
+                    {
+                        "word": "a",
+                        "start": 213.02,
+                        "end": 213.04
+                    },
+                    {
+                        "word": "person",
+                        "start": 213.16,
+                        "end": 213.581
+                    },
+                    {
+                        "word": "of",
+                        "start": 213.601,
+                        "end": 213.841
+                    },
+                    {
+                        "word": "true",
+                        "start": 213.881,
+                        "end": 214.202
+                    },
+                    {
+                        "word": "understanding.",
+                        "start": 214.342,
+                        "end": 215.123
+                    },
+                    {
+                        "word": "But",
+                        "start": 216.2,
+                        "end": 216.38
+                    },
+                    {
+                        "word": "whoever",
+                        "start": 216.48,
+                        "end": 217.081
+                    },
+                    {
+                        "word": "it",
+                        "start": 217.322,
+                        "end": 217.402
+                    },
+                    {
+                        "word": "was,",
+                        "start": 217.502,
+                        "end": 217.802
+                    },
+                    {
+                        "word": "he",
+                        "start": 218.323,
+                        "end": 218.483
+                    },
+                    {
+                        "word": "or",
+                        "start": 218.683,
+                        "end": 218.764
+                    },
+                    {
+                        "word": "she",
+                        "start": 218.864,
+                        "end": 219.104
+                    },
+                    {
+                        "word": "would",
+                        "start": 219.485,
+                        "end": 219.665
+                    },
+                    {
+                        "word": "always",
+                        "start": 219.765,
+                        "end": 220.065
+                    },
+                    {
+                        "word": "say,",
+                        "start": 220.165,
+                        "end": 220.446
+                    }
+                ],
+                "img": "imgs/chapter_0/s0009.png"
+            },
+            {
+                "text": "\"That is a hat.\"",
+                "start": 5.245,
+                "end": 247.388,
+                "words": [
+                    {
+                        "word": "Once",
+                        "start": 5.245,
+                        "end": 5.766
+                    },
+                    {
+                        "word": "when",
+                        "start": 5.886,
+                        "end": 6.026
+                    },
+                    {
+                        "word": "I",
+                        "start": 6.086,
+                        "end": 6.126
+                    },
+                    {
+                        "word": "was",
+                        "start": 6.186,
+                        "end": 6.326
+                    },
+                    {
+                        "word": "six",
+                        "start": 6.446,
+                        "end": 6.707
+                    },
+                    {
+                        "word": "years",
+                        "start": 6.747,
+                        "end": 6.947
+                    },
+                    {
+                        "word": "old,",
+                        "start": 7.127,
+                        "end": 7.308
+                    },
+                    {
+                        "word": "I",
+                        "start": 7.328,
+                        "end": 7.348
+                    },
+                    {
+                        "word": "saw",
+                        "start": 7.988,
+                        "end": 8.309
+                    },
+                    {
+                        "word": "a",
+                        "start": 8.649,
+                        "end": 8.669
+                    },
+                    {
+                        "word": "magnificent",
+                        "start": 8.689,
+                        "end": 9.33
+                    },
+                    {
+                        "word": "picture",
+                        "start": 9.41,
+                        "end": 9.831
+                    },
+                    {
+                        "word": "in",
+                        "start": 9.871,
+                        "end": 10.271
+                    },
+                    {
+                        "word": "a",
+                        "start": 10.371,
+                        "end": 10.391
+                    },
+                    {
+                        "word": "book",
+                        "start": 10.431,
+                        "end": 10.692
+                    },
+                    {
+                        "word": "called",
+                        "start": 11.232,
+                        "end": 11.513
+                    },
+                    {
+                        "word": "True",
+                        "start": 11.553,
+                        "end": 12.013
+                    },
+                    {
+                        "word": "Stories",
+                        "start": 12.073,
+                        "end": 12.514
+                    },
+                    {
+                        "word": "from",
+                        "start": 12.774,
+                        "end": 12.935
+                    },
+                    {
+                        "word": "Nature",
+                        "start": 12.975,
+                        "end": 13.395
+                    },
+                    {
+                        "word": "about",
+                        "start": 13.415,
+                        "end": 14.917
+                    },
+                    {
+                        "word": "the",
+                        "start": 14.957,
+                        "end": 15.177
+                    },
+                    {
+                        "word": "primeval",
+                        "start": 15.217,
+                        "end": 15.738
+                    },
+                    {
+                        "word": "forest.",
+                        "start": 15.798,
+                        "end": 16.219
+                    },
+                    {
+                        "word": "It",
+                        "start": 17.5,
+                        "end": 17.58
+                    },
+                    {
+                        "word": "was",
+                        "start": 17.66,
+                        "end": 17.841
+                    },
+                    {
+                        "word": "a",
+                        "start": 17.921,
+                        "end": 17.961
+                    },
+                    {
+                        "word": "picture",
+                        "start": 18.021,
+                        "end": 18.481
+                    },
+                    {
+                        "word": "of",
+                        "start": 18.521,
+                        "end": 18.782
+                    },
+                    {
+                        "word": "a",
+                        "start": 18.862,
+                        "end": 18.902
+                    },
+                    {
+                        "word": "boa",
+                        "start": 18.942,
+                        "end": 19.262
+                    },
+                    {
+                        "word": "constrictor",
+                        "start": 19.322,
+                        "end": 19.983
+                    },
+                    {
+                        "word": "in",
+                        "start": 20.324,
+                        "end": 20.384
+                    },
+                    {
+                        "word": "the",
+                        "start": 20.424,
+                        "end": 20.504
+                    },
+                    {
+                        "word": "act",
+                        "start": 20.744,
+                        "end": 20.985
+                    },
+                    {
+                        "word": "of",
+                        "start": 21.285,
+                        "end": 21.345
+                    },
+                    {
+                        "word": "swallowing",
+                        "start": 21.385,
+                        "end": 21.986
+                    },
+                    {
+                        "word": "an",
+                        "start": 22.006,
+                        "end": 22.046
+                    },
+                    {
+                        "word": "animal.",
+                        "start": 22.146,
+                        "end": 22.647
+                    },
+                    {
+                        "word": "Here",
+                        "start": 23.548,
+                        "end": 23.868
+                    },
+                    {
+                        "word": "is",
+                        "start": 23.908,
+                        "end": 24.148
+                    },
+                    {
+                        "word": "a",
+                        "start": 24.209,
+                        "end": 24.229
+                    },
+                    {
+                        "word": "copy",
+                        "start": 24.289,
+                        "end": 24.669
+                    },
+                    {
+                        "word": "of",
+                        "start": 24.909,
+                        "end": 24.949
+                    },
+                    {
+                        "word": "the",
+                        "start": 24.989,
+                        "end": 25.07
+                    },
+                    {
+                        "word": "drawing.",
+                        "start": 25.11,
+                        "end": 25.43
+                    },
+                    {
+                        "word": "In",
+                        "start": 26.591,
+                        "end": 26.672
+                    },
+                    {
+                        "word": "the",
+                        "start": 26.732,
+                        "end": 26.832
+                    },
+                    {
+                        "word": "book,",
+                        "start": 26.892,
+                        "end": 27.152
+                    },
+                    {
+                        "word": "it",
+                        "start": 27.332,
+                        "end": 27.412
+                    },
+                    {
+                        "word": "said,",
+                        "start": 27.513,
+                        "end": 27.713
+                    },
+                    {
+                        "word": "Boa",
+                        "start": 28.173,
+                        "end": 28.494
+                    },
+                    {
+                        "word": "constrictors",
+                        "start": 28.534,
+                        "end": 29.175
+                    },
+                    {
+                        "word": "swallow",
+                        "start": 29.215,
+                        "end": 29.916
+                    },
+                    {
+                        "word": "their",
+                        "start": 29.976,
+                        "end": 30.136
+                    },
+                    {
+                        "word": "prey",
+                        "start": 30.236,
+                        "end": 30.556
+                    },
+                    {
+                        "word": "whole",
+                        "start": 30.697,
+                        "end": 30.997
+                    },
+                    {
+                        "word": "without",
+                        "start": 31.478,
+                        "end": 31.958
+                    },
+                    {
+                        "word": "chewing",
+                        "start": 32.158,
+                        "end": 32.499
+                    },
+                    {
+                        "word": "it.",
+                        "start": 32.559,
+                        "end": 33.48
+                    },
+                    {
+                        "word": "After",
+                        "start": 33.46,
+                        "end": 33.961
+                    },
+                    {
+                        "word": "that,",
+                        "start": 34.021,
+                        "end": 34.221
+                    },
+                    {
+                        "word": "they",
+                        "start": 34.601,
+                        "end": 34.782
+                    },
+                    {
+                        "word": "are",
+                        "start": 34.882,
+                        "end": 34.982
+                    },
+                    {
+                        "word": "not",
+                        "start": 35.062,
+                        "end": 35.262
+                    },
+                    {
+                        "word": "able",
+                        "start": 35.463,
+                        "end": 35.643
+                    },
+                    {
+                        "word": "to",
+                        "start": 35.703,
+                        "end": 35.783
+                    },
+                    {
+                        "word": "move,",
+                        "start": 35.863,
+                        "end": 36.163
+                    },
+                    {
+                        "word": "and",
+                        "start": 36.764,
+                        "end": 36.864
+                    },
+                    {
+                        "word": "they",
+                        "start": 36.924,
+                        "end": 37.065
+                    },
+                    {
+                        "word": "sleep",
+                        "start": 37.125,
+                        "end": 37.585
+                    },
+                    {
+                        "word": "through",
+                        "start": 37.785,
+                        "end": 38.006
+                    },
+                    {
+                        "word": "the",
+                        "start": 38.046,
+                        "end": 38.146
+                    },
+                    {
+                        "word": "six",
+                        "start": 38.226,
+                        "end": 38.446
+                    },
+                    {
+                        "word": "months",
+                        "start": 38.506,
+                        "end": 38.747
+                    },
+                    {
+                        "word": "that",
+                        "start": 38.807,
+                        "end": 38.967
+                    },
+                    {
+                        "word": "they",
+                        "start": 38.987,
+                        "end": 39.147
+                    },
+                    {
+                        "word": "need",
+                        "start": 39.187,
+                        "end": 39.508
+                    },
+                    {
+                        "word": "for",
+                        "start": 39.688,
+                        "end": 39.848
+                    },
+                    {
+                        "word": "digestion.",
+                        "start": 39.908,
+                        "end": 40.489
+                    },
+                    {
+                        "word": "I",
+                        "start": 41.49,
+                        "end": 41.55
+                    },
+                    {
+                        "word": "pondered",
+                        "start": 41.75,
+                        "end": 42.211
+                    },
+                    {
+                        "word": "deeply",
+                        "start": 42.231,
+                        "end": 42.932
+                    },
+                    {
+                        "word": "then",
+                        "start": 42.952,
+                        "end": 43.553
+                    },
+                    {
+                        "word": "over",
+                        "start": 43.593,
+                        "end": 44.053
+                    },
+                    {
+                        "word": "the",
+                        "start": 44.093,
+                        "end": 44.214
+                    },
+                    {
+                        "word": "adventures",
+                        "start": 44.334,
+                        "end": 44.894
+                    },
+                    {
+                        "word": "of",
+                        "start": 44.914,
+                        "end": 45.175
+                    },
+                    {
+                        "word": "the",
+                        "start": 45.215,
+                        "end": 45.315
+                    },
+                    {
+                        "word": "jungle,",
+                        "start": 45.355,
+                        "end": 45.796
+                    },
+                    {
+                        "word": "and",
+                        "start": 46.757,
+                        "end": 46.877
+                    },
+                    {
+                        "word": "after",
+                        "start": 47.217,
+                        "end": 47.538
+                    },
+                    {
+                        "word": "some",
+                        "start": 47.578,
+                        "end": 47.898
+                    },
+                    {
+                        "word": "work",
+                        "start": 47.958,
+                        "end": 48.259
+                    },
+                    {
+                        "word": "with",
+                        "start": 48.399,
+                        "end": 48.539
+                    },
+                    {
+                        "word": "a",
+                        "start": 48.559,
+                        "end": 48.579
+                    },
+                    {
+                        "word": "coloured",
+                        "start": 48.619,
+                        "end": 49.18
+                    },
+                    {
+                        "word": "pencil,",
+                        "start": 49.3,
+                        "end": 49.801
+                    },
+                    {
+                        "word": "I",
+                        "start": 50.482,
+                        "end": 50.522
+                    },
+                    {
+                        "word": "succeeded",
+                        "start": 50.662,
+                        "end": 51.182
+                    },
+                    {
+                        "word": "in",
+                        "start": 51.222,
+                        "end": 51.623
+                    },
+                    {
+                        "word": "making",
+                        "start": 51.723,
+                        "end": 52.023
+                    },
+                    {
+                        "word": "my",
+                        "start": 52.084,
+                        "end": 52.224
+                    },
+                    {
+                        "word": "first",
+                        "start": 52.304,
+                        "end": 52.604
+                    },
+                    {
+                        "word": "drawing,",
+                        "start": 52.744,
+                        "end": 53.145
+                    },
+                    {
+                        "word": "my",
+                        "start": 53.926,
+                        "end": 54.086
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 54.126,
+                        "end": 54.427
+                    },
+                    {
+                        "word": "number",
+                        "start": 54.487,
+                        "end": 54.727
+                    },
+                    {
+                        "word": "one.",
+                        "start": 54.867,
+                        "end": 55.007
+                    },
+                    {
+                        "word": "It",
+                        "start": 55.868,
+                        "end": 55.948
+                    },
+                    {
+                        "word": "looks",
+                        "start": 56.089,
+                        "end": 56.429
+                    },
+                    {
+                        "word": "like",
+                        "start": 56.569,
+                        "end": 56.749
+                    },
+                    {
+                        "word": "this.",
+                        "start": 56.81,
+                        "end": 57.19
+                    },
+                    {
+                        "word": "I",
+                        "start": 58.3,
+                        "end": 58.54
+                    },
+                    {
+                        "word": "showed",
+                        "start": 58.56,
+                        "end": 59.041
+                    },
+                    {
+                        "word": "my",
+                        "start": 59.081,
+                        "end": 59.361
+                    },
+                    {
+                        "word": "masterpiece",
+                        "start": 59.422,
+                        "end": 60.122
+                    },
+                    {
+                        "word": "to",
+                        "start": 60.363,
+                        "end": 60.483
+                    },
+                    {
+                        "word": "the",
+                        "start": 60.523,
+                        "end": 60.583
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 60.643,
+                        "end": 61.224
+                    },
+                    {
+                        "word": "and",
+                        "start": 61.825,
+                        "end": 61.925
+                    },
+                    {
+                        "word": "asked",
+                        "start": 61.965,
+                        "end": 62.406
+                    },
+                    {
+                        "word": "them",
+                        "start": 62.446,
+                        "end": 62.606
+                    },
+                    {
+                        "word": "whether",
+                        "start": 62.926,
+                        "end": 63.247
+                    },
+                    {
+                        "word": "the",
+                        "start": 63.287,
+                        "end": 63.507
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 63.567,
+                        "end": 63.968
+                    },
+                    {
+                        "word": "frightened",
+                        "start": 64.148,
+                        "end": 64.609
+                    },
+                    {
+                        "word": "them.",
+                        "start": 64.669,
+                        "end": 64.829
+                    },
+                    {
+                        "word": "But",
+                        "start": 65.89,
+                        "end": 66.011
+                    },
+                    {
+                        "word": "they",
+                        "start": 66.091,
+                        "end": 66.271
+                    },
+                    {
+                        "word": "answered,",
+                        "start": 66.311,
+                        "end": 66.852
+                    },
+                    {
+                        "word": "frightened?",
+                        "start": 67.573,
+                        "end": 68.013
+                    },
+                    {
+                        "word": "Why",
+                        "start": 68.754,
+                        "end": 68.995
+                    },
+                    {
+                        "word": "should",
+                        "start": 69.015,
+                        "end": 69.295
+                    },
+                    {
+                        "word": "anyone",
+                        "start": 69.415,
+                        "end": 69.716
+                    },
+                    {
+                        "word": "be",
+                        "start": 69.756,
+                        "end": 69.836
+                    },
+                    {
+                        "word": "frightened",
+                        "start": 69.876,
+                        "end": 70.216
+                    },
+                    {
+                        "word": "by",
+                        "start": 70.296,
+                        "end": 70.457
+                    },
+                    {
+                        "word": "a",
+                        "start": 70.557,
+                        "end": 70.617
+                    },
+                    {
+                        "word": "hat?",
+                        "start": 70.677,
+                        "end": 71.017
+                    },
+                    {
+                        "word": "My",
+                        "start": 72.6,
+                        "end": 72.78
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 72.84,
+                        "end": 73.321
+                    },
+                    {
+                        "word": "was",
+                        "start": 73.581,
+                        "end": 73.741
+                    },
+                    {
+                        "word": "not",
+                        "start": 73.861,
+                        "end": 74.042
+                    },
+                    {
+                        "word": "a",
+                        "start": 74.162,
+                        "end": 74.202
+                    },
+                    {
+                        "word": "picture",
+                        "start": 74.262,
+                        "end": 74.682
+                    },
+                    {
+                        "word": "of",
+                        "start": 74.823,
+                        "end": 74.863
+                    },
+                    {
+                        "word": "a",
+                        "start": 74.963,
+                        "end": 75.003
+                    },
+                    {
+                        "word": "hat,",
+                        "start": 75.083,
+                        "end": 75.444
+                    },
+                    {
+                        "word": "it",
+                        "start": 75.844,
+                        "end": 75.904
+                    },
+                    {
+                        "word": "was",
+                        "start": 75.984,
+                        "end": 76.104
+                    },
+                    {
+                        "word": "a",
+                        "start": 76.185,
+                        "end": 76.205
+                    },
+                    {
+                        "word": "picture",
+                        "start": 76.265,
+                        "end": 76.685
+                    },
+                    {
+                        "word": "of",
+                        "start": 76.725,
+                        "end": 77.026
+                    },
+                    {
+                        "word": "a",
+                        "start": 77.106,
+                        "end": 77.126
+                    },
+                    {
+                        "word": "boa",
+                        "start": 77.166,
+                        "end": 77.486
+                    },
+                    {
+                        "word": "constrictor",
+                        "start": 77.506,
+                        "end": 78.187
+                    },
+                    {
+                        "word": "digesting",
+                        "start": 78.528,
+                        "end": 79.169
+                    },
+                    {
+                        "word": "an",
+                        "start": 79.349,
+                        "end": 79.509
+                    },
+                    {
+                        "word": "elephant.",
+                        "start": 79.569,
+                        "end": 80.19
+                    },
+                    {
+                        "word": "But",
+                        "start": 81.014,
+                        "end": 81.174
+                    },
+                    {
+                        "word": "since",
+                        "start": 81.315,
+                        "end": 81.575
+                    },
+                    {
+                        "word": "the",
+                        "start": 81.595,
+                        "end": 81.736
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 81.776,
+                        "end": 82.357
+                    },
+                    {
+                        "word": "were",
+                        "start": 82.497,
+                        "end": 82.637
+                    },
+                    {
+                        "word": "not",
+                        "start": 82.718,
+                        "end": 82.938
+                    },
+                    {
+                        "word": "able",
+                        "start": 83.159,
+                        "end": 83.339
+                    },
+                    {
+                        "word": "to",
+                        "start": 83.399,
+                        "end": 83.459
+                    },
+                    {
+                        "word": "understand",
+                        "start": 83.579,
+                        "end": 84.221
+                    },
+                    {
+                        "word": "it,",
+                        "start": 84.321,
+                        "end": 84.421
+                    },
+                    {
+                        "word": "I",
+                        "start": 85.043,
+                        "end": 85.103
+                    },
+                    {
+                        "word": "made",
+                        "start": 85.183,
+                        "end": 85.403
+                    },
+                    {
+                        "word": "another",
+                        "start": 85.443,
+                        "end": 85.945
+                    },
+                    {
+                        "word": "drawing.",
+                        "start": 85.985,
+                        "end": 86.887
+                    },
+                    {
+                        "word": "I",
+                        "start": 86.907,
+                        "end": 86.967
+                    },
+                    {
+                        "word": "drew",
+                        "start": 87.027,
+                        "end": 87.227
+                    },
+                    {
+                        "word": "the",
+                        "start": 87.247,
+                        "end": 87.468
+                    },
+                    {
+                        "word": "inside",
+                        "start": 87.608,
+                        "end": 88.129
+                    },
+                    {
+                        "word": "of",
+                        "start": 88.45,
+                        "end": 88.51
+                    },
+                    {
+                        "word": "the",
+                        "start": 88.55,
+                        "end": 88.63
+                    },
+                    {
+                        "word": "boa",
+                        "start": 88.67,
+                        "end": 88.991
+                    },
+                    {
+                        "word": "constrictor,",
+                        "start": 89.031,
+                        "end": 89.672
+                    },
+                    {
+                        "word": "so",
+                        "start": 90.354,
+                        "end": 90.534
+                    },
+                    {
+                        "word": "that",
+                        "start": 90.594,
+                        "end": 90.775
+                    },
+                    {
+                        "word": "the",
+                        "start": 90.995,
+                        "end": 91.096
+                    },
+                    {
+                        "word": "grown-ups",
+                        "start": 91.136,
+                        "end": 91.657
+                    },
+                    {
+                        "word": "could",
+                        "start": 91.777,
+                        "end": 91.977
+                    },
+                    {
+                        "word": "see",
+                        "start": 92.038,
+                        "end": 92.198
+                    },
+                    {
+                        "word": "it",
+                        "start": 92.258,
+                        "end": 92.298
+                    },
+                    {
+                        "word": "clearly.",
+                        "start": 92.559,
+                        "end": 92.939
+                    },
+                    {
+                        "word": "They",
+                        "start": 93.42,
+                        "end": 93.621
+                    },
+                    {
+                        "word": "always",
+                        "start": 93.641,
+                        "end": 94.202
+                    },
+                    {
+                        "word": "need",
+                        "start": 94.242,
+                        "end": 94.723
+                    },
+                    {
+                        "word": "to",
+                        "start": 94.743,
+                        "end": 94.803
+                    },
+                    {
+                        "word": "have",
+                        "start": 94.844,
+                        "end": 94.964
+                    },
+                    {
+                        "word": "things",
+                        "start": 95.004,
+                        "end": 95.264
+                    },
+                    {
+                        "word": "explained.",
+                        "start": 95.305,
+                        "end": 95.986
+                    },
+                    {
+                        "word": "My",
+                        "start": 96.708,
+                        "end": 96.908
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 96.928,
+                        "end": 97.229
+                    },
+                    {
+                        "word": "number",
+                        "start": 97.289,
+                        "end": 97.549
+                    },
+                    {
+                        "word": "two",
+                        "start": 97.589,
+                        "end": 97.81
+                    },
+                    {
+                        "word": "looked",
+                        "start": 97.85,
+                        "end": 98.511
+                    },
+                    {
+                        "word": "like",
+                        "start": 98.672,
+                        "end": 98.852
+                    },
+                    {
+                        "word": "this.",
+                        "start": 98.912,
+                        "end": 99.293
+                    },
+                    {
+                        "word": "The",
+                        "start": 101.568,
+                        "end": 101.788
+                    },
+                    {
+                        "word": "grown-up's",
+                        "start": 101.909,
+                        "end": 102.53
+                    },
+                    {
+                        "word": "response",
+                        "start": 102.61,
+                        "end": 103.071
+                    },
+                    {
+                        "word": "this",
+                        "start": 103.091,
+                        "end": 103.331
+                    },
+                    {
+                        "word": "time",
+                        "start": 103.391,
+                        "end": 103.632
+                    },
+                    {
+                        "word": "was",
+                        "start": 103.952,
+                        "end": 104.152
+                    },
+                    {
+                        "word": "to",
+                        "start": 104.233,
+                        "end": 104.373
+                    },
+                    {
+                        "word": "advise",
+                        "start": 104.393,
+                        "end": 104.934
+                    },
+                    {
+                        "word": "me",
+                        "start": 105.014,
+                        "end": 105.174
+                    },
+                    {
+                        "word": "to",
+                        "start": 105.455,
+                        "end": 105.575
+                    },
+                    {
+                        "word": "lay",
+                        "start": 105.675,
+                        "end": 105.936
+                    },
+                    {
+                        "word": "aside",
+                        "start": 105.976,
+                        "end": 106.476
+                    },
+                    {
+                        "word": "my",
+                        "start": 106.517,
+                        "end": 106.817
+                    },
+                    {
+                        "word": "drawings",
+                        "start": 106.877,
+                        "end": 107.398
+                    },
+                    {
+                        "word": "of",
+                        "start": 107.839,
+                        "end": 107.899
+                    },
+                    {
+                        "word": "boa",
+                        "start": 107.999,
+                        "end": 108.3
+                    },
+                    {
+                        "word": "constrictors,",
+                        "start": 108.34,
+                        "end": 109.081
+                    },
+                    {
+                        "word": "whether",
+                        "start": 109.822,
+                        "end": 110.163
+                    },
+                    {
+                        "word": "from",
+                        "start": 110.323,
+                        "end": 110.483
+                    },
+                    {
+                        "word": "the",
+                        "start": 110.503,
+                        "end": 110.624
+                    },
+                    {
+                        "word": "inside",
+                        "start": 110.764,
+                        "end": 111.285
+                    },
+                    {
+                        "word": "or",
+                        "start": 111.325,
+                        "end": 111.706
+                    },
+                    {
+                        "word": "the",
+                        "start": 111.746,
+                        "end": 111.926
+                    },
+                    {
+                        "word": "outside,",
+                        "start": 112.066,
+                        "end": 112.547
+                    },
+                    {
+                        "word": "and",
+                        "start": 113.348,
+                        "end": 113.469
+                    },
+                    {
+                        "word": "devote",
+                        "start": 113.509,
+                        "end": 114.11
+                    },
+                    {
+                        "word": "myself",
+                        "start": 114.15,
+                        "end": 114.691
+                    },
+                    {
+                        "word": "instead",
+                        "start": 114.851,
+                        "end": 115.272
+                    },
+                    {
+                        "word": "to",
+                        "start": 115.312,
+                        "end": 115.753
+                    },
+                    {
+                        "word": "geography,",
+                        "start": 115.833,
+                        "end": 116.474
+                    },
+                    {
+                        "word": "history,",
+                        "start": 117.075,
+                        "end": 117.516
+                    },
+                    {
+                        "word": "arithmetic,",
+                        "start": 118.157,
+                        "end": 118.818
+                    },
+                    {
+                        "word": "and",
+                        "start": 119.459,
+                        "end": 119.599
+                    },
+                    {
+                        "word": "grammar.",
+                        "start": 119.679,
+                        "end": 120.08
+                    },
+                    {
+                        "word": "That",
+                        "start": 121.262,
+                        "end": 121.482
+                    },
+                    {
+                        "word": "is",
+                        "start": 121.522,
+                        "end": 121.743
+                    },
+                    {
+                        "word": "why,",
+                        "start": 121.843,
+                        "end": 122.204
+                    },
+                    {
+                        "word": "at",
+                        "start": 122.244,
+                        "end": 122.584
+                    },
+                    {
+                        "word": "the",
+                        "start": 122.624,
+                        "end": 122.725
+                    },
+                    {
+                        "word": "age",
+                        "start": 122.905,
+                        "end": 123.085
+                    },
+                    {
+                        "word": "of",
+                        "start": 123.145,
+                        "end": 123.205
+                    },
+                    {
+                        "word": "six,",
+                        "start": 123.245,
+                        "end": 124.167
+                    },
+                    {
+                        "word": "I",
+                        "start": 124.147,
+                        "end": 124.468
+                    },
+                    {
+                        "word": "gave",
+                        "start": 124.488,
+                        "end": 124.729
+                    },
+                    {
+                        "word": "up",
+                        "start": 124.829,
+                        "end": 124.909
+                    },
+                    {
+                        "word": "what",
+                        "start": 125.15,
+                        "end": 125.33
+                    },
+                    {
+                        "word": "might",
+                        "start": 125.451,
+                        "end": 125.651
+                    },
+                    {
+                        "word": "have",
+                        "start": 125.731,
+                        "end": 125.872
+                    },
+                    {
+                        "word": "been",
+                        "start": 125.952,
+                        "end": 126.152
+                    },
+                    {
+                        "word": "a",
+                        "start": 126.172,
+                        "end": 126.193
+                    },
+                    {
+                        "word": "magnificent",
+                        "start": 126.493,
+                        "end": 127.296
+                    },
+                    {
+                        "word": "career",
+                        "start": 127.376,
+                        "end": 127.757
+                    },
+                    {
+                        "word": "as",
+                        "start": 127.777,
+                        "end": 128.198
+                    },
+                    {
+                        "word": "a",
+                        "start": 128.238,
+                        "end": 128.298
+                    },
+                    {
+                        "word": "painter.",
+                        "start": 128.358,
+                        "end": 128.719
+                    },
+                    {
+                        "word": "I",
+                        "start": 129.903,
+                        "end": 129.963
+                    },
+                    {
+                        "word": "had",
+                        "start": 130.043,
+                        "end": 130.163
+                    },
+                    {
+                        "word": "been",
+                        "start": 130.203,
+                        "end": 130.444
+                    },
+                    {
+                        "word": "disheartened",
+                        "start": 130.564,
+                        "end": 131.286
+                    },
+                    {
+                        "word": "by",
+                        "start": 131.326,
+                        "end": 131.888
+                    },
+                    {
+                        "word": "the",
+                        "start": 131.928,
+                        "end": 132.008
+                    },
+                    {
+                        "word": "failure",
+                        "start": 132.109,
+                        "end": 132.53
+                    },
+                    {
+                        "word": "of",
+                        "start": 132.831,
+                        "end": 132.891
+                    },
+                    {
+                        "word": "my",
+                        "start": 132.971,
+                        "end": 133.091
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 133.131,
+                        "end": 133.472
+                    },
+                    {
+                        "word": "number",
+                        "start": 133.532,
+                        "end": 133.833
+                    },
+                    {
+                        "word": "one",
+                        "start": 134.014,
+                        "end": 134.114
+                    },
+                    {
+                        "word": "and",
+                        "start": 134.676,
+                        "end": 134.836
+                    },
+                    {
+                        "word": "my",
+                        "start": 134.876,
+                        "end": 135.016
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 135.037,
+                        "end": 135.357
+                    },
+                    {
+                        "word": "number",
+                        "start": 135.397,
+                        "end": 135.618
+                    },
+                    {
+                        "word": "two.",
+                        "start": 135.658,
+                        "end": 135.979
+                    },
+                    {
+                        "word": "Grown-ups",
+                        "start": 137.191,
+                        "end": 137.912
+                    },
+                    {
+                        "word": "never",
+                        "start": 138.193,
+                        "end": 138.473
+                    },
+                    {
+                        "word": "understand",
+                        "start": 138.593,
+                        "end": 139.214
+                    },
+                    {
+                        "word": "anything",
+                        "start": 139.254,
+                        "end": 139.855
+                    },
+                    {
+                        "word": "by",
+                        "start": 140.035,
+                        "end": 140.156
+                    },
+                    {
+                        "word": "themselves,",
+                        "start": 140.216,
+                        "end": 140.797
+                    },
+                    {
+                        "word": "and",
+                        "start": 141.598,
+                        "end": 141.738
+                    },
+                    {
+                        "word": "it",
+                        "start": 141.778,
+                        "end": 141.818
+                    },
+                    {
+                        "word": "is",
+                        "start": 141.998,
+                        "end": 142.219
+                    },
+                    {
+                        "word": "tiresome",
+                        "start": 142.239,
+                        "end": 142.9
+                    },
+                    {
+                        "word": "for",
+                        "start": 143.12,
+                        "end": 143.26
+                    },
+                    {
+                        "word": "children",
+                        "start": 143.32,
+                        "end": 143.761
+                    },
+                    {
+                        "word": "to",
+                        "start": 144.102,
+                        "end": 144.202
+                    },
+                    {
+                        "word": "be",
+                        "start": 144.262,
+                        "end": 144.342
+                    },
+                    {
+                        "word": "always",
+                        "start": 144.522,
+                        "end": 144.903
+                    },
+                    {
+                        "word": "and",
+                        "start": 145.083,
+                        "end": 145.243
+                    },
+                    {
+                        "word": "forever",
+                        "start": 145.283,
+                        "end": 145.684
+                    },
+                    {
+                        "word": "explaining",
+                        "start": 145.724,
+                        "end": 146.465
+                    },
+                    {
+                        "word": "things",
+                        "start": 146.525,
+                        "end": 146.766
+                    },
+                    {
+                        "word": "to",
+                        "start": 146.826,
+                        "end": 146.966
+                    },
+                    {
+                        "word": "them.",
+                        "start": 147.026,
+                        "end": 147.166
+                    },
+                    {
+                        "word": "So",
+                        "start": 148.028,
+                        "end": 148.308
+                    },
+                    {
+                        "word": "then",
+                        "start": 148.348,
+                        "end": 148.749
+                    },
+                    {
+                        "word": "I",
+                        "start": 148.969,
+                        "end": 149.029
+                    },
+                    {
+                        "word": "chose",
+                        "start": 149.109,
+                        "end": 149.45
+                    },
+                    {
+                        "word": "another",
+                        "start": 149.49,
+                        "end": 150.031
+                    },
+                    {
+                        "word": "profession",
+                        "start": 150.111,
+                        "end": 150.612
+                    },
+                    {
+                        "word": "and",
+                        "start": 151.193,
+                        "end": 151.353
+                    },
+                    {
+                        "word": "learned",
+                        "start": 151.393,
+                        "end": 151.934
+                    },
+                    {
+                        "word": "to",
+                        "start": 151.954,
+                        "end": 151.994
+                    },
+                    {
+                        "word": "pilot",
+                        "start": 152.274,
+                        "end": 152.595
+                    },
+                    {
+                        "word": "airplanes.",
+                        "start": 152.715,
+                        "end": 153.256
+                    },
+                    {
+                        "word": "I",
+                        "start": 154.277,
+                        "end": 154.357
+                    },
+                    {
+                        "word": "have",
+                        "start": 154.418,
+                        "end": 154.558
+                    },
+                    {
+                        "word": "flown",
+                        "start": 154.638,
+                        "end": 154.978
+                    },
+                    {
+                        "word": "a",
+                        "start": 154.998,
+                        "end": 155.019
+                    },
+                    {
+                        "word": "little",
+                        "start": 155.219,
+                        "end": 155.459
+                    },
+                    {
+                        "word": "over",
+                        "start": 155.519,
+                        "end": 155.659
+                    },
+                    {
+                        "word": "all",
+                        "start": 155.86,
+                        "end": 156.02
+                    },
+                    {
+                        "word": "parts",
+                        "start": 156.1,
+                        "end": 156.381
+                    },
+                    {
+                        "word": "of",
+                        "start": 156.441,
+                        "end": 156.501
+                    },
+                    {
+                        "word": "the",
+                        "start": 156.521,
+                        "end": 156.641
+                    },
+                    {
+                        "word": "world,",
+                        "start": 156.681,
+                        "end": 157.002
+                    },
+                    {
+                        "word": "and",
+                        "start": 157.763,
+                        "end": 157.883
+                    },
+                    {
+                        "word": "it",
+                        "start": 157.903,
+                        "end": 157.943
+                    },
+                    {
+                        "word": "is",
+                        "start": 158.143,
+                        "end": 158.384
+                    },
+                    {
+                        "word": "true",
+                        "start": 158.404,
+                        "end": 158.804
+                    },
+                    {
+                        "word": "that",
+                        "start": 158.824,
+                        "end": 159.325
+                    },
+                    {
+                        "word": "geography",
+                        "start": 159.365,
+                        "end": 160.247
+                    },
+                    {
+                        "word": "has",
+                        "start": 160.387,
+                        "end": 160.547
+                    },
+                    {
+                        "word": "been",
+                        "start": 160.667,
+                        "end": 160.868
+                    },
+                    {
+                        "word": "very",
+                        "start": 161.088,
+                        "end": 161.428
+                    },
+                    {
+                        "word": "useful",
+                        "start": 161.609,
+                        "end": 161.969
+                    },
+                    {
+                        "word": "to",
+                        "start": 162.029,
+                        "end": 162.129
+                    },
+                    {
+                        "word": "me.",
+                        "start": 162.19,
+                        "end": 162.49
+                    },
+                    {
+                        "word": "At",
+                        "start": 163.246,
+                        "end": 163.466
+                    },
+                    {
+                        "word": "a",
+                        "start": 163.546,
+                        "end": 163.566
+                    },
+                    {
+                        "word": "glance,",
+                        "start": 163.647,
+                        "end": 164.107
+                    },
+                    {
+                        "word": "I",
+                        "start": 164.368,
+                        "end": 164.408
+                    },
+                    {
+                        "word": "can",
+                        "start": 164.468,
+                        "end": 164.588
+                    },
+                    {
+                        "word": "distinguish",
+                        "start": 164.668,
+                        "end": 165.309
+                    },
+                    {
+                        "word": "China",
+                        "start": 165.409,
+                        "end": 165.83
+                    },
+                    {
+                        "word": "from",
+                        "start": 166.13,
+                        "end": 166.27
+                    },
+                    {
+                        "word": "Arizona.",
+                        "start": 166.411,
+                        "end": 166.971
+                    },
+                    {
+                        "word": "If",
+                        "start": 167.813,
+                        "end": 167.893
+                    },
+                    {
+                        "word": "one",
+                        "start": 168.093,
+                        "end": 168.193
+                    },
+                    {
+                        "word": "gets",
+                        "start": 168.273,
+                        "end": 168.514
+                    },
+                    {
+                        "word": "lost",
+                        "start": 168.574,
+                        "end": 168.874
+                    },
+                    {
+                        "word": "in",
+                        "start": 168.914,
+                        "end": 169.054
+                    },
+                    {
+                        "word": "the",
+                        "start": 169.094,
+                        "end": 169.155
+                    },
+                    {
+                        "word": "night,",
+                        "start": 169.235,
+                        "end": 169.495
+                    },
+                    {
+                        "word": "such",
+                        "start": 170.116,
+                        "end": 170.356
+                    },
+                    {
+                        "word": "knowledge",
+                        "start": 170.436,
+                        "end": 170.797
+                    },
+                    {
+                        "word": "is",
+                        "start": 170.817,
+                        "end": 171.358
+                    },
+                    {
+                        "word": "valuable.",
+                        "start": 171.478,
+                        "end": 171.918
+                    },
+                    {
+                        "word": "In",
+                        "start": 173.341,
+                        "end": 173.421
+                    },
+                    {
+                        "word": "the",
+                        "start": 173.481,
+                        "end": 173.561
+                    },
+                    {
+                        "word": "course",
+                        "start": 173.641,
+                        "end": 173.961
+                    },
+                    {
+                        "word": "of",
+                        "start": 174.122,
+                        "end": 174.182
+                    },
+                    {
+                        "word": "this",
+                        "start": 174.202,
+                        "end": 174.522
+                    },
+                    {
+                        "word": "life,",
+                        "start": 174.642,
+                        "end": 174.903
+                    },
+                    {
+                        "word": "I",
+                        "start": 175.544,
+                        "end": 175.604
+                    },
+                    {
+                        "word": "have",
+                        "start": 175.684,
+                        "end": 175.884
+                    },
+                    {
+                        "word": "had",
+                        "start": 175.964,
+                        "end": 176.185
+                    },
+                    {
+                        "word": "a",
+                        "start": 176.205,
+                        "end": 176.225
+                    },
+                    {
+                        "word": "great",
+                        "start": 176.665,
+                        "end": 176.966
+                    },
+                    {
+                        "word": "many",
+                        "start": 177.046,
+                        "end": 177.246
+                    },
+                    {
+                        "word": "encounters",
+                        "start": 177.326,
+                        "end": 177.927
+                    },
+                    {
+                        "word": "with",
+                        "start": 177.967,
+                        "end": 178.368
+                    },
+                    {
+                        "word": "a",
+                        "start": 178.388,
+                        "end": 178.408
+                    },
+                    {
+                        "word": "great",
+                        "start": 178.608,
+                        "end": 178.848
+                    },
+                    {
+                        "word": "many",
+                        "start": 178.909,
+                        "end": 179.129
+                    },
+                    {
+                        "word": "people",
+                        "start": 179.189,
+                        "end": 179.509
+                    },
+                    {
+                        "word": "who",
+                        "start": 179.99,
+                        "end": 180.13
+                    },
+                    {
+                        "word": "have",
+                        "start": 180.17,
+                        "end": 180.291
+                    },
+                    {
+                        "word": "been",
+                        "start": 180.351,
+                        "end": 180.511
+                    },
+                    {
+                        "word": "concerned",
+                        "start": 180.591,
+                        "end": 181.252
+                    },
+                    {
+                        "word": "with",
+                        "start": 181.292,
+                        "end": 181.552
+                    },
+                    {
+                        "word": "matters",
+                        "start": 181.673,
+                        "end": 182.093
+                    },
+                    {
+                        "word": "of",
+                        "start": 182.133,
+                        "end": 182.374
+                    },
+                    {
+                        "word": "consequences.",
+                        "start": 182.414,
+                        "end": 183.415
+                    },
+                    {
+                        "word": "I",
+                        "start": 184.441,
+                        "end": 184.642
+                    },
+                    {
+                        "word": "have",
+                        "start": 184.682,
+                        "end": 184.842
+                    },
+                    {
+                        "word": "lived",
+                        "start": 184.943,
+                        "end": 185.284
+                    },
+                    {
+                        "word": "a",
+                        "start": 185.565,
+                        "end": 185.605
+                    },
+                    {
+                        "word": "great",
+                        "start": 185.685,
+                        "end": 185.906
+                    },
+                    {
+                        "word": "deal",
+                        "start": 185.966,
+                        "end": 186.207
+                    },
+                    {
+                        "word": "among",
+                        "start": 186.247,
+                        "end": 186.869
+                    },
+                    {
+                        "word": "grown-ups,",
+                        "start": 186.93,
+                        "end": 187.471
+                    },
+                    {
+                        "word": "I",
+                        "start": 188.575,
+                        "end": 188.635
+                    },
+                    {
+                        "word": "have",
+                        "start": 188.675,
+                        "end": 188.816
+                    },
+                    {
+                        "word": "seen",
+                        "start": 188.956,
+                        "end": 189.157
+                    },
+                    {
+                        "word": "them",
+                        "start": 189.197,
+                        "end": 189.338
+                    },
+                    {
+                        "word": "intimately,",
+                        "start": 189.559,
+                        "end": 190.141
+                    },
+                    {
+                        "word": "close",
+                        "start": 190.763,
+                        "end": 191.204
+                    },
+                    {
+                        "word": "at",
+                        "start": 191.304,
+                        "end": 191.365
+                    },
+                    {
+                        "word": "hand,",
+                        "start": 191.445,
+                        "end": 191.746
+                    },
+                    {
+                        "word": "and",
+                        "start": 192.649,
+                        "end": 192.79
+                    },
+                    {
+                        "word": "that",
+                        "start": 192.83,
+                        "end": 193.271
+                    },
+                    {
+                        "word": "hasn't",
+                        "start": 193.452,
+                        "end": 193.813
+                    },
+                    {
+                        "word": "much",
+                        "start": 193.913,
+                        "end": 194.134
+                    },
+                    {
+                        "word": "improved",
+                        "start": 194.315,
+                        "end": 194.997
+                    },
+                    {
+                        "word": "my",
+                        "start": 195.037,
+                        "end": 195.419
+                    },
+                    {
+                        "word": "opinion",
+                        "start": 195.559,
+                        "end": 196.021
+                    },
+                    {
+                        "word": "of",
+                        "start": 196.101,
+                        "end": 196.161
+                    },
+                    {
+                        "word": "them.",
+                        "start": 196.221,
+                        "end": 196.442
+                    },
+                    {
+                        "word": "Whenever",
+                        "start": 197.435,
+                        "end": 197.976
+                    },
+                    {
+                        "word": "I",
+                        "start": 198.116,
+                        "end": 198.156
+                    },
+                    {
+                        "word": "met",
+                        "start": 198.276,
+                        "end": 198.517
+                    },
+                    {
+                        "word": "one",
+                        "start": 198.557,
+                        "end": 198.977
+                    },
+                    {
+                        "word": "of",
+                        "start": 199.038,
+                        "end": 199.098
+                    },
+                    {
+                        "word": "them",
+                        "start": 199.158,
+                        "end": 199.298
+                    },
+                    {
+                        "word": "who",
+                        "start": 199.458,
+                        "end": 199.598
+                    },
+                    {
+                        "word": "seemed",
+                        "start": 199.759,
+                        "end": 200.119
+                    },
+                    {
+                        "word": "to",
+                        "start": 200.139,
+                        "end": 200.34
+                    },
+                    {
+                        "word": "me",
+                        "start": 200.4,
+                        "end": 200.52
+                    },
+                    {
+                        "word": "at",
+                        "start": 200.56,
+                        "end": 200.84
+                    },
+                    {
+                        "word": "all",
+                        "start": 200.86,
+                        "end": 201.221
+                    },
+                    {
+                        "word": "clear-sighted,",
+                        "start": 201.361,
+                        "end": 202.042
+                    },
+                    {
+                        "word": "I",
+                        "start": 202.082,
+                        "end": 202.904
+                    },
+                    {
+                        "word": "tried",
+                        "start": 203.064,
+                        "end": 203.445
+                    },
+                    {
+                        "word": "the",
+                        "start": 203.465,
+                        "end": 203.805
+                    },
+                    {
+                        "word": "experiment",
+                        "start": 203.905,
+                        "end": 204.566
+                    },
+                    {
+                        "word": "of",
+                        "start": 204.807,
+                        "end": 204.867
+                    },
+                    {
+                        "word": "showing",
+                        "start": 205.007,
+                        "end": 205.328
+                    },
+                    {
+                        "word": "him",
+                        "start": 205.408,
+                        "end": 205.528
+                    },
+                    {
+                        "word": "my",
+                        "start": 205.788,
+                        "end": 206.049
+                    },
+                    {
+                        "word": "drawing",
+                        "start": 206.149,
+                        "end": 206.469
+                    },
+                    {
+                        "word": "number",
+                        "start": 206.569,
+                        "end": 206.81
+                    },
+                    {
+                        "word": "one,",
+                        "start": 206.95,
+                        "end": 207.09
+                    },
+                    {
+                        "word": "which",
+                        "start": 207.852,
+                        "end": 208.032
+                    },
+                    {
+                        "word": "I",
+                        "start": 208.232,
+                        "end": 208.292
+                    },
+                    {
+                        "word": "have",
+                        "start": 208.352,
+                        "end": 208.493
+                    },
+                    {
+                        "word": "always",
+                        "start": 208.633,
+                        "end": 208.893
+                    },
+                    {
+                        "word": "kept.",
+                        "start": 209.013,
+                        "end": 209.314
+                    },
+                    {
+                        "word": "I",
+                        "start": 210.135,
+                        "end": 210.195
+                    },
+                    {
+                        "word": "would",
+                        "start": 210.235,
+                        "end": 210.416
+                    },
+                    {
+                        "word": "try",
+                        "start": 210.456,
+                        "end": 210.636
+                    },
+                    {
+                        "word": "to",
+                        "start": 210.676,
+                        "end": 210.776
+                    },
+                    {
+                        "word": "find",
+                        "start": 210.856,
+                        "end": 211.097
+                    },
+                    {
+                        "word": "out",
+                        "start": 211.277,
+                        "end": 211.397
+                    },
+                    {
+                        "word": "so",
+                        "start": 211.858,
+                        "end": 212.018
+                    },
+                    {
+                        "word": "if",
+                        "start": 212.399,
+                        "end": 212.459
+                    },
+                    {
+                        "word": "this",
+                        "start": 212.579,
+                        "end": 212.759
+                    },
+                    {
+                        "word": "was",
+                        "start": 212.839,
+                        "end": 213.0
+                    },
+                    {
+                        "word": "a",
+                        "start": 213.02,
+                        "end": 213.04
+                    },
+                    {
+                        "word": "person",
+                        "start": 213.16,
+                        "end": 213.581
+                    },
+                    {
+                        "word": "of",
+                        "start": 213.601,
+                        "end": 213.841
+                    },
+                    {
+                        "word": "true",
+                        "start": 213.881,
+                        "end": 214.202
+                    },
+                    {
+                        "word": "understanding.",
+                        "start": 214.342,
+                        "end": 215.123
+                    },
+                    {
+                        "word": "But",
+                        "start": 216.2,
+                        "end": 216.38
+                    },
+                    {
+                        "word": "whoever",
+                        "start": 216.48,
+                        "end": 217.081
+                    },
+                    {
+                        "word": "it",
+                        "start": 217.322,
+                        "end": 217.402
+                    },
+                    {
+                        "word": "was,",
+                        "start": 217.502,
+                        "end": 217.802
+                    },
+                    {
+                        "word": "he",
+                        "start": 218.323,
+                        "end": 218.483
+                    },
+                    {
+                        "word": "or",
+                        "start": 218.683,
+                        "end": 218.764
+                    },
+                    {
+                        "word": "she",
+                        "start": 218.864,
+                        "end": 219.104
+                    },
+                    {
+                        "word": "would",
+                        "start": 219.485,
+                        "end": 219.665
+                    },
+                    {
+                        "word": "always",
+                        "start": 219.765,
+                        "end": 220.065
+                    },
+                    {
+                        "word": "say,",
+                        "start": 220.165,
+                        "end": 220.446
+                    },
+                    {
+                        "word": "that's",
+                        "start": 221.267,
+                        "end": 221.487
+                    },
+                    {
+                        "word": "a",
+                        "start": 221.547,
+                        "end": 221.587
+                    },
+                    {
+                        "word": "hat.",
+                        "start": 221.647,
+                        "end": 221.948
+                    },
+                    {
+                        "word": "Then",
+                        "start": 223.13,
+                        "end": 223.39
+                    },
+                    {
+                        "word": "I",
+                        "start": 223.41,
+                        "end": 223.77
+                    },
+                    {
+                        "word": "would",
+                        "start": 223.83,
+                        "end": 224.031
+                    },
+                    {
+                        "word": "never",
+                        "start": 224.151,
+                        "end": 224.491
+                    },
+                    {
+                        "word": "talk",
+                        "start": 224.792,
+                        "end": 225.012
+                    },
+                    {
+                        "word": "to",
+                        "start": 225.072,
+                        "end": 225.212
+                    },
+                    {
+                        "word": "that",
+                        "start": 225.292,
+                        "end": 225.453
+                    },
+                    {
+                        "word": "person",
+                        "start": 225.533,
+                        "end": 225.973
+                    },
+                    {
+                        "word": "about",
+                        "start": 226.234,
+                        "end": 226.514
+                    },
+                    {
+                        "word": "boa",
+                        "start": 226.574,
+                        "end": 226.895
+                    },
+                    {
+                        "word": "constrictes,",
+                        "start": 226.915,
+                        "end": 227.696
+                    },
+                    {
+                        "word": "or",
+                        "start": 228.357,
+                        "end": 228.497
+                    },
+                    {
+                        "word": "primeval",
+                        "start": 228.617,
+                        "end": 229.098
+                    },
+                    {
+                        "word": "forests,",
+                        "start": 229.178,
+                        "end": 229.658
+                    },
+                    {
+                        "word": "or",
+                        "start": 230.42,
+                        "end": 230.54
+                    },
+                    {
+                        "word": "stars.",
+                        "start": 230.7,
+                        "end": 231.161
+                    },
+                    {
+                        "word": "I",
+                        "start": 232.322,
+                        "end": 232.382
+                    },
+                    {
+                        "word": "would",
+                        "start": 232.422,
+                        "end": 232.582
+                    },
+                    {
+                        "word": "bring",
+                        "start": 232.663,
+                        "end": 232.883
+                    },
+                    {
+                        "word": "myself",
+                        "start": 232.943,
+                        "end": 233.444
+                    },
+                    {
+                        "word": "down",
+                        "start": 233.544,
+                        "end": 233.844
+                    },
+                    {
+                        "word": "to",
+                        "start": 234.185,
+                        "end": 234.365
+                    },
+                    {
+                        "word": "his",
+                        "start": 234.465,
+                        "end": 234.645
+                    },
+                    {
+                        "word": "level.",
+                        "start": 234.725,
+                        "end": 235.006
+                    },
+                    {
+                        "word": "I",
+                        "start": 235.827,
+                        "end": 235.887
+                    },
+                    {
+                        "word": "would",
+                        "start": 235.967,
+                        "end": 236.127
+                    },
+                    {
+                        "word": "talk",
+                        "start": 236.227,
+                        "end": 236.428
+                    },
+                    {
+                        "word": "to",
+                        "start": 236.468,
+                        "end": 236.548
+                    },
+                    {
+                        "word": "him",
+                        "start": 236.608,
+                        "end": 236.788
+                    },
+                    {
+                        "word": "about",
+                        "start": 236.808,
+                        "end": 237.329
+                    },
+                    {
+                        "word": "bridge,",
+                        "start": 237.429,
+                        "end": 237.81
+                    },
+                    {
+                        "word": "and",
+                        "start": 238.27,
+                        "end": 238.39
+                    },
+                    {
+                        "word": "golf,",
+                        "start": 238.471,
+                        "end": 239.111
+                    },
+                    {
+                        "word": "and",
+                        "start": 239.131,
+                        "end": 239.252
+                    },
+                    {
+                        "word": "politics,",
+                        "start": 239.332,
+                        "end": 239.872
+                    },
+                    {
+                        "word": "and",
+                        "start": 240.393,
+                        "end": 240.493
+                    },
+                    {
+                        "word": "neckties.",
+                        "start": 240.573,
+                        "end": 241.735
+                    },
+                    {
+                        "word": "and",
+                        "start": 241.715,
+                        "end": 242.117
+                    },
+                    {
+                        "word": "the",
+                        "start": 242.158,
+                        "end": 242.419
+                    },
+                    {
+                        "word": "grown-up",
+                        "start": 242.459,
+                        "end": 242.962
+                    },
+                    {
+                        "word": "would",
+                        "start": 243.163,
+                        "end": 243.345
+                    },
+                    {
+                        "word": "be",
+                        "start": 243.425,
+                        "end": 243.546
+                    },
+                    {
+                        "word": "greatly",
+                        "start": 243.747,
+                        "end": 244.29
+                    },
+                    {
+                        "word": "pleased",
+                        "start": 244.431,
+                        "end": 245.014
+                    },
+                    {
+                        "word": "to",
+                        "start": 245.276,
+                        "end": 245.376
+                    },
+                    {
+                        "word": "have",
+                        "start": 245.437,
+                        "end": 245.578
+                    },
+                    {
+                        "word": "met",
+                        "start": 245.658,
+                        "end": 245.839
+                    },
+                    {
+                        "word": "such",
+                        "start": 245.94,
+                        "end": 246.201
+                    },
+                    {
+                        "word": "a",
+                        "start": 246.422,
+                        "end": 246.463
+                    },
+                    {
+                        "word": "sensible",
+                        "start": 246.543,
+                        "end": 247.026
+                    },
+                    {
+                        "word": "man.",
+                        "start": 247.066,
+                        "end": 247.388
+                    }
+                ],
+                "img": "imgs/chapter_0/s0010.png"
+            },
+            {
+                "text": "Then I would never talk to that person about boa constrictors, or primeval forests, or stars. I would bring myself down to his level. I would talk to him about bridge, and golf, and politics, and neckties. And the grown-up would be greatly pleased to have met such a sensible man.",
+                "start": 223.13,
+                "end": 247.388,
+                "words": [
+                    {
+                        "word": "Then",
+                        "start": 223.13,
+                        "end": 223.39
+                    },
+                    {
+                        "word": "I",
+                        "start": 223.41,
+                        "end": 223.77
+                    },
+                    {
+                        "word": "would",
+                        "start": 223.83,
+                        "end": 224.031
+                    },
+                    {
+                        "word": "never",
+                        "start": 224.151,
+                        "end": 224.491
+                    },
+                    {
+                        "word": "talk",
+                        "start": 224.792,
+                        "end": 225.012
+                    },
+                    {
+                        "word": "to",
+                        "start": 225.072,
+                        "end": 225.212
+                    },
+                    {
+                        "word": "that",
+                        "start": 225.292,
+                        "end": 225.453
+                    },
+                    {
+                        "word": "person",
+                        "start": 225.533,
+                        "end": 225.973
+                    },
+                    {
+                        "word": "about",
+                        "start": 226.234,
+                        "end": 226.514
+                    },
+                    {
+                        "word": "boa",
+                        "start": 226.574,
+                        "end": 226.895
+                    },
+                    {
+                        "word": "constrictes,",
+                        "start": 226.915,
+                        "end": 227.696
+                    },
+                    {
+                        "word": "or",
+                        "start": 228.357,
+                        "end": 228.497
+                    },
+                    {
+                        "word": "primeval",
+                        "start": 228.617,
+                        "end": 229.098
+                    },
+                    {
+                        "word": "forests,",
+                        "start": 229.178,
+                        "end": 229.658
+                    },
+                    {
+                        "word": "or",
+                        "start": 230.42,
+                        "end": 230.54
+                    },
+                    {
+                        "word": "stars.",
+                        "start": 230.7,
+                        "end": 231.161
+                    },
+                    {
+                        "word": "I",
+                        "start": 232.322,
+                        "end": 232.382
+                    },
+                    {
+                        "word": "would",
+                        "start": 232.422,
+                        "end": 232.582
+                    },
+                    {
+                        "word": "bring",
+                        "start": 232.663,
+                        "end": 232.883
+                    },
+                    {
+                        "word": "myself",
+                        "start": 232.943,
+                        "end": 233.444
+                    },
+                    {
+                        "word": "down",
+                        "start": 233.544,
+                        "end": 233.844
+                    },
+                    {
+                        "word": "to",
+                        "start": 234.185,
+                        "end": 234.365
+                    },
+                    {
+                        "word": "his",
+                        "start": 234.465,
+                        "end": 234.645
+                    },
+                    {
+                        "word": "level.",
+                        "start": 234.725,
+                        "end": 235.006
+                    },
+                    {
+                        "word": "I",
+                        "start": 235.827,
+                        "end": 235.887
+                    },
+                    {
+                        "word": "would",
+                        "start": 235.967,
+                        "end": 236.127
+                    },
+                    {
+                        "word": "talk",
+                        "start": 236.227,
+                        "end": 236.428
+                    },
+                    {
+                        "word": "to",
+                        "start": 236.468,
+                        "end": 236.548
+                    },
+                    {
+                        "word": "him",
+                        "start": 236.608,
+                        "end": 236.788
+                    },
+                    {
+                        "word": "about",
+                        "start": 236.808,
+                        "end": 237.329
+                    },
+                    {
+                        "word": "bridge,",
+                        "start": 237.429,
+                        "end": 237.81
+                    },
+                    {
+                        "word": "and",
+                        "start": 238.27,
+                        "end": 238.39
+                    },
+                    {
+                        "word": "golf,",
+                        "start": 238.471,
+                        "end": 239.111
+                    },
+                    {
+                        "word": "and",
+                        "start": 239.131,
+                        "end": 239.252
+                    },
+                    {
+                        "word": "politics,",
+                        "start": 239.332,
+                        "end": 239.872
+                    },
+                    {
+                        "word": "and",
+                        "start": 240.393,
+                        "end": 240.493
+                    },
+                    {
+                        "word": "neckties.",
+                        "start": 240.573,
+                        "end": 241.735
+                    },
+                    {
+                        "word": "and",
+                        "start": 241.715,
+                        "end": 242.117
+                    },
+                    {
+                        "word": "the",
+                        "start": 242.158,
+                        "end": 242.419
+                    },
+                    {
+                        "word": "grown-up",
+                        "start": 242.459,
+                        "end": 242.962
+                    },
+                    {
+                        "word": "would",
+                        "start": 243.163,
+                        "end": 243.345
+                    },
+                    {
+                        "word": "be",
+                        "start": 243.425,
+                        "end": 243.546
+                    },
+                    {
+                        "word": "greatly",
+                        "start": 243.747,
+                        "end": 244.29
+                    },
+                    {
+                        "word": "pleased",
+                        "start": 244.431,
+                        "end": 245.014
+                    },
+                    {
+                        "word": "to",
+                        "start": 245.276,
+                        "end": 245.376
+                    },
+                    {
+                        "word": "have",
+                        "start": 245.437,
+                        "end": 245.578
+                    },
+                    {
+                        "word": "met",
+                        "start": 245.658,
+                        "end": 245.839
+                    },
+                    {
+                        "word": "such",
+                        "start": 245.94,
+                        "end": 246.201
+                    },
+                    {
+                        "word": "a",
+                        "start": 246.422,
+                        "end": 246.463
+                    },
+                    {
+                        "word": "sensible",
+                        "start": 246.543,
+                        "end": 247.026
+                    },
+                    {
+                        "word": "man.",
+                        "start": 247.066,
+                        "end": 247.388
+                    }
+                ],
+                "img": "imgs/chapter_0/s0011.png"
+            }
+        ]
+    },
     {
         "id": "conversation_1",
         "title": "Conversation One",
@@ -10576,11 +15776,17 @@ export const RAW_CONVERSATION_DATA: Conversation[] = [
             }
         ]
     }
-]
+];
+
+// 合并新旧数据
+export const RAW_CONVERSATION_DATA: Conversation[] = [
+    ...existingData,
+    ...processedNewData
+];
 
 // -------- Helpers: 拆分过长句子为更短的 Sentence --------
 
-const MAX_WORDS_PER_SENTENCE = 43;
+const MAX_WORDS_PER_SENTENCE = 40;
 
 function isSentenceEndWord(word: string): boolean {
     const trimmed = word.trim();
@@ -10615,6 +15821,8 @@ function splitLongSentence(original: Sentence, maxWords: number = MAX_WORDS_PER_
                 start,
                 end,
                 words: currentWords,
+                // 继承原句的配图信息，用于 Study 模式句子画面展示
+                img: original.img,
             });
 
             currentWords = [];
@@ -10631,5 +15839,7 @@ function normalizeConversationSentences(sentences: Sentence[]): Sentence[] {
 // 对外暴露的对话数据：已按规则拆分过长句子
 export const CONVERSATION_DATA: Conversation[] = RAW_CONVERSATION_DATA.map(conversation => ({
     ...conversation,
+    // # TODO: 不拆分试试
     sentences: normalizeConversationSentences(conversation.sentences),
+    // sentences: conversation.sentences,
 }));

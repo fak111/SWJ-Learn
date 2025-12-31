@@ -35,22 +35,34 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
 
+  // 将真实音频 URL 抽象成对用户友好的标识（避免暴露完整 CDN 域名）
+  const getDisplaySourceLabel = (raw: string) => {
+    try {
+      const url = new URL(raw);
+      const filename = url.pathname.split('/').pop();
+      return filename || url.pathname || 'audio';
+    } catch {
+      const filename = raw.split('/').pop();
+      return filename || raw || 'audio';
+    }
+  };
+
   // Effect to handle external time changes (like clicking a word or daily page auto-jump)
   useEffect(() => {
     if (audioRef.current && Math.abs(audioRef.current.currentTime - currentTime) > 0.5) {
-       audioRef.current.currentTime = currentTime;
+      audioRef.current.currentTime = currentTime;
     }
   }, [currentTime]);
 
   // Effect to enforce start time on load or when start time changes (e.g. dictation sentence change)
   useEffect(() => {
-      if (audioRef.current) {
-          // If the current time is completely outside the new window, jump to start
-          if (startTime > 0 && (currentTime < startTime - 0.5 || (endTime && currentTime > endTime + 0.5))) {
-              audioRef.current.currentTime = startTime;
-              onTimeUpdate(startTime);
-          }
+    if (audioRef.current) {
+      // If the current time is completely outside the new window, jump to start
+      if (startTime > 0 && (currentTime < startTime - 0.5 || (endTime && currentTime > endTime + 0.5))) {
+        audioRef.current.currentTime = startTime;
+        onTimeUpdate(startTime);
       }
+    }
   }, [startTime, endTime, src]);
 
   useEffect(() => {
@@ -58,13 +70,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       if (isPlaying) {
         // Ensure we are within bounds before playing
         if (endTime && audioRef.current.currentTime >= endTime) {
-            audioRef.current.currentTime = startTime;
-            onTimeUpdate(startTime);
+          audioRef.current.currentTime = startTime;
+          onTimeUpdate(startTime);
         }
-        
+
         audioRef.current.play().catch(e => {
-            console.error("Play error:", e);
-            setError(`Could not play audio. Tried loading: "${src}". Please check the file exists.`);
+          console.error("Play error for audio source:", src, e);
+          const label = getDisplaySourceLabel(src);
+          setError(`音频无法播放（文件名：${label}）。请检查文件是否已正确上传。`);
         });
       } else {
         audioRef.current.pause();
@@ -81,47 +94,48 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       const curr = audioRef.current.currentTime;
-      
+
       // Boundary enforcement
       if (endTime && curr >= endTime) {
-          if (loop) {
-              // Loop back to start
-              audioRef.current.currentTime = startTime;
-              onTimeUpdate(startTime);
-              // Keep playing (isPlaying is true)
-          } else {
-              // Stop
-              audioRef.current.pause();
-              onPlayPause(); // Toggle state to paused
-              onTimeUpdate(endTime);
-          }
-          return;
+        if (loop) {
+          // Loop back to start
+          audioRef.current.currentTime = startTime;
+          onTimeUpdate(startTime);
+          // Keep playing (isPlaying is true)
+        } else {
+          // Stop
+          audioRef.current.pause();
+          onPlayPause(); // Toggle state to paused
+          onTimeUpdate(endTime);
+        }
+        return;
       }
-      
+
       onTimeUpdate(curr);
     }
   };
 
   const handleError = () => {
-      setError(`Audio missing. Looking for: "${src}"`);
+    const label = getDisplaySourceLabel(src);
+    setError(`音频加载失败，未找到文件：${label}`);
   };
 
   const handleLoadedMetadata = () => {
-      if (audioRef.current) {
-          setDuration(audioRef.current.duration);
-          setError(null);
-          // Initial seek if at 0
-          if (currentTime === 0 && startTime > 0) {
-              audioRef.current.currentTime = startTime;
-              onTimeUpdate(startTime);
-          }
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+      setError(null);
+      // Initial seek if at 0
+      if (currentTime === 0 && startTime > 0) {
+        audioRef.current.currentTime = startTime;
+        onTimeUpdate(startTime);
       }
+    }
   };
 
   const handleScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
     const relativeTime = Number(e.target.value);
     const absoluteTime = startTime + relativeTime;
-    
+
     onTimeUpdate(absoluteTime);
     if (audioRef.current) {
       audioRef.current.currentTime = absoluteTime;
@@ -129,74 +143,74 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   };
 
   const seekTo = (time: number) => {
-      const clamped = Math.max(startTime, Math.min(endTime || duration, time));
-      onTimeUpdate(clamped);
-      if(audioRef.current) audioRef.current.currentTime = clamped;
+    const clamped = Math.max(startTime, Math.min(endTime || duration, time));
+    onTimeUpdate(clamped);
+    if (audioRef.current) audioRef.current.currentTime = clamped;
   };
 
   // --- Sentence Navigation Logic ---
 
   const handlePrevSentence = () => {
     if (sentences.length === 0) {
-        seekTo(currentTime - 5);
-        return;
+      seekTo(currentTime - 5);
+      return;
     }
 
     // Find active sentence index
     const currentIdx = sentences.findIndex(s => currentTime >= s.start && currentTime <= s.end);
-    
+
     // If we are currently in a sentence
     if (currentIdx !== -1) {
-        const currentSentence = sentences[currentIdx];
-        // If we are more than 1.5s into the sentence, just restart the current sentence
-        if (currentTime > currentSentence.start + 1.5) {
-            seekTo(currentSentence.start);
-        } else if (currentIdx > 0) {
-            // Otherwise go to previous sentence
-            seekTo(sentences[currentIdx - 1].start);
-        } else {
-            seekTo(startTime);
-        }
+      const currentSentence = sentences[currentIdx];
+      // If we are more than 1.5s into the sentence, just restart the current sentence
+      if (currentTime > currentSentence.start + 1.5) {
+        seekTo(currentSentence.start);
+      } else if (currentIdx > 0) {
+        // Otherwise go to previous sentence
+        seekTo(sentences[currentIdx - 1].start);
+      } else {
+        seekTo(startTime);
+      }
     } else {
-        // We are in a gap, find the last sentence that ended before now
-        let prevIdx = -1;
-        // Using manual loop for compatibility
-        for (let i = sentences.length - 1; i >= 0; i--) {
-            if (sentences[i].end < currentTime) {
-                prevIdx = i;
-                break;
-            }
+      // We are in a gap, find the last sentence that ended before now
+      let prevIdx = -1;
+      // Using manual loop for compatibility
+      for (let i = sentences.length - 1; i >= 0; i--) {
+        if (sentences[i].end < currentTime) {
+          prevIdx = i;
+          break;
         }
+      }
 
-        if (prevIdx !== -1) {
-            seekTo(sentences[prevIdx].start);
-        } else {
-            seekTo(startTime);
-        }
+      if (prevIdx !== -1) {
+        seekTo(sentences[prevIdx].start);
+      } else {
+        seekTo(startTime);
+      }
     }
   };
 
   const handleNextSentence = () => {
-      if (sentences.length === 0) {
-          seekTo(currentTime + 5);
-          return;
-      }
+    if (sentences.length === 0) {
+      seekTo(currentTime + 5);
+      return;
+    }
 
-      // Find active sentence index
-      const currentIdx = sentences.findIndex(s => currentTime >= s.start && currentTime <= s.end);
+    // Find active sentence index
+    const currentIdx = sentences.findIndex(s => currentTime >= s.start && currentTime <= s.end);
 
-      if (currentIdx !== -1 && currentIdx < sentences.length - 1) {
-          // Jump to next start
-          seekTo(sentences[currentIdx + 1].start);
+    if (currentIdx !== -1 && currentIdx < sentences.length - 1) {
+      // Jump to next start
+      seekTo(sentences[currentIdx + 1].start);
+    } else {
+      // If in a gap or at end, find the next upcoming start
+      const nextSentence = sentences.find(s => s.start > currentTime);
+      if (nextSentence) {
+        seekTo(nextSentence.start);
       } else {
-          // If in a gap or at end, find the next upcoming start
-          const nextSentence = sentences.find(s => s.start > currentTime);
-          if (nextSentence) {
-              seekTo(nextSentence.start);
-          } else {
-              seekTo(endTime || duration);
-          }
+        seekTo(endTime || duration);
       }
+    }
   };
 
 
@@ -227,11 +241,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         onError={handleError}
         onLoadedMetadata={handleLoadedMetadata}
       />
-      
+
       {error && (
-          <div className="absolute top-0 left-0 right-0 -mt-10 bg-red-100 text-red-700 text-center py-2 text-xs sm:text-sm font-medium border-t border-red-200">
-              {error}
-          </div>
+        <div className="absolute top-0 left-0 right-0 -mt-10 bg-red-100 text-red-700 text-center py-2 text-xs sm:text-sm font-medium border-t border-red-200">
+          {error}
+        </div>
       )}
 
       <div className="max-w-3xl mx-auto flex flex-col gap-2">
@@ -253,47 +267,47 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
         {/* Controls */}
         <div className="flex items-center justify-between mt-1">
-            {/* Loop Indicator */}
-            <div className="w-16 hidden sm:flex items-center justify-start text-indigo-500">
-                {loop && <Repeat size={18} />}
-            </div> 
-            
-            <div className="flex items-center gap-4 sm:gap-8 mx-auto sm:mx-0">
-                <button 
-                    onClick={handlePrevSentence}
-                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all active:scale-95 disabled:opacity-30"
-                    title="Previous Sentence"
-                    disabled={loop} // Disable manual nav in loop dictation mode to enforce focus
-                >
-                    <SkipBack size={26} strokeWidth={2} />
-                </button>
+          {/* Loop Indicator */}
+          <div className="w-16 hidden sm:flex items-center justify-start text-indigo-500">
+            {loop && <Repeat size={18} />}
+          </div>
 
-                <button 
-                    onClick={onPlayPause}
-                    className="w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 transition-all active:scale-95"
-                >
-                    {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
-                </button>
+          <div className="flex items-center gap-4 sm:gap-8 mx-auto sm:mx-0">
+            <button
+              onClick={handlePrevSentence}
+              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all active:scale-95 disabled:opacity-30"
+              title="Previous Sentence"
+              disabled={loop} // Disable manual nav in loop dictation mode to enforce focus
+            >
+              <SkipBack size={26} strokeWidth={2} />
+            </button>
 
-                <button 
-                     onClick={handleNextSentence}
-                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all active:scale-95 disabled:opacity-30"
-                    title="Next Sentence"
-                    disabled={loop} // Disable manual nav in loop dictation mode
-                >
-                    <SkipForward size={26} strokeWidth={2} />
-                </button>
-            </div>
+            <button
+              onClick={onPlayPause}
+              className="w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 transition-all active:scale-95"
+            >
+              {isPlaying ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
+            </button>
 
-            <div className="w-16 flex justify-end">
-                <button 
-                    onClick={toggleSpeed}
-                    className="flex items-center justify-center w-12 h-8 text-slate-600 hover:text-indigo-600 font-bold text-sm bg-slate-100 hover:bg-indigo-50 rounded transition-colors border border-slate-200 hover:border-indigo-200"
-                    title="Playback Speed"
-                >
-                    {playbackRate}x
-                </button>
-            </div>
+            <button
+              onClick={handleNextSentence}
+              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all active:scale-95 disabled:opacity-30"
+              title="Next Sentence"
+              disabled={loop} // Disable manual nav in loop dictation mode
+            >
+              <SkipForward size={26} strokeWidth={2} />
+            </button>
+          </div>
+
+          <div className="w-16 flex justify-end">
+            <button
+              onClick={toggleSpeed}
+              className="flex items-center justify-center w-12 h-8 text-slate-600 hover:text-indigo-600 font-bold text-sm bg-slate-100 hover:bg-indigo-50 rounded transition-colors border border-slate-200 hover:border-indigo-200"
+              title="Playback Speed"
+            >
+              {playbackRate}x
+            </button>
+          </div>
         </div>
       </div>
     </div>

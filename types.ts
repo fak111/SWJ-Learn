@@ -9,12 +9,15 @@ export interface Sentence {
   start: number;
   end: number;
   words: Word[];
+  img?: string;
 }
 
 export interface Conversation {
   id: string;
   title: string;
   audio_source: string;
+  // 可选的 lesson 级封面图，用于无句子配图时的回退展示
+  coverImg?: string;
   full_audio_range: {
     start: number;
     end: number;

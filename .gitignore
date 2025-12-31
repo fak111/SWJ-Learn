@@ -11,7 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-
+.wrangler/state/v3/r2/swj-learn-audio/blobs/*
+public/imgs/chapter_4
+.wrangler/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,3 +30,4 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
