@@ -196,6 +196,57 @@ export default function CategoryPage() {
                             </div>
                         </div>
                     </Link>
+
+                    {/* IELTS 18 World */}
+                    <Link
+                        to="/world/ielts18/"
+                        className="group relative overflow-hidden rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 via-slate-50 to-orange-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    >
+                        <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top,_#f59e0b_0,_transparent_55%),_radial-gradient(circle_at_bottom_left,_#f97316_0,_transparent_55%)] pointer-events-none" />
+                        <div className="relative p-6 sm:p-7 flex flex-col h-full">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-11 h-11 rounded-2xl bg-amber-600/90 flex items-center justify-center shadow-lg shadow-amber-300/50">
+                                        <GraduationCap className="text-amber-50" size={22} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+                                            Cambridge IELTS 18
+                                        </h3>
+                                        <p className="text-xs text-slate-600">
+                                            剑桥雅思真题 · 精听训练 · 考试模式跳转
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                                体验真实的雅思听力场景，通过精听训练提升听力水平。
+                                <span className="font-semibold text-amber-700 bg-amber-50 px-1 rounded">
+                                    支持考试模式跳转
+                                </span>
+                                ，让你在精听和考试模式之间自由切换。
+                            </p>
+
+                            <div className="mt-auto flex items-center justify-between pt-3 border-t border-amber-100/70">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                                    <span className="px-2 py-0.5 rounded-full bg-white/80 border border-amber-100 text-amber-700">
+                                        难度：高
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white/80 border border-slate-100">
+                                        场景：雅思考试
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white/80 border border-slate-100">
+                                        适合：雅思备考 / 精听训练
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs font-bold text-amber-700 group-hover:text-amber-800">
+                                    进入世界
+                                    <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
                 </div>
 
             </section>

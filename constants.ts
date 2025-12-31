@@ -1,5 +1,6 @@
 import { Conversation, Sentence, Word } from './types';
 import newDataJson from './public/1.json';
+import ielts18DataJson from './public/1_1.json';
 
 // 处理新数据：重命名 ID 以避免冲突
 const processedNewData: Conversation[] = (newDataJson as Conversation[]).map(item => ({
@@ -7,13 +8,16 @@ const processedNewData: Conversation[] = (newDataJson as Conversation[]).map(ite
     id: item.id.replace(/^chapter_/, 'chapter_eazy_')
 }));
 
+// 处理 IELTS 18 数据
+const processedIelts18Data: Conversation[] = (ielts18DataJson as Conversation[]);
+
 // 原始的对话数据（可能包含较长的句子）
 const existingData: Conversation[] = [
     {
         "id": "chapter_0",
         "title": "Chapter 1",
         // 服务器上实际文件名为 1.mp3，这里保持一致，方便通过 CDN 或本地加载
-        "audio_source": "1.mp3",
+        "audio_source": "theLittlePrince.mp3",
         "full_audio_range": {
             "start": 5.245,
             "end": 247.388
@@ -15781,7 +15785,8 @@ const existingData: Conversation[] = [
 // 合并新旧数据
 export const RAW_CONVERSATION_DATA: Conversation[] = [
     ...existingData,
-    ...processedNewData
+    ...processedNewData,
+    ...processedIelts18Data
 ];
 
 // -------- Helpers: 拆分过长句子为更短的 Sentence --------

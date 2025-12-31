@@ -19,6 +19,9 @@ const inferCategoryId = (audioSource: string): string | null => {
     if (src.toLowerCase() === 'eazy.mp3') {
         return 'eazy-stories';
     }
+    if (src.toLowerCase() === '1_1.mp3') {
+        return 'ielts18';
+    }
     return null;
 };
 
@@ -49,7 +52,7 @@ export default function HomePage() {
 
             if (categoryId === 'little-prince') {
                 // 匹配 theLittlePrince 开头的，或者纯数字的 mp3 文件（1.mp3, 2.mp3, ...）
-                return src.startsWith('theLittlePrince') || /^\d+\.mp3$/.test(src);
+                return src.startsWith('theLittlePrince');
             }
 
             if (categoryId === 'cet6') {
@@ -58,6 +61,10 @@ export default function HomePage() {
 
             if (categoryId === 'eazy-stories') {
                 return src.toLowerCase() === 'eazy.mp3';
+            }
+
+            if (categoryId === 'ielts18') {
+                return src.toLowerCase() === '1_1.mp3';
             }
 
             return true;
@@ -184,6 +191,35 @@ export default function HomePage() {
                                         </div>
                                         <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed">
                                             目前开放的是第 1 章节，后续星球正在精听打磨中。欢迎先体验本节课程，稍后回来解锁更多故事。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* IELTS 18 考试模式跳转提醒 */}
+                        {categoryId === 'ielts18' && (
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 px-4 py-3 shadow-sm">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-600 text-amber-100 shadow-md shadow-amber-300/50">
+                                        <Sparkles size={18} />
+                                    </div>
+                                    <div className="flex-1 text-sm">
+                                        <div className="mb-0.5 flex items-center gap-2">
+                                            <span className="inline-flex items-center rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-100">
+                                                Cambridge IELTS 18 Test 1 Part 1
+                                            </span>
+                                        </div>
+                                        <p className="text-slate-600 text-xs sm:text-[13px] leading-relaxed">
+                                            想要体验完整的考试模式？{' '}
+                                            <a
+                                                href="https://www.ieltscb.com/Paper/part/?id=134&classify=1&chapters_id=1041&p_type=18&new_page=1&record_id=3915447"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="font-semibold text-amber-700 hover:text-amber-800 underline"
+                                            >
+                                                点击这里跳转到考试模式
+                                            </a>
                                         </p>
                                     </div>
                                 </div>

@@ -25,6 +25,9 @@ const inferCategoryId = (audioSource: string): string | null => {
     if (src.toLowerCase() === 'eazy.mp3') {
         return 'eazy-stories';
     }
+    if (src.toLowerCase() === '1_1.mp3') {
+        return 'ielts18';
+    }
     return null;
 };
 
