@@ -83,3 +83,20 @@ export interface Statistics {
   };
   totalDictatedWords: number; // 总拼写单词数
 }
+
+// 测试相关类型
+export interface TestQuestion {
+  question: string;
+  options: [string, string, string, string]; // 4个选项，固定为 A/B/C/D
+  correctAnswer: number; // 正确答案的索引 (0-3)
+}
+
+export interface TestData {
+  questions: TestQuestion[]; // 3个题目
+}
+
+export interface TestResult {
+  questionIndex: number;
+  selectedAnswer: number | null; // 用户选择的答案索引
+  isCorrect: boolean;
+}
