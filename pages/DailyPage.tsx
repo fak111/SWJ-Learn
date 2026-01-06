@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { CONVERSATION_DATA } from '../constants';
-import { AppMode, PlaybackRate, ProgressMap, DictationDifficulty, DictResult, TestData } from '../types';
+import { AppMode, PlaybackRate, ProgressMap, DictationDifficulty, DictResult } from '../types';
 import AudioPlayer from '../components/AudioPlayer';
 import Transcript from '../components/Transcript';
 import ModeSelector from '../components/ModeSelector';
 import DictionaryModal from '../components/DictionaryModal';
 import SentenceVisualPanel from '../components/SentenceVisualPanel';
-import TestPanel from '../components/TestPanel';
 import { Headphones, CheckCircle2, RotateCcw, ArrowLeft } from 'lucide-react';
 import OpenAI from 'openai';
 import { checkAndUpdateAchievements } from '../utils/achievements';
@@ -90,15 +89,6 @@ const DailyPage: React.FC = () => {
     // Dictionary Cache
     const dictCache = useRef<Record<string, DictResult>>({});
 
-    // Test State
-    const [showTest, setShowTest] = useState(false);
-    const [testData, setTestData] = useState<TestData | null>(null);
-    const [testLoading, setTestLoading] = useState(false);
-    const [testError, setTestError] = useState<string | null>(null);
-    const testCache = useRef<Record<string, TestData>>({});
-    const testTriggeredRef = useRef<boolean>(false); // 防止重复触发
-    const [testPassed, setTestPassed] = useState<boolean>(false); // 跟踪测试是否通过
-
     // Reset state when lesson changes
     useEffect(() => {
         if (conversation) {
@@ -117,13 +107,6 @@ const DailyPage: React.FC = () => {
             // 清除待翻译状态
             setPendingWord(null);
             setShowKeyHint(false);
-
-            // 重置测试状态
-            setShowTest(false);
-            setTestData(null);
-            setTestError(null);
-            testTriggeredRef.current = false;
-            setTestPassed(false); // 重置测试通过状态
         }
     }, [conversation?.id]);
 
@@ -229,150 +212,6 @@ const DailyPage: React.FC = () => {
             setDictLoading(false);
         }
     }, []);
-
-    const fetchTestQuestions = useCallback(async (conversationId: string, conversationText: string) => {
-        // 检查内存缓存
-        if (testCache.current[conversationId]) {
-            setTestData(testCache.current[conversationId]);
-            setTestError(null);
-            setTestLoading(false);
-            return;
-        }
-
-        // 检查 localStorage 缓存
-        const cached = localStorage.getItem(`test-${conversationId}`);
-        if (cached) {
-            try {
-                const cachedData: TestData = JSON.parse(cached);
-                testCache.current[conversationId] = cachedData;
-                setTestData(cachedData);
-                setTestError(null);
-                setTestLoading(false);
-                return;
-            } catch (e) {
-                console.error("Failed to parse cached test data", e);
-            }
-        }
-
-        setTestLoading(true);
-        setTestError(null);
-        setTestData(null);
-
-        try {
-            // Initialize OpenAI Client for DeepSeek
-            const client = new OpenAI({
-                baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || "https://api.deepseek.com",
-                apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || "",
-                dangerouslyAllowBrowser: true
-            });
-
-            const prompt = `Based on the following English conversation/audio transcript, generate 3 multiple-choice questions to test listening comprehension. Each question should have exactly 4 options (A, B, C, D), and only one correct answer.
-
-Transcript:
-${conversationText}
-
-Output MUST be a valid JSON object with this exact structure:
-{
-  "questions": [
-    {
-      "question": "Question text here",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": 0
-    },
-    {
-      "question": "Question text here",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": 1
-    },
-    {
-      "question": "Question text here",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": 2
-    }
-  ]
-}
-
-Important:
-- Generate exactly 3 questions
-- Each question must have exactly 4 options
-- correctAnswer is the index (0-3) of the correct option
-- Questions should test understanding of key information, main ideas, or specific details from the conversation
-- Make questions challenging but fair`;
-
-            const completion = await client.chat.completions.create({
-                model: "deepseek-chat",
-                messages: [{ role: "user", content: prompt }],
-            });
-
-            let content = completion.choices[0].message.content;
-
-            if (content) {
-                // Remove markdown code blocks if present
-                content = content.replace(/```json\s*|\s*```/g, "").trim();
-
-                try {
-                    const result: TestData = JSON.parse(content);
-
-                    // 验证数据格式
-                    if (!result.questions || !Array.isArray(result.questions) || result.questions.length !== 3) {
-                        throw new Error("Invalid test data format: expected 3 questions");
-                    }
-
-                    // 验证每个题目
-                    for (const q of result.questions) {
-                        if (!q.question || !q.options || !Array.isArray(q.options) || q.options.length !== 4) {
-                            throw new Error("Invalid question format: each question must have 4 options");
-                        }
-                        if (typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) {
-                            throw new Error("Invalid correctAnswer: must be 0, 1, 2, or 3");
-                        }
-                    }
-
-                    // 缓存数据
-                    testCache.current[conversationId] = result;
-                    localStorage.setItem(`test-${conversationId}`, JSON.stringify(result));
-                    setTestData(result);
-                } catch (parseError) {
-                    console.error("JSON Parse failed:", content);
-                    throw new Error("Failed to parse AI response.");
-                }
-            } else {
-                throw new Error("No test questions generated.");
-            }
-
-        } catch (e: any) {
-            console.error("Test generation failed:", e);
-            if (e.message?.includes('401')) {
-                setTestError('Authentication Error: Invalid API Key.');
-            } else if (e.message?.includes('Network Error') || e.message?.includes('fetch')) {
-                setTestError('Network Error: Please check your connection or CORS settings.');
-            } else {
-                setTestError(e.message || 'Unknown error');
-            }
-        } finally {
-            setTestLoading(false);
-        }
-    }, []);
-
-    // 触发测试的函数（用于手动触发或音频结束时触发）
-    const triggerTest = useCallback(() => {
-        if (!conversation) return;
-
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:triggerTest', message: 'Triggering test', data: { conversationId: conversation.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F' }) }).catch(() => { });
-        // #endregion
-
-        // 显示测试面板
-        setShowTest(true);
-
-        // 获取对话文本（拼接所有句子）
-        const conversationText = conversation.sentences
-            .map(s => s.text)
-            .join(' ');
-
-        // 加载或生成测试题目
-        fetchTestQuestions(conversation.id, conversationText);
-    }, [conversation, fetchTestQuestions]);
 
     // 修改 handleWordClick：在 Study 模式下只设置待翻译单词，不立即调用 AI
     const handleWordClick = (time: number, endTime: number, word: string) => {
@@ -532,19 +371,7 @@ Important:
     }, [conversation?.id, isPlaying, currentTime]);
 
     // 音频结束检测：在 Blind 模式下，当音频播放结束时触发测试
-    useEffect(() => {
-        if (!conversation || mode !== AppMode.BLIND) return;
-        if (testTriggeredRef.current) return; // 防止重复触发
-
-        // 检查是否到达音频结束时间且已停止播放
-        if (currentTime >= fullAudioRange.end && !isPlaying) {
-            // 标记已触发，避免重复
-            testTriggeredRef.current = true;
-
-            // 使用 triggerTest 函数来触发测试
-            triggerTest();
-        }
-    }, [conversation, mode, currentTime, isPlaying, fullAudioRange.end, triggerTest]);
+    // Blind 模式下不再自动触发测试，仅保持纯听力体验
 
     // 当前激活句索引（基于当前播放时间）
     const activeSentenceIndex = useMemo(() => {
@@ -565,16 +392,18 @@ Important:
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
 
             {/* Header */}
-            <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50">
+            <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50 sticky top-0">
                 <div className="max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <Link
                             to={effectiveCategoryId ? `/world/${effectiveCategoryId}/` : '/world'}
-                            className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 group"
                             title="返回章节列表"
                         >
-                            <ArrowLeft size={24} />
+                            <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                            <span className="text-sm font-medium hidden sm:inline">返回</span>
                         </Link>
+                        <div className="h-6 w-px bg-slate-200"></div>
                         <div className="flex items-center gap-3">
                             <div className="bg-indigo-600 p-1.5 rounded-lg hidden sm:block">
                                 <Headphones className="text-white" size={20} />
@@ -589,7 +418,7 @@ Important:
                         {solvedCount > 0 && (
                             <button
                                 onClick={handleResetProgress}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors text-sm font-medium"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors text-sm font-medium"
                                 title="Reset all progress"
                             >
                                 <RotateCcw size={14} />
@@ -597,9 +426,9 @@ Important:
                             </button>
                         )}
 
-                        <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                            <CheckCircle2 size={16} className={progressPercent === 100 ? "text-green-600" : "text-slate-400"} />
-                            <span className="text-sm font-semibold text-slate-600">{progressPercent}%</span>
+                        <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-200">
+                            <CheckCircle2 size={16} className={progressPercent === 100 ? "text-green-600" : "text-indigo-400"} />
+                            <span className="text-sm font-semibold text-indigo-600">{progressPercent}%</span>
                         </div>
                     </div>
                 </div>
@@ -608,31 +437,7 @@ Important:
             <ModeSelector
                 currentMode={mode}
                 onModeChange={(newMode) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:596', message: 'Mode change attempt', data: { currentMode: mode, newMode, testPassed, isBlindToStudy: mode === AppMode.BLIND && newMode === AppMode.STUDY }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-                    // #endregion
-
-                    // 如果从 Blind 模式切换到 Study 模式，需要检查是否通过测试
-                    if (mode === AppMode.BLIND && newMode === AppMode.STUDY) {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:600', message: 'Blind to Study check', data: { testPassed, willBlock: !testPassed }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
-                        // #endregion
-
-                        if (!testPassed) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:604', message: 'Test not passed, showing test panel', data: { reason: 'Test not passed' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
-                            // #endregion
-
-                            // 未通过测试，弹出测试面板
-                            triggerTest();
-                            return; // 阻止切换模式
-                        }
-                    }
-
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:610', message: 'Mode switch allowed', data: { newMode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D' }) }).catch(() => { });
-                    // #endregion
-
+                    // 不再根据测试结果限制模式切换，Blind/Study/Dictation 可自由切换
                     setMode(newMode);
                 }}
                 dictationDifficulty={dictationDifficulty}
@@ -761,39 +566,6 @@ Important:
                 data={dictData}
                 loading={dictLoading}
                 error={dictError}
-            />
-
-            <TestPanel
-                isOpen={showTest && mode === AppMode.BLIND}
-                onClose={() => {
-                    setShowTest(false);
-                }}
-                testData={testData}
-                loading={testLoading}
-                error={testError}
-                onComplete={(allCorrect: boolean) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:733', message: 'Test completed', data: { allCorrect }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-                    // #endregion
-
-                    if (allCorrect) {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:737', message: 'Setting testPassed to true', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-                        // #endregion
-
-                        // 全部答对，设置测试通过状态并切换到 Study 模式
-                        setTestPassed(true);
-                        setMode(AppMode.STUDY);
-                        setShowTest(false);
-                    } else {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/0720332e-ed6f-4b22-89a0-aa8c16019d37', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DailyPage.tsx:743', message: 'Test failed, keeping testPassed false', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-                        // #endregion
-
-                        // 有答错，保持 Blind 模式，关闭测试面板
-                        setShowTest(false);
-                    }
-                }}
             />
         </div>
     );

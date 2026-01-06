@@ -71,7 +71,7 @@ const DictionaryModal: React.FC<DictionaryModalProps> = ({
                 {/* Translations */}
                 <div className="flex flex-wrap gap-2">
                   {data.translations.map((t, idx) => (
-                    <span key={idx} className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-sm font-medium border border-indigo-100">
+                    <span key={idx} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium border border-indigo-100">
                       {t}
                     </span>
                   ))}

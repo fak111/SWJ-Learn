@@ -57,7 +57,7 @@ const Transcript: React.FC<TranscriptProps> = ({
   let globalWordIndexCounter = 0;
 
   return (
-    <div ref={scrollRef} className={`px-4 max-w-3xl mx-auto pt-8 transition-all duration-500 ${mode === AppMode.STUDY ? 'pb-[50vh]' : 'pb-40'}`}>
+    <div ref={scrollRef} className={`px-4 max-w-3xl mx-auto pt-8 transition-all duration-500 ${mode === AppMode.STUDY ? 'pb-[50vh]' : 'pb-40'} ${mode === AppMode.STUDY ? 'overflow-x-visible' : ''}`}>
       <div className="space-y-4">
         {conversation.sentences.map((sentence, sIdx) => {
           const isActive = currentTime >= sentence.start && currentTime <= sentence.end;
@@ -67,9 +67,11 @@ const Transcript: React.FC<TranscriptProps> = ({
 
           if (mode === AppMode.STUDY) {
             if (isActive) {
-              containerClass += "opacity-100 py-12 scale-105 my-4";
+              // 激活句子：稍大一点，保持高对比度
+              containerClass += "opacity-100 py-8 my-6";
             } else {
-              containerClass += "opacity-30 blur-[1px] scale-95 grayscale my-0";
+              // 非激活句子：不再降低不透明度，使用深色文字，稍微缩小间距即可
+              containerClass += "opacity-100 my-2 text-slate-900";
             }
           } else {
             // Dictation / Blind Mode Styles
@@ -81,9 +83,9 @@ const Transcript: React.FC<TranscriptProps> = ({
             <div
               key={sIdx}
               id={`sentence-${sIdx}`}
-              className={containerClass}
+              className={`${containerClass} ${mode === AppMode.STUDY && isActive ? 'w-full' : ''}`}
             >
-              <div className={`flex flex-wrap gap-x-1.5 gap-y-2 leading-relaxed transition-all duration-300 ${mode === AppMode.STUDY ? 'text-xl sm:text-2xl justify-center text-center' : 'text-lg sm:text-xl'}`}>
+              <div className={`flex flex-wrap gap-x-1.5 gap-y-2 leading-relaxed transition-all duration-300 ${mode === AppMode.STUDY ? 'text-lg sm:text-xl md:text-2xl justify-center text-center w-full px-2' : 'text-lg sm:text-xl'}`}>
                 {sentence.words.map((wordObj, wIdx) => {
                   const isWordActive = isActive && currentTime >= wordObj.start && currentTime <= wordObj.end;
                   const uniqueId = `${sIdx}-${wIdx}`;

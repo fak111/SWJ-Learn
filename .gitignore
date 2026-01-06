@@ -31,3 +31,6 @@ public/imgs/chapter_4
 .env.local
 .env.*.local
 
+Vibe
+.spec-workflow
+public/ui/

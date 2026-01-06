@@ -302,7 +302,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           <div className="w-16 flex justify-end">
             <button
               onClick={toggleSpeed}
-              className="flex items-center justify-center w-12 h-8 text-slate-600 hover:text-indigo-600 font-bold text-sm bg-slate-100 hover:bg-indigo-50 rounded transition-colors border border-slate-200 hover:border-indigo-200"
+              className="flex items-center justify-center w-12 h-8 text-slate-600 hover:text-indigo-600 font-bold text-sm bg-slate-100 hover:bg-indigo-50 rounded-full transition-colors border border-slate-200 hover:border-indigo-200"
               title="Playback Speed"
             >
               {playbackRate}x

@@ -24,7 +24,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
     }`;
 
   const diffBtnClass = (active: boolean, colorClass: string) => 
-    `px-3 py-1 text-xs font-bold rounded transition-colors ${
+    `px-3 py-1 text-xs font-bold rounded-full transition-colors ${
         active ? colorClass : 'text-slate-400 hover:text-slate-600'
     }`;
 
@@ -53,24 +53,24 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({
             </div>
 
             {currentMode === AppMode.DICTATION && (
-                <div className="flex items-center bg-white rounded-lg p-1 border border-slate-200 shadow-sm">
+                <div className="flex items-center bg-white rounded-full p-1 border border-slate-200 shadow-sm">
                     <button 
                         onClick={() => onDifficultyChange('easy')}
-                        className={diffBtnClass(dictationDifficulty === 'easy', 'bg-blue-100 text-blue-700')}
+                        className={diffBtnClass(dictationDifficulty === 'easy', 'bg-cyan-100 text-cyan-700')}
                     >
                         Easy (20%)
                     </button>
                     <div className="w-px h-4 bg-slate-200 mx-1"></div>
                     <button 
                         onClick={() => onDifficultyChange('middle')}
-                        className={diffBtnClass(dictationDifficulty === 'middle', 'bg-green-100 text-green-700')}
+                        className={diffBtnClass(dictationDifficulty === 'middle', 'bg-amber-100 text-amber-700')}
                     >
                         Middle (50%)
                     </button>
                     <div className="w-px h-4 bg-slate-200 mx-1"></div>
                     <button 
                         onClick={() => onDifficultyChange('hard')}
-                        className={diffBtnClass(dictationDifficulty === 'hard', 'bg-orange-100 text-orange-700')}
+                        className={diffBtnClass(dictationDifficulty === 'hard', 'bg-red-100 text-red-700')}
                     >
                         Hard (100%)
                     </button>

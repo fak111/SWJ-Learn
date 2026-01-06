@@ -120,15 +120,19 @@ export default function HomePage() {
                         {/* Header */}
                         <header className="mb-8">
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-                                <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                                <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left w-full sm:w-auto">
                                     {categoryId && (
-                                        <Link
-                                            to="/world"
-                                            className="p-2 -ml-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-full transition-colors"
-                                            title="返回世界列表"
-                                        >
-                                            <ArrowLeft size={24} />
-                                        </Link>
+                                        <>
+                                            <Link
+                                                to="/world"
+                                                className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 group"
+                                                title="返回世界列表"
+                                            >
+                                                <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                                                <span className="text-sm font-medium hidden sm:inline">返回</span>
+                                            </Link>
+                                            <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
+                                        </>
                                     )}
                                     <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
                                         <Headphones className="text-white h-8 w-8" />
@@ -139,40 +143,6 @@ export default function HomePage() {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-end gap-3">
-                                    <div className="flex flex-wrap justify-end gap-2">
-                                        <button
-                                            onClick={() => setActiveModal('angel')}
-                                            className="flex items-center gap-1 rounded-full bg-pink-100 text-pink-700 border border-pink-200 px-3 py-1.5 text-sm font-medium transition hover:bg-pink-200"
-                                        >
-                                            <span role="img" aria-label="gift">🎁</span>
-                                            成为天使用户
-                                        </button>
-                                        <button
-                                            onClick={() => setActiveModal('milk')}
-                                            className="flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 text-sm font-medium transition hover:bg-amber-200"
-                                        >
-                                            <span role="img" aria-label="coffee">☕</span>
-                                            请作者喝杯奶茶
-                                        </button>
-                                        <a
-                                            href={documentationUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-                                        >
-                                            文档
-                                        </a>
-                                        <a
-                                            href={githubUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-                                        >
-                                            GitHub
-                                        </a>
-                                    </div>
-                                </div>
                             </div>
                         </header>
 

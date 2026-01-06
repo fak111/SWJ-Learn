@@ -1,10 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, GraduationCap, Sparkles, Headphones, ArrowRight } from 'lucide-react';
+import { BookOpen, GraduationCap, Sparkles, Headphones, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function CategoryPage() {
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+            {/* Header with Back Button */}
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+                <div className="max-w-5xl mx-auto px-6 py-3">
+                    <Link
+                        to="/"
+                        className="inline-flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 group"
+                        title="返回首页"
+                    >
+                        <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                        <span className="text-sm font-medium">返回首页</span>
+                    </Link>
+                </div>
+            </header>
+
             {/* Hero */}
             <section className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-950 to-slate-900 text-white">
                 <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_#4f46e5_0,_transparent_55%),_radial-gradient(circle_at_bottom,_#f97316_0,_transparent_55%)]" />
