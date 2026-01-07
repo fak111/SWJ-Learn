@@ -16,7 +16,6 @@ export interface Conversation {
   id: string;
   title: string;
   audio_source: string;
-  // 可选的 lesson 级封面图，用于无句子配图时的回退展示
   coverImg?: string;
   full_audio_range: {
     start: number;
@@ -36,7 +35,7 @@ export type DictationDifficulty = 'easy' | 'middle' | 'hard';
 export type PlaybackRate = 0.8 | 1.0 | 1.2;
 
 export interface ProgressMap {
-  [wordId: string]: boolean; // format: "sentenceIndex-wordIndex": true if solved
+  [wordId: string]: boolean;
 }
 
 export interface DictResult {
@@ -52,51 +51,47 @@ export type AchievementId = 'blind1' | 'blind2' | 'perfect1' | 'perfect2' | 'ang
 export interface Achievement {
   id: AchievementId;
   unlocked: boolean;
-  unlockedAt?: number; // timestamp
+  unlockedAt?: number;
 }
 
 export interface AchievementState {
   [key: string]: Achievement;
 }
 
-// 成就系列定义
 export type AchievementSeries = 'blind' | 'perfect' | 'angel';
 
-// 成就显示项（用于UI展示）
 export interface DisplayAchievement {
   id: AchievementId;
   name: string;
-  description: string; // 成就描述
+  description: string;
   imagePath: string;
   series: AchievementSeries;
-  level: number; // 1 = 低级, 2 = 高级
+  level: number;
   unlocked: boolean;
   unlockedAt?: number;
-  ringColor: string; // Tailwind ring color class
-  shadowColor: string; // Tailwind shadow color class
+  ringColor: string;
+  shadowColor: string;
 }
 
-// 统计数据接口
 export interface Statistics {
   listeningTime: {
-    [lessonId: string]: number; // 每个 lesson 的最大播放时间（秒）
+    [lessonId: string]: number;
   };
-  totalDictatedWords: number; // 总拼写单词数
+  totalDictatedWords: number;
 }
 
-// 测试相关类型
 export interface TestQuestion {
   question: string;
-  options: [string, string, string, string]; // 4个选项，固定为 A/B/C/D
-  correctAnswer: number; // 正确答案的索引 (0-3)
+  options: [string, string, string, string];
+  correctAnswer: number;
 }
 
 export interface TestData {
-  questions: TestQuestion[]; // 3个题目
+  questions: TestQuestion[];
 }
 
 export interface TestResult {
   questionIndex: number;
-  selectedAnswer: number | null; // 用户选择的答案索引
+  selectedAnswer: number | null;
   isCorrect: boolean;
 }

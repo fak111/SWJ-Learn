@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Repeat } from 'lucide-react';
 import { PlaybackRate, Sentence } from '../types';

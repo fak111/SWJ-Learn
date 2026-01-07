@@ -1,24 +1,22 @@
+'use client';
+
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { CONVERSATION_DATA } from '../constants';
 import { AppMode, PlaybackRate, ProgressMap, DictationDifficulty, DictResult } from '../types';
-import AudioPlayer from '../components/AudioPlayer';
-import Transcript from '../components/Transcript';
-import ModeSelector from '../components/ModeSelector';
-import DictionaryModal from '../components/DictionaryModal';
-import SentenceVisualPanel from '../components/SentenceVisualPanel';
+import { checkAndUpdateAchievements } from '../../../utils/achievements';
+import { updateListeningTime, getStatistics } from '../../../utils/statistics';
+import { getAudioUrl } from '../../../utils/audio';
+import { fetchDictionary } from '../services/dict';
+import AudioPlayer from '../../../components/AudioPlayer';
+import Transcript from '../../../components/Transcript';
+import ModeSelector from '../../../components/ModeSelector';
+import DictionaryModal from '../../../components/DictionaryModal';
 import { Headphones, CheckCircle2, RotateCcw, ArrowLeft } from 'lucide-react';
-import OpenAI from 'openai';
-import { checkAndUpdateAchievements } from '../utils/achievements';
-import { updateListeningTime, incrementDictatedWords, getStatistics } from '../utils/statistics';
-import { getAudioUrl } from '../utils/audio';
 
-// Helper function to infer categoryId from audio_source
 const inferCategoryId = (audioSource: string): string | null => {
     const src = audioSource || '';
-    if (src.startsWith('theLittlePrince') || /^\d+\.mp3$/.test(src)) {
-        return 'little-prince';
-    }
     if (src.toLowerCase().includes('cet6')) {
         return 'cet6';
     }
@@ -28,89 +26,74 @@ const inferCategoryId = (audioSource: string): string | null => {
     if (src.toLowerCase() === '1_1.mp3') {
         return 'ielts18';
     }
-    return null;
+    return 'little-prince';
 };
 
-const DailyPage: React.FC = () => {
-    const { categoryId, chapterId } = useParams<{ categoryId?: string; chapterId?: string }>();
+export default function DailyPage() {
+    const params = useParams();
+    const { categoryId, chapterId } = params as { categoryId?: string; chapterId?: string };
 
-    // Find the conversation based on URL param
     const conversation = chapterId
         ? CONVERSATION_DATA.find(c => c.id === chapterId)
         : null;
 
-    // If chapterId is provided but conversation not found, redirect
     if (chapterId && !conversation) {
-        return <Navigate to="/world" replace />;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Link href="/world" className="text-indigo-600 hover:underline">返回世界</Link>
+            </div>
+        );
     }
 
-    // If no chapterId, redirect to world list
     if (!chapterId) {
-        return <Navigate to="/world" replace />;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Link href="/world" className="text-indigo-600 hover:underline">返回世界</Link>
+            </div>
+        );
     }
 
-    // If not found, we will render a redirect or error later, but we need hooks to run first.
     const validConversation = conversation || CONVERSATION_DATA[0];
-
-    // Infer categoryId if not provided
-    const effectiveCategoryId = categoryId || (validConversation ? inferCategoryId(validConversation.audio_source) : null);
+    const effectiveCategoryId = categoryId || inferCategoryId(validConversation.audio_source);
 
     const audioSrc = getAudioUrl(validConversation.audio_source);
     const fullAudioRange = validConversation.full_audio_range;
 
-    // QR Code
-    const angelQrSrc = '/assets/wx.png';
-    const milkTeaQrSrc = '/assets/wxzf.png';
-    const documentationUrl = 'https://ai.feishu.cn/wiki/FRYBw8zXUiv4nWkd9FOcXhWRnTc?from=from_copylink';
-    const githubUrl = 'https://github.com/fak111/SWJ-Learn';
-
-    // Player State
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(fullAudioRange.start);
     const [playbackRate, setPlaybackRate] = useState<PlaybackRate>(1.0);
-
-    // App State
     const [mode, setMode] = useState<AppMode>(AppMode.BLIND);
     const [dictationDifficulty, setDictationDifficulty] = useState<DictationDifficulty>('easy');
     const [progress, setProgress] = useState<ProgressMap>({});
 
-    // Dictionary State
     const [dictModalOpen, setDictModalOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [dictData, setDictData] = useState<DictResult | null>(null);
     const [dictLoading, setDictLoading] = useState(false);
     const [dictError, setDictError] = useState<string | null>(null);
     const [targetWordEndTime, setTargetWordEndTime] = useState<number | null>(null);
-
-    // Pending word state for K key activation
     const [pendingWord, setPendingWord] = useState<string | null>(null);
     const [showKeyHint, setShowKeyHint] = useState(false);
 
-    // Dictionary Cache
     const dictCache = useRef<Record<string, DictResult>>({});
 
-    // Reset state when lesson changes
     useEffect(() => {
         if (conversation) {
             setIsPlaying(false);
             setCurrentTime(conversation.full_audio_range.start);
-
             const saved = localStorage.getItem(`echo-progress-${conversation.id}`);
             if (saved) {
                 try {
                     setProgress(JSON.parse(saved));
-                } catch (e) { console.error("Failed to load progress", e); }
-            } else {
-                setProgress({});
+                } catch (e) {
+                    console.error('Failed to parse progress', e);
+                }
             }
-
-            // 清除待翻译状态
             setPendingWord(null);
             setShowKeyHint(false);
         }
     }, [conversation?.id]);
 
-    // 当模式切换时，清除待翻译状态
     useEffect(() => {
         if (mode !== AppMode.STUDY) {
             setPendingWord(null);
@@ -118,23 +101,23 @@ const DailyPage: React.FC = () => {
         }
     }, [mode]);
 
+    useEffect(() => {
+        if (conversation) {
+            localStorage.setItem(`echo-progress-${conversation.id}`, JSON.stringify(progress));
+        }
+    }, [progress, conversation]);
+
     const handleWordSolved = (wordId: string) => {
         const newProgress = { ...progress, [wordId]: true };
         setProgress(newProgress);
         if (conversation) {
             localStorage.setItem(`echo-progress-${conversation.id}`, JSON.stringify(newProgress));
-            // 检查并更新成就
             checkAndUpdateAchievements();
-
-            // 在 Dictation 模式下统计拼写单词数
-            if (mode === AppMode.DICTATION) {
-                incrementDictatedWords();
-            }
         }
     };
 
     const handleResetProgress = () => {
-        if (window.confirm("Are you sure you want to reset your progress? This starts the lesson over.")) {
+        if (window.confirm("确定要重置进度吗？这将重新开始本课。")) {
             setProgress({});
             if (conversation) {
                 localStorage.removeItem(`echo-progress-${conversation.id}`);
@@ -143,10 +126,8 @@ const DailyPage: React.FC = () => {
         }
     };
 
-    const fetchDictionary = useCallback(async (word: string) => {
-        const clean = word.replace(/[^\w'-]/g, '').toLowerCase();
-        if (!clean) return;
-
+    const fetchDictionaryCached = useCallback(async (word: string) => {
+        const clean = word.toLowerCase().trim();
         if (dictCache.current[clean]) {
             setDictData(dictCache.current[clean]);
             setDictError(null);
@@ -159,100 +140,46 @@ const DailyPage: React.FC = () => {
         setDictData(null);
 
         try {
-            // Initialize OpenAI Client for DeepSeek
-            const client = new OpenAI({
-                baseURL: import.meta.env.VITE_DEEPSEEK_BASE_URL || "https://api.deepseek.com",
-                apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || "", // 从环境变量读取
-                dangerouslyAllowBrowser: true // Required for client-side usage
-            });
-
-            const prompt = `Explain the word "${word}" for an English learner.
-        Output MUST be a valid JSON object with this exact structure:
-        {
-          "word": "${word}",
-          "phonetic": "IPA or phonetic spelling",
-          "translations": ["Common Chinese translation 1", "Translation 2"],
-          "definition": "A clear English definition.",
-          "examples": ["Example sentence 1.", "Example sentence 2."]
-        }`;
-
-            const completion = await client.chat.completions.create({
-                model: "deepseek-chat",
-                messages: [{ role: "user", content: prompt }],
-            });
-
-            let content = completion.choices[0].message.content;
-
-            if (content) {
-                // Remove markdown code blocks if present
-                content = content.replace(/```json\s*|\s*```/g, "").trim();
-
-                try {
-                    const result: DictResult = JSON.parse(content);
-                    dictCache.current[clean] = result;
-                    setDictData(result);
-                } catch (parseError) {
-                    console.error("JSON Parse failed:", content);
-                    throw new Error("Failed to parse AI response.");
-                }
-            } else {
-                throw new Error("No definition found.");
-            }
-
+            const result = await fetchDictionary(word);
+            dictCache.current[clean] = result;
+            setDictData(result);
         } catch (e: any) {
             console.error("Dictionary lookup failed:", e);
-            if (e.message?.includes('401')) {
-                setDictError('Authentication Error: Invalid API Key.');
-            } else if (e.message?.includes('Network Error') || e.message?.includes('fetch')) {
-                setDictError('Network Error: Please check your connection or CORS settings.');
-            } else {
-                setDictError(e.message || 'Unknown error');
-            }
+            setDictError(e.message || 'Unknown error');
         } finally {
             setDictLoading(false);
         }
     }, []);
 
-    // 修改 handleWordClick：在 Study 模式下只设置待翻译单词，不立即调用 AI
     const handleWordClick = (time: number, endTime: number, word: string) => {
         setCurrentTime(time);
 
-        // Only handle in Study Mode
         if (mode === AppMode.STUDY) {
-            // 设置待翻译单词，显示提示，不立即调用 AI
             setPendingWord(word);
             setShowKeyHint(true);
-            // 记录目标单词的结束时间，用于自动暂停
             setTargetWordEndTime(endTime);
         } else {
-            // 非 Study 模式清空目标时间
             setTargetWordEndTime(null);
             setPendingWord(null);
             setShowKeyHint(false);
         }
     };
 
-    // 键盘事件监听：监听 'k' 键启用 AI 翻译
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            // 防止在输入框中触发
             if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
                 return;
             }
 
-            // 监听 'k' 键启用 AI 翻译（只在 Study 模式下且有待翻译单词时响应）
             if (mode === AppMode.STUDY && pendingWord && (event.key === 'k' || event.key === 'K')) {
                 event.preventDefault();
-                // 调用 AI 翻译并打开字典模态框
                 setSelectedWord(pendingWord);
                 setDictModalOpen(true);
-                fetchDictionary(pendingWord);
-                // 清除待翻译状态和提示
+                fetchDictionaryCached(pendingWord);
                 setPendingWord(null);
                 setShowKeyHint(false);
             }
 
-            // 监听空格键暂停/继续音频（所有模式）
             if (event.key === ' ' || event.key === 'Spacebar') {
                 event.preventDefault();
                 setIsPlaying(prev => !prev);
@@ -263,16 +190,13 @@ const DailyPage: React.FC = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [mode, pendingWord, fetchDictionary]);
+    }, [mode, pendingWord, fetchDictionaryCached]);
 
-    // 在 handleWordClick 后面（大约第 159 行之后）添加新的 useEffect：
     useEffect(() => {
-        // 只在 Study 模式下，且有目标结束时间，且正在播放时，才检查
         if (mode === AppMode.STUDY && targetWordEndTime !== null && isPlaying) {
-            // 当播放时间到达或超过单词结束时间时，暂停
             if (currentTime >= targetWordEndTime) {
                 setIsPlaying(false);
-                setTargetWordEndTime(null); // 清空目标，避免重复触发
+                setTargetWordEndTime(null);
             }
         }
     }, [currentTime, targetWordEndTime, isPlaying, mode]);
@@ -329,23 +253,16 @@ const DailyPage: React.FC = () => {
         }
     }, [activeDictationSentenceIdx, mode]);
 
-    // 监听进度变化，检查成就
     useEffect(() => {
         if (conversation && Object.keys(progress).length > 0) {
             checkAndUpdateAchievements();
         }
     }, [progress, conversation?.id]);
 
-    // 追踪听音频时间
     const maxListeningTimeRef = useRef<number>(0);
-    // 当前激活句在页面中的垂直中心位置（用于右侧图片对齐）
-    const [sentenceCenterY, setSentenceCenterY] = useState<number | null>(null);
-    const rightPanelRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!conversation) return;
-
-        // 初始化当前 lesson 的最大播放时间
         const stats = getStatistics();
         maxListeningTimeRef.current = stats.listeningTime[conversation.id] || 0;
     }, [conversation?.id]);
@@ -353,15 +270,13 @@ const DailyPage: React.FC = () => {
     useEffect(() => {
         if (!conversation || !isPlaying) return;
 
-        // 每5秒更新一次统计数据
         const interval = setInterval(() => {
             if (currentTime > maxListeningTimeRef.current) {
                 maxListeningTimeRef.current = currentTime;
                 updateListeningTime(conversation.id, currentTime);
             }
-        }, 5000); // 每5秒更新一次
+        }, 5000);
 
-        // 立即检查并更新（如果当前时间已经超过记录的最大时间）
         if (currentTime > maxListeningTimeRef.current) {
             maxListeningTimeRef.current = currentTime;
             updateListeningTime(conversation.id, currentTime);
@@ -370,19 +285,11 @@ const DailyPage: React.FC = () => {
         return () => clearInterval(interval);
     }, [conversation?.id, isPlaying, currentTime]);
 
-    // 音频结束检测：在 Blind 模式下，当音频播放结束时触发测试
-    // Blind 模式下不再自动触发测试，仅保持纯听力体验
-
-    // 当前激活句索引（基于当前播放时间）
     const activeSentenceIndex = useMemo(() => {
         return validConversation.sentences.findIndex(
             (s) => currentTime >= s.start && currentTime <= s.end
         );
     }, [validConversation, currentTime]);
-
-    if (!conversation) {
-        return <Navigate to="/" replace />;
-    }
 
     const totalWords = validConversation.sentences.reduce((acc, s) => acc + s.words.length, 0);
     const solvedCount = Object.keys(progress).length;
@@ -390,26 +297,25 @@ const DailyPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-
-            {/* Header */}
             <header className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm z-50 sticky top-0">
                 <div className="max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Link
-                            to={effectiveCategoryId ? `/world/${effectiveCategoryId}/` : '/world'}
+                            href={`/world/${effectiveCategoryId}/`}
                             className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 group"
-                            title="返回章节列表"
                         >
                             <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-                            <span className="text-sm font-medium hidden sm:inline">返回</span>
+                            <span className="text-sm font-medium">返回</span>
                         </Link>
-                        <div className="h-6 w-px bg-slate-200"></div>
+                        <div className="h-6 w-px bg-slate-200" />
                         <div className="flex items-center gap-3">
                             <div className="bg-indigo-600 p-1.5 rounded-lg hidden sm:block">
                                 <Headphones className="text-white" size={20} />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none">{conversation.title}</h1>
+                                <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none">
+                                    {validConversation.title}
+                                </h1>
                             </div>
                         </div>
                     </div>
@@ -419,7 +325,7 @@ const DailyPage: React.FC = () => {
                             <button
                                 onClick={handleResetProgress}
                                 className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-200 transition-colors text-sm font-medium"
-                                title="Reset all progress"
+                                title="重置进度"
                             >
                                 <RotateCcw size={14} />
                                 <span className="hidden sm:inline">Remake</span>
@@ -437,7 +343,6 @@ const DailyPage: React.FC = () => {
             <ModeSelector
                 currentMode={mode}
                 onModeChange={(newMode) => {
-                    // 不再根据测试结果限制模式切换，Blind/Study/Dictation 可自由切换
                     setMode(newMode);
                 }}
                 dictationDifficulty={dictationDifficulty}
@@ -445,14 +350,13 @@ const DailyPage: React.FC = () => {
             />
 
             <main className="flex-1 w-full">
-                {mode === AppMode.STUDY ? (
-                    <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 px-4">
-                        <div className="flex-1 min-w-0">
-                            <div className="text-center py-6 space-y-2">
+                <div className="max-w-4xl mx-auto px-4">
+                    <div className="text-center py-6 space-y-2">
+                        {mode === AppMode.STUDY ? (
+                            <>
                                 <p className="text-slate-400 text-sm italic">
                                     Focus on every single pronunciation & see definition by pressing K
                                 </p>
-                                {/* K 键提示 */}
                                 {showKeyHint && pendingWord && (
                                     <div className="flex items-center justify-center gap-2 mt-3 animate-fade-in">
                                         <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm">
@@ -470,77 +374,32 @@ const DailyPage: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
-                            </div>
-
-                            <Transcript
-                                conversation={conversation}
-                                mode={mode}
-                                currentTime={currentTime}
-                                dictationDifficulty={dictationDifficulty}
-                                onWordSolved={handleWordSolved}
-                                onWordClick={handleWordClick}
-                                progress={progress}
-                                onActiveSentenceCenterChange={(centerY) => setSentenceCenterY(centerY)}
-                            />
-                        </div>
-
-                        <div
-                            ref={rightPanelRef}
-                            className="w-full lg:w-[40%] xl:w-[45%] relative hidden lg:block pt-6"
-                        >
-                            {sentenceCenterY !== null && (
-                                <div
-                                    className="absolute left-0 right-0"
-                                    style={{
-                                        top: (() => {
-                                            if (!rightPanelRef.current) return '50%';
-                                            const rect = rightPanelRef.current.getBoundingClientRect();
-                                            const scrollY = window.scrollY || window.pageYOffset;
-                                            const panelTop = rect.top + scrollY;
-                                            const relativeCenter = sentenceCenterY - panelTop;
-                                            return `${relativeCenter}px`;
-                                        })(),
-                                        transform: 'translateY(-50%)',
-                                    }}
-                                >
-                                    <SentenceVisualPanel
-                                        conversation={conversation}
-                                        activeSentenceIndex={activeSentenceIndex}
-                                        mode={mode}
-                                    />
-                                </div>
-                            )}
-                        </div>
+                            </>
+                        ) : mode === AppMode.DICTATION ? (
+                            <p className="text-indigo-600 font-medium text-sm animate-pulse">
+                                Focus on the current sentence. It will loop until you finish it.
+                            </p>
+                        ) : (
+                            <p className="text-slate-400 text-sm italic">
+                                Focus on every single pronunciation
+                            </p>
+                        )}
                     </div>
-                ) : (
-                    <div className="max-w-4xl mx-auto px-4">
-                        <div className="text-center py-6 space-y-2">
-                            {mode === AppMode.DICTATION ? (
-                                <p className="text-indigo-600 font-medium text-sm animate-pulse">
-                                    Focus on the current sentence. It will loop until you finish it.
-                                </p>
-                            ) : (
-                                <p className="text-slate-400 text-sm italic">
-                                    Focus on every single pronunciation
-                                </p>
-                            )}
-                        </div>
 
-                        <Transcript
-                            conversation={conversation}
-                            mode={mode}
-                            currentTime={currentTime}
-                            dictationDifficulty={dictationDifficulty}
-                            onWordSolved={handleWordSolved}
-                            onWordClick={handleWordClick}
-                            progress={progress}
-                        />
-                    </div>
-                )}
+                    <Transcript
+                        conversation={validConversation}
+                        mode={mode}
+                        currentTime={currentTime}
+                        dictationDifficulty={dictationDifficulty}
+                        onWordSolved={handleWordSolved}
+                        onWordClick={handleWordClick}
+                        progress={progress}
+                    />
+                </div>
             </main>
 
             <AudioPlayer
-                key={conversation.id}
+                key={validConversation.id}
                 src={audioSrc}
                 isPlaying={isPlaying}
                 onPlayPause={() => setIsPlaying(!isPlaying)}
@@ -550,7 +409,7 @@ const DailyPage: React.FC = () => {
                 onTimeUpdate={setCurrentTime}
                 startTime={effectiveStartTime}
                 endTime={effectiveEndTime}
-                sentences={conversation.sentences}
+                sentences={validConversation.sentences}
                 loop={mode === AppMode.DICTATION && activeDictationSentenceIdx !== -1}
             />
 
@@ -558,7 +417,6 @@ const DailyPage: React.FC = () => {
                 isOpen={dictModalOpen}
                 onClose={() => {
                     setDictModalOpen(false);
-                    // 关闭模态框时清除待翻译状态
                     setPendingWord(null);
                     setShowKeyHint(false);
                 }}
@@ -569,6 +427,4 @@ const DailyPage: React.FC = () => {
             />
         </div>
     );
-};
-
-export default DailyPage;
+}

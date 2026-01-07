@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Headphones, PenTool } from 'lucide-react';
 import { getTotalListeningTime, formatTime, getStatistics } from '../utils/statistics';

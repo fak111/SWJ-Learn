@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
 import { Headphones, EyeOff, Mic, Sparkles, ArrowRight, Activity, Globe } from 'lucide-react';
 
 export default function LandingPage() {
     const [activeModal, setActiveModal] = useState<'angel' | 'milk' | null>(null);
 
-    // QR Code and URLs
     const angelQrSrc = '/assets/wxq.png';
     const milkTeaQrSrc = '/assets/wxzf.png';
     const documentationUrl = 'https://ai.feishu.cn/wiki/FRYBw8zXUiv4nWkd9FOcXhWRnTc?from=from_copylink';
@@ -14,20 +15,19 @@ export default function LandingPage() {
     return (
         <div className="min-h-screen font-sans bg-slate-50 text-slate-900 overflow-x-hidden selection:bg-indigo-200 selection:text-indigo-900">
 
-            {/* Top Right Buttons */}
             <div className="fixed top-4 right-4 z-50 flex flex-wrap justify-end gap-2">
                 <button
                     onClick={() => setActiveModal('angel')}
                     className="flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm text-pink-700 border border-pink-200 px-3 py-1.5 text-sm font-medium transition hover:bg-pink-50 shadow-sm"
                 >
-                    <span role="img" aria-label="gift">🎁</span>
+                    <span>🎁</span>
                     <span className="hidden sm:inline">成为天使用户</span>
                 </button>
                 <button
                     onClick={() => setActiveModal('milk')}
                     className="flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-sm text-amber-700 border border-amber-200 px-3 py-1.5 text-sm font-medium transition hover:bg-amber-50 shadow-sm"
                 >
-                    <span role="img" aria-label="coffee">☕</span>
+                    <span>☕</span>
                     <span className="hidden sm:inline">请作者喝杯奶茶</span>
                 </button>
                 <a
@@ -82,18 +82,16 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                        {/* 主按钮：Vibe 体验 */}
                         <Link
-                            to="/vibe"
+                            href="/vibe"
                             className="group inline-flex items-center gap-3 bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300"
                         >
                             Vibe Language
                             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
 
-                        {/* 次按钮：听力世界 */}
                         <Link
-                            to="/world"
+                            href="/world"
                             className="group inline-flex items-center gap-3 border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-indigo-600 hover:scale-105 transition-all duration-300"
                         >
                             Listen to Stories
@@ -158,7 +156,7 @@ export default function LandingPage() {
                         加入数万学习者的行列,用AI技术让语言学习变得更高效、更有趣
                     </p>
                     <Link
-                        to="/world"
+                        href="/world"
                         className="inline-block bg-white text-indigo-600 px-10 py-5 rounded-full font-bold text-xl shadow-lg hover:shadow-white/50 transition-all duration-300 hover:-translate-y-1 hover:scale-105"
                     >
                         免费开始
@@ -166,7 +164,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Support Modal */}
             {activeModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
@@ -178,7 +175,6 @@ export default function LandingPage() {
                             <button
                                 onClick={() => setActiveModal(null)}
                                 className="text-slate-400 hover:text-slate-600"
-                                aria-label="关闭弹窗"
                             >
                                 ✕
                             </button>
