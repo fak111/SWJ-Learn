@@ -8,6 +8,7 @@ const ai = new OpenAI({
 });
 
 const MODEL_FAST = "deepseek-chat";
+const REQUEST_TIMEOUT = 20000; // 20秒超时
 
 const getLangName = (lang: TargetLanguage): string => {
   switch (lang) {
@@ -20,6 +21,24 @@ const getLangName = (lang: TargetLanguage): string => {
     default: return 'English';
   }
 };
+
+// 带超时的 Promise.race
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timeoutId: NodeJS.Timeout | undefined;
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    if (timeoutId) clearTimeout(timeoutId);
+    return result;
+  } catch (error) {
+    if (timeoutId) clearTimeout(timeoutId);
+    throw error;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -50,37 +69,41 @@ export async function POST(request: Request) {
     const systemInstruction = `
       You are a creative dialogue writer.
       Generate a sequence of 5 dialogue fragments based on the user's theme.
-      
+
       Constraints:
       1. The 'text' must be in ${targetLangName}.
       2. The 'context' must ALSO be in ${targetLangName}.
       3. Each line should contain meaningful information.
-      4. Return a valid JSON array with: id (integer), context (string), text (string), difficulty (string).
+      4. Surprising but Logical : The story must have a plot twist or a humorous realization in the final part (Node 5). It should feel like an "O. Henry" style ending.
+      5. Return a valid JSON array with: id (integer), context (string), text (string), difficulty (string).
+      6. Keep responses concise and focused.
     `;
 
-    const response = await ai.chat.completions.create({
+    const responsePromise = ai.chat.completions.create({
       model: MODEL_FAST,
       messages: [
         { role: "system", content: systemInstruction },
-        { role: "user", content: `Generate a 5-part mission script about: ${topic}. Return ONLY a valid JSON array.` }
+        { role: "user", content: `Generate a 5-part mission script about: ${topic}.${difficultyInstruction} Return ONLY a valid JSON array.` }
       ],
       response_format: { type: "json_object" },
       temperature: 0.8
     });
 
+    const response = await withTimeout(responsePromise, REQUEST_TIMEOUT);
     const content = response.choices[0]?.message?.content;
+
     if (!content) {
       throw new Error("Empty response from DeepSeek");
     }
 
     const parsed = JSON.parse(content);
     const missionArray = Array.isArray(parsed) ? parsed : parsed.mission || parsed.script || parsed.nodes || [];
-
+    console.log("missionArray", missionArray);
     return NextResponse.json(missionArray as MissionNode[]);
   } catch (error: any) {
-    console.error('DeepSeek Chat API Error:', error);
+    console.error('DeepSeek Chat API Error:', error.message || error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error.message || 'Request failed. Please try again.' },
       { status: 500 }
     );
   }

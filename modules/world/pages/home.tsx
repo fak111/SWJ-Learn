@@ -95,7 +95,7 @@ export default function WorldHomePage() {
                                         className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200 group"
                                     >
                                         <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-                                        <span className="text-sm font-medium hidden sm:inline">返回首页</span>
+                                        <span className="text-sm font-medium hidden sm:inline">return</span>
                                     </Link>
                                     <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
                                     <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">

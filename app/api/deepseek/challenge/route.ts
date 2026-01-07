@@ -8,6 +8,7 @@ const ai = new OpenAI({
 });
 
 const MODEL_FAST = "deepseek-chat";
+const REQUEST_TIMEOUT = 15000; // 15秒超时
 
 const getLangName = (lang: TargetLanguage): string => {
   switch (lang) {
@@ -20,6 +21,24 @@ const getLangName = (lang: TargetLanguage): string => {
     default: return 'English';
   }
 };
+
+// 带超时的 Promise.race
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timeoutId: NodeJS.Timeout | undefined;
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    if (timeoutId) clearTimeout(timeoutId);
+    return result;
+  } catch (error) {
+    if (timeoutId) clearTimeout(timeoutId);
+    throw error;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -52,6 +71,7 @@ export async function POST(request: Request) {
       1. The Question, Options, and Explanation must be in ${targetLangName}.
       2. Provide 3 options. One correct, two incorrect.
       3. Return a valid JSON object with: thought_process, question, options (array with text and is_correct), explanation.
+      4. IMPORTANT: Keep responses concise and focused.
     `;
 
     const prompt = `
@@ -59,10 +79,10 @@ export async function POST(request: Request) {
       Context: "${node.context}"
       Retry Count: ${retryCount || 0}
 
-      Return ONLY a valid JSON object.
+      Return ONLY a valid JSON object. Keep it simple.
     `;
 
-    const response = await ai.chat.completions.create({
+    const responsePromise = ai.chat.completions.create({
       model: MODEL_FAST,
       messages: [
         { role: "system", content: systemInstruction },
@@ -72,7 +92,9 @@ export async function POST(request: Request) {
       temperature: 0.7
     });
 
+    const response = await withTimeout(responsePromise, REQUEST_TIMEOUT);
     const content = response.choices[0]?.message?.content;
+
     if (!content) {
       throw new Error("Empty response from DeepSeek");
     }
@@ -82,9 +104,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error('DeepSeek Challenge API Error:', error);
+    console.error('DeepSeek Challenge API Error:', error.message || error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error.message || 'Request failed. Please try again.' },
       { status: 500 }
     );
   }
