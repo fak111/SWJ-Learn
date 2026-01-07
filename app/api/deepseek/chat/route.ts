@@ -8,7 +8,7 @@ const ai = new OpenAI({
 });
 
 const MODEL_FAST = "deepseek-chat";
-const REQUEST_TIMEOUT = 20000; // 20秒超时
+const REQUEST_TIMEOUT = 30000; // 30秒超时
 
 const getLangName = (lang: TargetLanguage): string => {
   switch (lang) {

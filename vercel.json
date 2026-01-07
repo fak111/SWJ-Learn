@@ -1,7 +1,3 @@
 {
-    "functions": {
-        "api/minimax-tts.ts": {
-            "maxDuration": 30
-        }
-    }
+  "framework": "nextjs"
 }

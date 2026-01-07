@@ -4,8 +4,8 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Echo - Intensive Listening",
-  description: "一个沉浸式英语听力学习应用",
+  title: "Vibe Language",
+  description: "用AI重塑语言学习体验",
 };
 
 export default function RootLayout({
