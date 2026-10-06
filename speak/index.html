@@ -55,7 +55,8 @@
   .fb p { margin: 4px 0; }
   .fb .said, .fb .muted { color: var(--muted); }
   .fb .good { color: var(--ok); }
-  .fb .fix s { color: var(--rec); }
+  .fb .cheer { font-weight: 600; }
+  .fb .old { margin-left: 6px; font-size: 12px; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 0 6px; }
   .fb button { font-size: 13px; padding: 4px 12px; }
   @media (max-width: 600px) { .fb { margin-left: 0; } }
 </style>
@@ -241,18 +242,24 @@ function drawFeedback(s) {
   const box = s.fbEl;
   box.replaceChildren();
   if (s.key.endsWith('-zh') || s.state !== 'saved') return;
-  if (s.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 15 秒，可以先录下一段' }));
+  if (s.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 20 秒，可以先录下一段' }));
   if (s.fbState === 'error') {
     return box.append(h('p', { className: 'err-banner', textContent: s.fbErr }), h('button', { textContent: '重试反馈', onclick: () => getFeedback(s) }));
   }
   const f = s.fb;
   if (!f) return box.append(h('button', { textContent: '生成反馈', onclick: () => getFeedback(s) }));
   if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一遍' }));
-  box.append(h('p', { className: 'said' }, h('b', { textContent: '你说的：' }), f.transcript));
-  for (const g of f.good) box.append(h('p', { className: 'good' }, '✓ ', g));
-  for (const x of f.fixes) box.append(h('p', { className: 'fix' }, '✎ ', h('s', { textContent: x.said }), ' → ', speakable(x.better), x.why ? `（${x.why}）` : ''));
-  for (const x of f.sounds) box.append(h('p', { className: 'muted' }, '🔈 疑似没读清：', x));
-  if (!f.good.length && !f.fixes.length) box.append(h('p', { className: 'good', textContent: '✓ 没发现影响听懂的问题' }));
+  // 先说进步，再给往上走的台阶；不划红线
+  if (f.cheer) box.append(h('p', { className: 'cheer' }, '💬 ', f.cheer));
+  for (const g of f.good || []) box.append(h('p', { className: 'good' }, '✓ ', g));
+  for (const u of f.upgrades || []) {
+    box.append(h('p', {}, '↑ ', u.thought ? `${u.thought}：` : '', speakable(u.natural),
+      u.old ? h('span', { className: 'old', textContent: '老问题' }) : '',
+      u.said ? h('span', { className: 'muted' }, `（你说的：${u.said}）`) : ''));
+  }
+  for (const x of f.sounds || []) box.append(h('p', { className: 'muted' }, '🔈 ', x.heard ? `${x.heard} → ` : '', speakable(x.word), x.tip ? `：${x.tip}` : ''));
+  if (!f.good?.length && !f.upgrades?.length) box.append(h('p', { className: 'good', textContent: '✓ 没发现影响听懂的地方' }));
+  box.append(h('p', { className: 'said' }, '转写：', f.transcript));
 }
 
 async function getFeedback(s) {

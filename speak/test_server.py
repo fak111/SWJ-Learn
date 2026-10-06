@@ -152,31 +152,51 @@ class TTSTest(unittest.TestCase):
 class FeedbackTest(unittest.TestCase):
     PAPER = {'id': 'fb', 'questions': [{'id': 'q1', 'prompt': '为什么学英语', 'hint': '试着用上：passive income',
                                         'mappings': [{'thought': '深挖', 'can': 'look into', 'natural': 'dig into'}]}]}
+    REPLY = {'cheer': '这次说得更完整了', 'good': ['"The goal is" 开头很自然'],
+             'upgrades': [{'thought': '被动收入', 'said': 'passing when come', 'natural': 'passive income', 'old': True}],
+             'sounds': [{'heard': 'hurt black', 'word': 'headache', 'tip': '读 HED-ake'}]}
 
     def setUp(self):
         (tmp / 'papers' / 'fb.json').write_text(json.dumps(self.PAPER))
         shutil.rmtree(tmp / 'sessions' / 'fb', ignore_errors=True)
-        self.real = (server.transcribe, server.chat, server.is_silent)
-        server.is_silent = lambda audio: False
+        (tmp / 'history.jsonl').unlink(missing_ok=True)
+        self.real = (server.transcribe, server.claude, server.is_silent)
         self.said, self.prompts = 'The goal is passing when come.', []
-        server.transcribe = lambda audio: self.said
-        server.chat = lambda system, user: self.prompts.append(user) or (
-            '<think>嗯</think>```json\n{"good": ["The goal is"], "fixes": [{"said": "passing when come", '
-            '"better": "passive income", "why": "发音"}], "sounds": []}\n```')
+        server.is_silent = lambda audio: False
+        server.transcribe = lambda audio, lang='en': '我想说被动收入' if lang == 'zh' else self.said
+        server.claude = lambda prompt: self.prompts.append(prompt) or '```json\n' + json.dumps(self.REPLY) + '\n```'
         call('PUT', '/api/rec/fb/q1-en', b'webm', 'audio/webm')
 
     def tearDown(self):
-        server.transcribe, server.chat, server.is_silent = self.real
+        server.transcribe, server.claude, server.is_silent = self.real
 
     def test_saved_and_returned_with_paper(self):
         code, body, _ = call('POST', '/api/feedback/fb/q1-en')
         self.assertEqual(code, 200)
-        self.assertEqual(json.loads(body)['fixes'][0]['better'], 'passive income')
+        self.assertEqual(json.loads(body)['upgrades'][0], self.REPLY['upgrades'][0])
         self.assertIn('dig into', self.prompts[0])  # 目标说法一起给模型
         self.assertIn('passive income', self.prompts[0])
+        self.assertNotIn('look into', self.prompts[0])  # 只给自然版
         state = json.loads(call('GET', '/api/paper/fb')[1])
-        self.assertEqual(state['feedback']['q1-en']['transcript'], self.said)
+        self.assertEqual(state['feedback']['q1-en']['cheer'], '这次说得更完整了')
         self.assertEqual(state['recordings'], ['q1-en'])  # 反馈文件不算录音
+
+    def test_chinese_take_goes_into_prompt(self):
+        self.assertNotIn('我想说被动收入', (call('POST', '/api/feedback/fb/q1-en'), self.prompts[-1])[1])
+        call('PUT', '/api/rec/fb/q1-zh', b'webm', 'audio/webm')
+        call('POST', '/api/feedback/fb/q1-en')
+        self.assertIn('我想说被动收入', self.prompts[-1])
+
+    def test_history_is_kept_and_fed_back(self):  # 老问题保留下来，下次反馈带上
+        call('POST', '/api/feedback/fb/q1-en')
+        rows = [json.loads(line) for line in (tmp / 'history.jsonl').read_text().splitlines()]
+        self.assertEqual((len(rows), rows[0]['said'], rows[0]['upgrades'][0]['natural']), (1, self.said, 'passive income'))
+        with (tmp / 'history.jsonl').open('a') as f:
+            f.write('{"time": "2026-10-0\n')  # 写到一半崩掉的坏行
+            f.write('{"time": "2026-10-06", "upgrades": [{"natural": "x"}], "sounds": []}\n')  # 字段不全的行
+        call('POST', '/api/feedback/fb/q1-en')
+        self.assertIn('他说「passing when come」→ passive income', self.prompts[-1])
+        self.assertIn('发音：hurt black → headache', self.prompts[-1])
 
     def test_rerecord_or_delete_drops_feedback(self):
         call('POST', '/api/feedback/fb/q1-en')
@@ -191,15 +211,19 @@ class FeedbackTest(unittest.TestCase):
         self.assertEqual(call('POST', '/api/feedback/fb/q1-zh')[0], 400)
         self.assertEqual(call('POST', '/api/feedback/fb/q9-en')[0], 404)
         self.assertEqual(call('POST', '/api/feedback/nope/q1-en')[0], 404)
+        call('PUT', '/api/rec/fb/q7-en', b'webm', 'audio/webm')  # 有录音但试卷里没这题
+        self.assertEqual(call('POST', '/api/feedback/fb/q7-en')[0], 404)
+        self.assertEqual(self.prompts, [])
 
     def test_silence_skips_model(self):
         self.said = ''
         body = json.loads(call('POST', '/api/feedback/fb/q1-en')[1])
-        self.assertEqual((body['transcript'], body['fixes'], self.prompts), ('', [], []))
+        self.assertEqual((body['transcript'], body['upgrades'], self.prompts), ('', [], []))
+        self.assertFalse((tmp / 'history.jsonl').exists())  # 没说话不进历史
 
     def test_silent_recording_is_not_transcribed(self):  # Whisper 对静音会编句子
         server.is_silent = lambda audio: True
-        server.transcribe = lambda audio: self.fail('静音不该转写')
+        server.transcribe = lambda audio, lang='en': self.fail('静音不该转写')
         self.assertEqual(json.loads(call('POST', '/api/feedback/fb/q1-en')[1])['transcript'], '')
 
     def test_is_silent_threshold(self):  # 真 ffmpeg：静音判静音，正弦波不判，坏文件报错而不是当静音
@@ -221,24 +245,44 @@ class FeedbackTest(unittest.TestCase):
             self.assertIn(want, self.prompts[-1], slot)
 
     def test_rerecorded_while_transcribing_is_not_saved(self):
-        def transcribe(audio):
+        def transcribe(audio, lang='en'):
             call('PUT', '/api/rec/fb/q1-en', b'webm-new', 'audio/webm')
             return self.said
         server.transcribe = transcribe
         call('POST', '/api/feedback/fb/q1-en')
         self.assertFalse((tmp / 'sessions' / 'fb' / 'q1-en.feedback.json').exists())
+        self.assertFalse((tmp / 'history.jsonl').exists())  # 作废的反馈也不进历史
+
+    def test_claude_cli(self):  # 用假的 claude 命令走一遍真实的子进程调用
+        bin_dir = tmp / 'bin'
+        bin_dir.mkdir(exist_ok=True)
+        fake = bin_dir / 'claude'
+        old_path = os.environ['PATH']
+        os.environ['PATH'] = f'{bin_dir}:{old_path}'
+        try:
+            fake.write_text('#!/bin/sh\ncat\n')  # 原样吐回 stdin：证明提示词走的是 stdin
+            fake.chmod(0o755)
+            self.assertEqual(self.real[1]('--looks-like-an-option'), '--looks-like-an-option')
+            fake.write_text('#!/bin/sh\necho "Claude usage limit reached" >&2\nexit 1\n')
+            with self.assertRaisesRegex(server.ServiceError, 'usage limit'):
+                self.real[1]('hi')
+        finally:
+            os.environ['PATH'] = old_path
 
     def test_parse_feedback_rules(self):
-        reply = {'good': ['I have dragged into it.', 'The biggest obstacle for me is sticking with it.',
-                          'Once my English is good enough.', 'I can travel.'],
-                 'fixes': [{'said': 'dragged into', 'better': 'dug into'}, {'said': 'runsleep', 'better': 'while I sleep'},
-                           {'said': 'passing when come', 'better': 'passive income'}, {'said': 'make my money', 'better': 'make money'},
-                           {'said': 'no better here'}],
-                 'sounds': ['1', '2', '3', '4']}
-        out = server.parse_feedback('<think>x</think>```json\n' + json.dumps(reply) + '\n```')
-        self.assertEqual([f['said'] for f in out['fixes']], ['dragged into', 'runsleep', 'passing when come'])  # 最多 3 条
-        self.assertEqual(out['good'], ['The biggest obstacle for me is sticking with it.', 'Once my English is good enough.'])  # 冲突的不夸，最多 2 条
-        self.assertEqual(len(out['sounds']), 3)
+        reply = {'cheer': '进步了', 'good': ['I have dragged into it.', 'The biggest obstacle for me is sticking with it.',
+                                          'Once my English is good enough.', 'I can travel.'],
+                 'upgrades': [{'thought': '深挖', 'said': 'dragged into', 'natural': 'dug into', 'old': 'yes'},
+                              {'said': 'runsleep', 'natural': 'while I sleep'}, {'said': 'a', 'natural': 'b', 'old': True},
+                              {'said': 'm', 'natural': 'n'}, {'said': 'no natural here'}],
+                 'sounds': [{'heard': '1', 'word': 'w1'}, {'heard': '2', 'word': 'w2'}, {'heard': '3', 'word': 'w3'},
+                            {'heard': '4', 'word': 'w4'}, {'heard': 'no word'}]}
+        out = server.parse_feedback('```json\n' + json.dumps(reply) + '\n```')
+        self.assertEqual([u['natural'] for u in out['upgrades']], ['dug into', 'while I sleep', 'b'])  # 最多 3 条
+        self.assertEqual([u['old'] for u in out['upgrades']], [False, False, True])  # 只认真正的 true
+        self.assertEqual(out['good'], ['The biggest obstacle for me is sticking with it.', 'Once my English is good enough.'])
+        self.assertEqual([x['word'] for x in out['sounds']], ['w1', 'w2', 'w3'])
+        self.assertEqual(out['cheer'], '进步了')
         with self.assertRaises(server.ServiceError):
             server.parse_feedback('抱歉，我无法回答')
 
