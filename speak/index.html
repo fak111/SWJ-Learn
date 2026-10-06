@@ -50,6 +50,14 @@
   .say::after { content: ' 🔊'; font-size: .75em; opacity: .55; }
   .say:hover, .say:focus-visible { background: var(--soft); outline: none; }
   .say.playing { background: var(--soft); color: var(--accent); }
+  .fb { margin: 0 0 10px 82px; font-size: 14px; }
+  .fb:empty { display: none; }
+  .fb p { margin: 4px 0; }
+  .fb .said, .fb .muted { color: var(--muted); }
+  .fb .good { color: var(--ok); }
+  .fb .fix s { color: var(--rec); }
+  .fb button { font-size: 13px; padding: 4px 12px; }
+  @media (max-width: 600px) { .fb { margin-left: 0; } }
 </style>
 </head>
 <body>
@@ -157,19 +165,19 @@ async function load() {
     picker.hidden = false;
     picker.onchange = () => { location.search = '?p=' + picker.value; };
   }
-  const { paper, recordings, submitted } = await api('paper/' + paperId);
+  const { paper, recordings, submitted, feedback } = await api('paper/' + paperId);
   document.title = paper.title || '口语试卷';
   $('#title').textContent = paper.title || paperId;
   $('#intro').append(speakable(paper.intro));
   if (paper.summary) { $('#summary').append(speakable(paper.summary)); $('#summary').hidden = false; }
   const box = $('#questions');
-  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, recordings)));
+  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, recordings, feedback || {})));
   $('#done').hidden = !submitted;
   refresh();
   warmTts();
 }
 
-function renderQuestion(q, i, recordings) {
+function renderQuestion(q, i, recordings, feedback) {
   const card = h('section', { className: 'q' }, h('h2', {}, `${i + 1}. `, speakable(q.prompt)));
   if (q.hint) card.append(h('p', { className: 'hint' }, speakable(q.hint)));
   if (q.points?.length) {
@@ -183,10 +191,11 @@ function renderQuestion(q, i, recordings) {
   }
   if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note' }, speakable(q.note)));
   for (const s of q.slots || [{ id: 'zh', label: '中文' }, { id: 'en', label: 'English' }]) {
-    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, el: h('div', { className: 'slot' }) };
+    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, el: h('div', { className: 'slot' }), fbEl: h('div', { className: 'fb' }) };
+    slot.fb = feedback[slot.key] || null;
     slot.state = recordings.includes(slot.key) ? 'saved' : 'empty';
     slots.push(slot);
-    card.append(slot.el);
+    card.append(slot.el, slot.fbEl);
   }
   return card;
 }
@@ -224,6 +233,41 @@ function draw(s) {
   }
   if (s.state === 'asking') s.el.append(h('span', { className: 'status', textContent: '等待麦克风授权…第一次用请在浏览器弹窗里点「允许」' }));
   if (s.notice) s.el.append(h('span', { className: 'status err', textContent: s.notice }));
+  drawFeedback(s);
+}
+
+// 即时反馈：只给英文段；s.fbState = loading | error | ''
+function drawFeedback(s) {
+  const box = s.fbEl;
+  box.replaceChildren();
+  if (s.key.endsWith('-zh') || s.state !== 'saved') return;
+  if (s.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 15 秒，可以先录下一段' }));
+  if (s.fbState === 'error') {
+    return box.append(h('p', { className: 'err-banner', textContent: s.fbErr }), h('button', { textContent: '重试反馈', onclick: () => getFeedback(s) }));
+  }
+  const f = s.fb;
+  if (!f) return box.append(h('button', { textContent: '生成反馈', onclick: () => getFeedback(s) }));
+  if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一遍' }));
+  box.append(h('p', { className: 'said' }, h('b', { textContent: '你说的：' }), f.transcript));
+  for (const g of f.good) box.append(h('p', { className: 'good' }, '✓ ', g));
+  for (const x of f.fixes) box.append(h('p', { className: 'fix' }, '✎ ', h('s', { textContent: x.said }), ' → ', speakable(x.better), x.why ? `（${x.why}）` : ''));
+  for (const x of f.sounds) box.append(h('p', { className: 'muted' }, '🔈 疑似没读清：', x));
+  if (!f.good.length && !f.fixes.length) box.append(h('p', { className: 'good', textContent: '✓ 没发现影响听懂的问题' }));
+}
+
+async function getFeedback(s) {
+  const v = s.version;
+  Object.assign(s, { fbState: 'loading', fb: null });
+  refresh();
+  try {
+    const fb = await api(`feedback/${paperId}/${s.key}`, { method: 'POST' });
+    if (s.version === v) Object.assign(s, { fb, fbState: '' }); // 等反馈期间重录了：这份作废
+  } catch (e) {
+    let msg = e.message.replace(/^\d+ /, '');
+    try { msg = JSON.parse(msg).error || msg; } catch {}
+    if (s.version === v) Object.assign(s, { fbState: 'error', fbErr: '反馈没出来：' + msg });
+  }
+  refresh();
 }
 
 async function start(s) {
@@ -271,18 +315,19 @@ async function upload(s, blob) {
   s.state = 'uploading'; s.blob = blob; refresh();
   try {
     await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
-    Object.assign(s, { state: 'saved', blob: null, version: Date.now() });
+    Object.assign(s, { state: 'saved', blob: null, version: Date.now(), fb: null, fbState: '' });
     $('#done').hidden = true; // 改了录音就要重新提交
   } catch (e) {
     Object.assign(s, { state: 'error', error: '保存失败：' + e.message });
   }
   refresh();
+  if (s.state === 'saved' && !s.key.endsWith('-zh')) getFeedback(s);
 }
 
 async function remove(s) {
   try {
     await api(`rec/${paperId}/${s.key}`, { method: 'DELETE' });
-    s.state = 'empty';
+    Object.assign(s, { state: 'empty', fb: null, fbState: '', version: Date.now() });
     $('#done').hidden = true;
   } catch (e) {
     Object.assign(s, { state: 'error', error: '删除失败：' + e.message, blob: null });
