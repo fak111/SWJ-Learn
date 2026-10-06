@@ -5,13 +5,14 @@
 
 数据目录默认 ~/temp/eng（SPEAK_DATA 可覆盖），不进仓库：
     papers/<paper>.json               试卷，AI 写入
-    sessions/<paper>/<slot>.<ext>     录音，页面上传
+    sessions/<paper>/<slot>.v<n>.<ext>     录音，页面上传；每再录一版 n 加 1，旧版保留
     sessions/<paper>/submitted.json   提交标记，AI 侧据此开始分析
-    sessions/<paper>/<slot>.feedback.json  即时反馈（MiniMax 听写 + 本机 claude -p 写反馈）
+    sessions/<paper>/<slot>.v<n>.feedback.json  这一版的即时反馈（MiniMax 听写 + 本机 claude -p 写反馈）
     profile.md / mappings.md / pronunciation.md  学生背景与学过的说法（Claude 维护，写反馈时带上）
     history.jsonl                     每次即时反馈出过的问题，写反馈时带上
     tts/<sha1>.mp3                    英文发音缓存（MiniMax，需环境变量 MINIMAX_API_KEY）
 """
+import difflib
 import hashlib
 import json
 import os
@@ -42,9 +43,37 @@ def paper_ids():
     return sorted((p.stem for p in (DATA / 'papers').glob('*.json') if ID.match(p.stem)), key=lambda s: (len(s), s))
 
 
-def rec_files(paper, slot=None):
+TAKE = re.compile(r'([a-z0-9_-]{1,64})\.v([1-9][0-9]{0,3})\.(webm|mp4|ogg)')
+
+
+def take_files(paper, slot=None):
+    """录音 → {(题位, 第几版): 文件}，按题位、版本排好。"""
     d = DATA / 'sessions' / paper
-    return [p for p in d.glob(f'{slot or "*"}.*') if p.suffix[1:] in MIME] if d.is_dir() else []
+    found = {}
+    for p in d.glob(f'{slot or "*"}.v*') if d.is_dir() else []:
+        m = TAKE.fullmatch(p.name)
+        if m and m[1] == (slot or m[1]):
+            found[(m[1], int(m[2]))] = p
+    return dict(sorted(found.items()))
+
+
+def fb_path(paper, slot, n):
+    return DATA / 'sessions' / paper / f'{slot}.v{n}.feedback.json'
+
+
+def read_fb(paper, slot, n):
+    f = fb_path(paper, slot, n)
+    return json.loads(f.read_text()) if f.exists() else None
+
+
+def migrate():
+    """以前一个题位只有一段：<slot>.<ext> → <slot>.v1.<ext>，反馈跟着改名。"""
+    root = DATA / 'sessions'
+    for d in [d for d in root.iterdir() if d.is_dir()] if root.is_dir() else []:
+        for p in list(d.iterdir()):
+            m = re.fullmatch(r'([a-z0-9_-]{1,64})\.(webm|mp4|ogg|feedback\.json)', p.name)
+            if m and not (d / f'{m[1]}.v1.{m[2]}').exists():
+                p.rename(d / f'{m[1]}.v1.{m[2]}')
 
 
 def atomic_write(path, data):
@@ -147,15 +176,19 @@ def transcribe(audio):
 FILLERS = {'uh', 'um', 'er', 'eh', 'ah', 'hmm', 'mm'}
 
 
-def disfluency(text):
-    """口头禅次数，和原样重说的次数（相邻 1–3 个词再说一遍，如 the big, the big / obstacle, obstacle）。"""
+def disfluency(text, misheard=()):
+    """口头禅次数，和原样重说的次数（相邻 1–3 个词再说一遍，如 the big, the big / obstacle, obstacle）。
+    misheard：发音栏认出的听错片段（如 Claude Code 被听成 code code），那里的「重复」不是他重说的。"""
     words_ = re.findall(r"[a-z']+", text.lower())
     c = [w for w in words_ if w not in FILLERS]
+    misheard = [f' {m} ' for m in misheard if m]
     i, repeats = 0, 0
     while i < len(c):  # ponytail: 只数原样重说，the biggest, the bigger 这种改词重说数不到
         for n in (1, 2, 3):  # 先短后长：the the the the 算 3 次
             if i + 2 * n <= len(c) and c[i:i + n] == c[i + n:i + 2 * n]:
-                repeats, i = repeats + 1, i + n
+                if not any(f" {' '.join(c[i:i + 2 * n])} " in m for m in misheard):
+                    repeats += 1
+                i += n
                 break
         else:
             i += 1
@@ -177,6 +210,7 @@ def claude(prompt):
 
 FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 {"cheer": "一句话：这次具体进步在哪；他说对了以前出过问题的说法就点出来",
+ "carried": [{"natural": "有上一版时：上一版给的、这一版用上了的台阶（照抄）", "quote": "这一版里用上它的原话（照抄转写）"}],
  "good": [{"quote": "0-2 条：他英文里的原话片段", "fixed": "把这段改成完全正确、地道的英语（本来就对就一字不改照抄）", "why": "一句中文：好在哪"}],
  "upgrades": [{"thought": "他想表达的意思（中文）", "said": "他的原话片段", "natural": "地道自然的英文说法，六级词汇能懂", "old": false}],
  "sounds": [{"heard": "转写里不像真实单词的片段", "word": "他应该是想说的英文词", "tip": "一句中文：怎么读"}]}
@@ -187,7 +221,8 @@ FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 4. 不用「错」「不对」这类字眼；先肯定，再给往上走的台阶。
 5. good 宁缺毋滥：fixed 和 quote 只要差一个词，这条就不会显示；有毛病的片段（哪怕意思对）别放，没有就给空数组，鼓励的话放进 cheer。
 6. uh、重复、回头重说是流利度问题，页面另有统计，不要当成用词问题去改。
-7. sounds 只放转写里不像真实单词、或和他想说的意思明显对不上的词；拿不准就不放，语法和用词问题不算发音。"""
+7. sounds 只放转写里不像真实单词、或和他想说的意思明显对不上的词；拿不准就不放，语法和用词问题不算发音。
+8. 有上一版时，cheer 只说这一版比上一版好在哪，以下面代码算的逐词对比为准：只有这一版新说出来的才算进步，零散一两个词的差别可能是听写波动，不算进步；对比里没有的进步不许说，没进步就说保住了什么，并提醒他每版只改一处。没有上一版、或一条台阶都没用上，carried 给空数组。"""
 
 
 def read_data(name):
@@ -195,36 +230,45 @@ def read_data(name):
     return f.read_text().strip() if f.exists() else '暂无'
 
 
-def history_digest():
-    """以前的即时反馈里出过的问题，让模型认得出老问题、也看得到进步。"""
+def history_rows(skip):
+    """history.jsonl 的每一行；skip = (试卷, 题位)：同一段的旧版不算「以前」，它们由「比上一版」去比。"""
     f = DATA / 'history.jsonl'
-    lines, sounds = [], []
     for line in f.read_text().splitlines() if f.exists() else []:
         try:
             r = json.loads(line)
+        except ValueError:
+            continue  # 写到一半崩掉的坏行
+        if isinstance(r, dict) and (r.get('paper'), r.get('slot')) != skip:
+            yield r
+
+
+def history_digest(skip=None):
+    """以前的即时反馈里出过的问题，让模型认得出老问题、也看得到进步。"""
+    lines, sounds = [], []
+    for r in history_rows(skip):
+        try:
             t = r['time'][:10]
             lines += [f"- {t} {u['thought']}：他说「{u['said']}」→ {u['natural']}" for u in r['upgrades']]
             sounds += [f"- {t} 发音：{x['heard']} → {x['word']}" for x in r['sounds']]
         except (ValueError, KeyError, TypeError):
-            continue  # 坏行（写到一半崩掉、字段不全）跳过，别让以后所有反馈都挂
+            continue  # 字段不全的行跳过，别让以后所有反馈都挂
     lines += sounds
     return '\n'.join(lines[-60:]) or '暂无'  # ponytail: 只带最近 60 条，记录多了再按问题去重
 
 
-def recent_repeats(limit=4):
-    """最近几段的重说次数，给页面画「越来越少」的趋势。"""
-    f = DATA / 'history.jsonl'
+def recent_repeats(skip=None, limit=4):
+    """最近几段（不含同一段的旧版）的重说次数，给页面画「越来越少」的趋势。"""
     out = []
-    for line in f.read_text().splitlines() if f.exists() else []:
+    for r in history_rows(skip):
         try:
-            out.append(int(json.loads(line)['repeats']))
+            out.append(int(r['repeats']))
         except (ValueError, KeyError, TypeError):
             continue
     return out[-limit:]
 
 
-def append_history(paper, slot, q, said, result):
-    rec = {'time': time.strftime('%Y-%m-%dT%H:%M:%S'), 'paper': paper, 'slot': slot, 'question': q.get('prompt', ''),
+def append_history(paper, slot, n, q, said, result):
+    rec = {'time': time.strftime('%Y-%m-%dT%H:%M:%S'), 'paper': paper, 'slot': slot, 'take': n, 'question': q.get('prompt', ''),
            'said': said, 'upgrades': result['upgrades'], 'sounds': result['sounds'],
            'fillers': result['fillers'], 'repeats': result['repeats']}
     with (DATA / 'history.jsonl').open('a') as f:
@@ -237,7 +281,23 @@ def targets(q):
     return '\n'.join(t for t in [q.get('hint', ''), *(q.get('points') or []), *maps, q.get('note', '')] if t)
 
 
-def feedback_prompt(q, zh, en):
+def feedback_prompt(q, zh, en, prev=None, skip=None):
+    """prev = (上一版是第几版, 上一版的反馈)，让模型说出这一版比上一版好在哪。"""
+    if prev:
+        ups = '\n'.join(f"- {u.get('thought', '')}：{u.get('natural', '')}" for u in prev[1].get('upgrades') or []) or '- 无'
+        added, dropped = take_diff(prev[1].get('transcript', ''), en)
+        diff = (f"这一版新说出来的：{' / '.join(added) or '无'}\n上一版有、这一版没了的：{' / '.join(dropped) or '无'}"
+                if added or dropped else '两版转写一字不差：这一版没有任何进步可说。')
+        prev_text = f"""
+## 他上一版（第 {prev[0]} 版）
+他说的：{prev[1].get('transcript', '')}
+上一版给他的台阶：
+{ups}
+两版逐词对比（代码算的，不含 uh 这类口头禅）：
+{diff}
+"""
+    else:
+        prev_text = ''
     return f"""{read_data('profile.md')}
 
 ## 他学过的说法（映射表）
@@ -247,7 +307,7 @@ def feedback_prompt(q, zh, en):
 {read_data('pronunciation.md')}
 
 ## 他以前的问题（最近的即时反馈记录）
-{history_digest()}
+{history_digest(skip)}
 
 ## 这一题
 题目：{q.get('prompt', '')}
@@ -255,8 +315,20 @@ def feedback_prompt(q, zh, en):
 {targets(q) or '无'}
 他先用中文说的（转写，可能有错字）：{zh or '（没录中文）'}
 他接着用英文说的（MiniMax 语音识别原样转写：保留了 uh、重复和回头重说；发音不清的词可能被写成别的词）：{en}
-
+{prev_text}
 {FEEDBACK_RULES}"""
+
+
+def take_diff(before, now):
+    """两版转写逐词比：这一版新说出来的片段、上一版有这一版没了的片段。给模型当依据，免得它编进步。"""
+    a, b = words(before).split(), words(now).split()
+    added, dropped = [], []
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
+        if op in ('replace', 'insert'):
+            added.append(' '.join(b[j1:j2]))
+        if op in ('replace', 'delete'):
+            dropped.append(' '.join(a[i1:i2]))
+    return added, dropped
 
 
 def words(text):
@@ -264,7 +336,7 @@ def words(text):
     return ' '.join(w for w in re.findall(r"[a-z0-9']+", text.lower().replace('’', "'")) if w not in FILLERS)
 
 
-def parse_feedback(content):
+def parse_feedback(content, said=None):
     """模型回复 → {cheer, good, upgrades, sounds}。做对的最多 2 条且不能和台阶冲突；台阶、发音各最多 3 条。"""
     m = re.search(r'\{.*\}', content, re.S)
     try:
@@ -283,41 +355,63 @@ def parse_feedback(content):
         segs = [words(x) for q in re.findall(r'[「"“](.+?)[」"”]', g) or [g] for x in re.split(r'…|\.\.\.', q)]
         within = lambda a, b: f' {a} ' in f' {b} '  # noqa: E731  按整词比，免得 it is 误中 bit is
         return any(len(sg.split()) >= 3 and within(sg, sw) for sg in segs for sw in saids) or any(within(sw, words(g)) for sw in saids)
-    # 「一字不改就对」不能信模型的感觉：让它自己写出改正版，差一个词就不算
+    # 「一字不改就对」不能信模型的感觉：让它自己写出改正版，差一个词就不算；
+    # 给了转写（said）还得是他的原话，模型顺手把 code code 改成 Claude Code 再夸也不算
+    heard = f' {words(said)} ' if said is not None else None
     good = [f"「{g['quote']}」——{s(g.get('why'))}" for g in d.get('good') or []
-            if isinstance(g, dict) and words(s(g.get('quote'))) and words(g['quote']) == words(s(g.get('fixed')))]
+            if isinstance(g, dict) and words(s(g.get('quote'))) and words(g['quote']) == words(s(g.get('fixed')))
+            and (heard is None or f" {words(g['quote'])} " in heard)]
     good = [g for g in good if not clash(g)][:2]
     sounds = [{'heard': s(x.get('heard')), 'word': s(x.get('word')), 'tip': s(x.get('tip'))}
               for x in d.get('sounds') or [] if isinstance(x, dict) and s(x.get('word'))][:3]
-    return {'cheer': s(d.get('cheer')), 'good': good, 'upgrades': ups, 'sounds': sounds}
+    carried = d.get('carried') if isinstance(d.get('carried'), list) else []
+    carried = [s(c.get('quote')) for c in carried if isinstance(c, dict) and s(c.get('quote'))]
+    return {'cheer': s(d.get('cheer')), 'good': good, 'upgrades': ups, 'sounds': sounds, 'carried': carried}
 
 
-def feedback(paper, slot):
-    """转写一段英文录音（带上同题的中文）并让 Claude 写反馈，存成 <slot>.feedback.json，记进历史。"""
+def feedback(paper, slot, n):
+    """转写第 n 版英文录音（带上同题的中文、这一段的上一版）并让 Claude 写反馈，存成 <slot>.v<n>.feedback.json，记进历史。"""
     if slot.endswith('-zh'):
         raise ServiceError('中文段不出反馈', 400)
-    recs = rec_files(paper, slot)
-    if not recs:
-        raise ServiceError('这段还没录', 404)
-    rec, mtime = recs[0], recs[0].stat().st_mtime
+    rec = take_files(paper, slot).get((slot, n))
+    if not rec:
+        raise ServiceError('这一版还没录', 404)
+    mtime = rec.stat().st_mtime
     qs = json.loads((DATA / 'papers' / f'{paper}.json').read_text()).get('questions', [])
     i, q = next(((i, q) for i, q in enumerate(qs) for s in q.get('slots') or DEFAULT_SLOTS if slot_key(q, i, s) == slot),
                 (0, None))
     if q is None:  # 题位对不上题目：别带着空上下文悄悄出反馈
         raise ServiceError('试卷里找不到这道题', 404)
     said = '' if is_silent(rec) else transcribe(rec)
-    fillers, repeats = disfluency(said)
-    result = {'transcript': said, 'cheer': '', 'good': [], 'upgrades': [], 'sounds': [],
-              'fillers': fillers, 'repeats': repeats, 'trend': recent_repeats() + [repeats]}
+    result = {'transcript': said, 'cheer': '', 'good': [], 'upgrades': [], 'sounds': [], 'carried': None, 'prev': None}
     if re.search(r'[A-Za-z]{2}', said):
-        zh_recs = rec_files(paper, slot_key(q, i, {'id': 'zh'}))
-        zh = '' if not zh_recs or is_silent(zh_recs[0]) else transcribe(zh_recs[0])
-        result.update(parse_feedback(claude(feedback_prompt(q, zh, said))))
-    # 转写期间被重录或删了：这份反馈作废，不落盘、不进历史
-    if rec_files(paper, slot) == [rec] and rec.stat().st_mtime == mtime:
-        atomic_write(rec.with_name(f'{slot}.feedback.json'), json.dumps(result, ensure_ascii=False).encode())
-        if said:
-            append_history(paper, slot, q, said, result)
+        zh_takes = list(take_files(paper, slot_key(q, i, {'id': 'zh'})).values())
+        zh = '' if not zh_takes or is_silent(zh_takes[-1]) else transcribe(zh_takes[-1])
+        # 上一版 = 比这一版早、已经出过反馈的最近一版
+        prev = next(((m, f) for (_, m) in reversed(take_files(paper, slot)) if m < n
+                     for f in [read_fb(paper, slot, m)] if f and f.get('transcript')), None)
+        result.update(parse_feedback(claude(feedback_prompt(q, zh, said, prev, (paper, slot))), said))
+        quotes, result['carried'] = result['carried'], None
+        if prev:
+            # 「用上了」要有证据：原话（至少两个词）是上一版某条台阶的一部分，在这一版里、不在上一版里；按台阶数，不按句数
+            now, before = f' {words(said)} ', f" {words(prev[1].get('transcript', ''))} "
+            naturals = [f" {words(u.get('natural', ''))} " for u in prev[1].get('upgrades') or []]
+            used = {i for w in map(words, quotes) if len(w.split()) >= 2 and f' {w} ' in now and f' {w} ' not in before
+                    for i, nat in enumerate(naturals) if f' {w} ' in nat}
+            result['prev'], result['carried'] = prev[0], len(used)
+    result['fillers'], result['repeats'] = disfluency(said, [words(x['heard']) for x in result['sounds']])
+    result['trend'] = recent_repeats((paper, slot)) + [result['repeats']]
+    # 转写期间这一版被删了（或删了又录成同一版号）：这份反馈作废，不落盘、不进历史
+    try:
+        same = rec.stat().st_mtime == mtime
+    except FileNotFoundError:
+        same = False
+    if same:
+        atomic_write(fb_path(paper, slot, n), json.dumps(result, ensure_ascii=False).encode())
+        if not rec.exists():  # 写的同时这一版被删了：别留下孤儿反馈（版号会被下一版复用）
+            fb_path(paper, slot, n).unlink(missing_ok=True)
+        elif said:
+            append_history(paper, slot, n, q, said, result)
     return result
 
 
@@ -328,10 +422,6 @@ def slot_key(q, i, s):
     """和页面上 `${q.id ?? 'q' + (i + 1)}-${s.id}` 一模一样，才能从题位找回题目。"""
     qid = q.get('id')
     return f"{f'q{i + 1}' if qid is None else qid}-{s.get('id')}"
-
-
-def drop_feedback(paper, slot):
-    (DATA / 'sessions' / paper / f'{slot}.feedback.json').unlink(missing_ok=True)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -347,7 +437,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def parse(self):
-        """返回 (动作, 试卷, 题位)；路径不合法返回 None。"""
+        """返回 (动作, 试卷, 题位, 第几版)；路径不合法返回 None。"""
         # 防 DNS rebinding：只认本机名访问
         if self.headers.get('Host', '').rsplit(':', 1)[0] not in ('127.0.0.1', 'localhost'):
             return None
@@ -356,23 +446,25 @@ class Handler(BaseHTTPRequestHandler):
             return None
         parts = self.path.split('?')[0].strip('/').split('/')
         if parts == ['']:
-            return ('index', None, None)
+            return ('index', None, None, None)
         if parts[0] != 'api' or len(parts) < 2 or not all(ID.match(p) for p in parts[2:]):
             return None
         action, rest = parts[1], parts[2:]
         if action in ('papers', 'tts') and not rest:
-            return (action, None, None)
+            return (action, None, None, None)
         if action in ('paper', 'submit') and len(rest) == 1:
-            return (action, rest[0], None)
-        if action in ('rec', 'feedback') and len(rest) == 2:
-            return (action, rest[0], rest[1])
+            return (action, rest[0], None, None)
+        if action == 'rec' and len(rest) == 2:  # 只有 PUT 用：再录一版
+            return (action, rest[0], rest[1], None)
+        if action in ('rec', 'feedback') and len(rest) == 3 and re.fullmatch(r'[1-9][0-9]{0,3}', rest[2]):
+            return (action, rest[0], rest[1], int(rest[2]))
         return None
 
     def do_GET(self):
         r = self.parse()
         if not r:
             return self.reply(404, {'error': 'not found'})
-        action, paper, slot = r
+        action, paper, slot, n = r
         if action == 'index':
             return self.reply(200, (HERE / 'index.html').read_bytes(), 'text/html; charset=utf-8')
         if action == 'papers':
@@ -389,25 +481,26 @@ class Handler(BaseHTTPRequestHandler):
             f = DATA / 'papers' / f'{paper}.json'
             if not f.exists():
                 return self.reply(404, {'error': 'no such paper'})
+            takes = {}
+            for (sl, m) in take_files(paper):
+                takes.setdefault(sl, []).append({'n': m, 'fb': read_fb(paper, sl, m)})
             return self.reply(200, {
                 'paper': json.loads(f.read_text()),
-                'recordings': sorted(p.stem for p in rec_files(paper)),
+                'takes': takes,
                 'submitted': (DATA / 'sessions' / paper / 'submitted.json').exists(),
-                'feedback': {f.name.removesuffix('.feedback.json'): json.loads(f.read_text())
-                             for f in (DATA / 'sessions' / paper).glob('*.feedback.json')},
             })
-        if action == 'rec':
-            files = rec_files(paper, slot)
-            if not files:
+        if action == 'rec' and n:
+            f = take_files(paper, slot).get((slot, n))
+            if not f:
                 return self.reply(404, {'error': 'no recording'})
-            return self.reply(200, files[0].read_bytes(), MIME[files[0].suffix[1:]])
+            return self.reply(200, f.read_bytes(), MIME[f.suffix[1:]])
         self.reply(404, {'error': 'not found'})
 
     def do_PUT(self):
         r = self.parse()
-        if not r or r[0] != 'rec':
+        if not r or r[0] != 'rec' or r[3]:
             return self.reply(404, {'error': 'not found'})
-        _, paper, slot = r
+        _, paper, slot, _ = r
         if not (DATA / 'papers' / f'{paper}.json').exists():
             return self.reply(404, {'error': 'no such paper'})
         ext = EXT.get(self.headers.get('Content-Type', '').split(';')[0].strip())
@@ -424,38 +517,38 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, {'error': 'incomplete upload'})
         d = DATA / 'sessions' / paper
         d.mkdir(parents=True, exist_ok=True)
-        new = d / f'{slot}.{ext}'
+        # 旧版都留着，新录的排在最后。ponytail: 两个请求同时录同一题会撞版号，页面一次只录一段
+        n = max((m for (_, m) in take_files(paper, slot)), default=0) + 1
+        new = d / f'{slot}.v{n}.{ext}'
         atomic_write(new, body)
-        for old in rec_files(paper, slot):
-            if old != new:
-                old.unlink()
         unsubmit(paper)
-        drop_feedback(paper, slot)
-        self.reply(200, {'saved': new.name, 'bytes': size})
+        self.reply(200, {'saved': new.name, 'take': n, 'bytes': size})
 
     def do_DELETE(self):
         r = self.parse()
-        if not r or r[0] != 'rec':
+        if not r or r[0] != 'rec' or not r[3]:
             return self.reply(404, {'error': 'not found'})
-        for f in rec_files(r[1], r[2]):
+        _, paper, slot, n = r
+        f = take_files(paper, slot).get((slot, n))
+        if f:  # 只删这一版和它的反馈
             f.unlink()
-        unsubmit(r[1])
-        drop_feedback(r[1], r[2])
-        self.reply(200, {'deleted': r[2]})
+            fb_path(paper, slot, n).unlink(missing_ok=True)
+            unsubmit(paper)
+        self.reply(200, {'deleted': f'{slot}.v{n}'})
 
     def do_POST(self):
         r = self.parse()
-        if not r or r[0] not in ('submit', 'feedback'):
+        if not r or r[0] not in ('submit', 'feedback') or (r[0] == 'feedback') != bool(r[3]):
             return self.reply(404, {'error': 'not found'})
         if not (DATA / 'papers' / f'{r[1]}.json').exists():
             return self.reply(404, {'error': 'no such paper'})
         if r[0] == 'feedback':
             try:
-                return self.reply(200, feedback(r[1], r[2]))
+                return self.reply(200, feedback(r[1], r[2], r[3]))
             except ServiceError as e:
                 return self.reply(e.status, {'error': str(e)})
         paper = r[1]
-        slots = sorted(p.stem for p in rec_files(paper))
+        slots = [f'{sl}.v{m}' for (sl, m) in take_files(paper)]
         if not slots:
             return self.reply(400, {'error': 'nothing recorded'})
         mark = {'paper': paper, 'slots': slots, 'submitted_at': time.strftime('%Y-%m-%dT%H:%M:%S%z')}
@@ -464,5 +557,6 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    migrate()
     print(f'口语试卷：http://127.0.0.1:{PORT}  数据：{DATA}')
     ThreadingHTTPServer(('127.0.0.1', PORT), Handler).serve_forever()

@@ -51,7 +51,14 @@
   .say::after { content: ' 🔊'; font-size: .75em; opacity: .55; }
   .say:hover, .say:focus-visible { background: var(--soft); outline: none; }
   .say.playing { background: var(--soft); color: var(--accent); }
-  .fb { margin: 0 0 10px 82px; font-size: 14px; }
+  .take { margin: 0 0 6px 82px; }
+  .take .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .take .v { font-size: 13px; font-weight: 600; color: var(--muted); min-width: 44px; }
+  .take.folded .row { opacity: .8; }
+  .take .sum { font-size: 13px; color: var(--muted); }
+  .take button { font-size: 13px; padding: 4px 12px; }
+  .enough { margin: 0 0 8px 82px; font-size: 13px; color: var(--warn); }
+  .fb { margin: 4px 0 10px; font-size: 14px; }
   .fb:empty { display: none; }
   .fb p { margin: 4px 0; }
   .fb .said, .fb .muted { color: var(--muted); }
@@ -59,7 +66,7 @@
   .fb .cheer { font-weight: 600; }
   .fb .old { margin-left: 6px; font-size: 12px; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 0 6px; }
   .fb button { font-size: 13px; padding: 4px 12px; }
-  @media (max-width: 600px) { .fb { margin-left: 0; } }
+  @media (max-width: 600px) { .take, .enough { margin-left: 0; } }
 </style>
 </head>
 <body>
@@ -80,7 +87,8 @@ const $ = (s, el = document) => el.querySelector(s);
 const MAX_SECONDS = 300; // ponytail: 忘了点结束时的兜底
 const SOFT_SECONDS = 60;
 let paperId, active = null; // active = 正在录的题位
-const slots = []; // { key, el, state, blob }
+const ENOUGH = 3; // 同一段录到第 3 版就提示去下一题，别陷进追求完美
+const slots = []; // { key, el, state: idle|asking|recording|uploading|error, takes: [{ n, fb, fbState, open, audio }], blob }
 
 function h(tag, props = {}, ...kids) {
   const el = Object.assign(document.createElement(tag), props);
@@ -99,8 +107,8 @@ async function api(path, opts) {
 
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
-// 文本里的英文片段（被中文、→、/、句末标点隔开）都变成可点击发音，一句一段；单个字母不读
-const EN = /[A-Za-z][A-Za-z0-9 ,'’:;()-]*[.?!]*/g;
+// 文本里的英文片段（被中文、→、/、句末标点隔开）都变成可点击发音，一句一段；单个字母不读；Opus 5.5 的小数点不算句末
+const EN = /[A-Za-z](?:[A-Za-z0-9 ,'’:;()-]|\.(?=\d))*[.?!]*/g;
 const ttsUrl = text => '/api/tts?text=' + encodeURIComponent(text);
 const player = new Audio();
 let playing = null;
@@ -171,19 +179,19 @@ async function load() {
     picker.hidden = false;
     picker.onchange = () => { location.search = '?p=' + picker.value; };
   }
-  const { paper, recordings, submitted, feedback } = await api('paper/' + paperId);
+  const { paper, takes, submitted } = await api('paper/' + paperId);
   document.title = paper.title || '口语试卷';
   $('#title').textContent = paper.title || paperId;
   $('#intro').append(speakable(paper.intro));
   if (paper.summary) { $('#summary').append(speakable(paper.summary)); $('#summary').hidden = false; }
   const box = $('#questions');
-  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, recordings, feedback || {})));
+  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, takes || {})));
   $('#done').hidden = !submitted;
   refresh();
   warmTts();
 }
 
-function renderQuestion(q, i, recordings, feedback) {
+function renderQuestion(q, i, takes) {
   const card = h('section', { className: 'q' }, h('h2', {}, `${i + 1}. `, speakable(q.prompt)));
   if (q.hint) card.append(h('p', { className: 'hint' }, speakable(q.hint)));
   if (q.points?.length) {
@@ -191,24 +199,26 @@ function renderQuestion(q, i, recordings, feedback) {
       h('ul', { className: 'points' }, ...q.points.map(p => h('li', {}, speakable(p)))));
   }
   if (q.mappings?.length) {
-    const rows = q.mappings.map(m => h('tr', {}, ...[m.thought, m.can, m.natural].map(t => h('td', {}, speakable(t)))));
-    card.append(h('div', { className: 'label', textContent: '映射：你想说的 → 能说版 → 自然版' }),
-      h('table', {}, h('tr', {}, ...['想说的', '能说版', '自然版'].map(t => h('th', { textContent: t }))), ...rows));
+    const can = q.mappings.some(m => m.can); // 只给自然版时不显示「能说版」这一列
+    const cols = can ? ['thought', 'can', 'natural'] : ['thought', 'natural'];
+    const rows = q.mappings.map(m => h('tr', {}, ...cols.map(c => h('td', {}, speakable(m[c])))));
+    card.append(h('div', { className: 'label', textContent: can ? '映射：你想说的 → 能说版 → 自然版' : '映射：你想说的 → 自然说法' }),
+      h('table', {}, h('tr', {}, ...(can ? ['想说的', '能说版', '自然版'] : ['想说的', '自然说法']).map(t => h('th', { textContent: t }))), ...rows));
   }
   if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note' }, speakable(q.note)));
   for (const s of q.slots || [{ id: 'zh', label: '中文' }, { id: 'en', label: 'English' }]) {
-    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, el: h('div', { className: 'slot' }), fbEl: h('div', { className: 'fb' }) };
-    slot.fb = feedback[slot.key] || null;
-    slot.state = recordings.includes(slot.key) ? 'saved' : 'empty';
+    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, state: 'idle',
+      el: h('div', { className: 'slot' }), takesEl: h('div') };
+    slot.takes = (takes[slot.key] || []).map(t => ({ n: t.n, fb: t.fb }));
     slots.push(slot);
-    card.append(slot.el, slot.fbEl);
+    card.append(slot.el, slot.takesEl);
   }
   return card;
 }
 
 function refresh() {
   for (const s of slots) draw(s);
-  const n = slots.filter(s => s.state === 'saved').length;
+  const n = slots.filter(s => s.takes.length).length;
   $('#progress').textContent = `已录 ${n} / ${slots.length} 段`;
   $('#submit').disabled = !n || !!active || slots.some(s => s.state === 'uploading');
 }
@@ -216,9 +226,10 @@ function refresh() {
 function draw(s) {
   const busy = active && active !== s;
   const btn = (text, cls, fn) => h('button', { className: cls, textContent: text, disabled: busy, onclick: fn });
+  const again = () => btn(s.takes.length ? '● 再录一版' : '● 开始', 'start', () => start(s));
   s.el.className = 'slot ' + s.state;
   s.el.replaceChildren(h('span', { className: 'name', textContent: s.label }));
-  if (s.state === 'empty') s.el.append(btn('● 开始', 'start', () => start(s)));
+  if (s.state === 'idle') s.el.append(again());
   if (s.state === 'recording') {
     s.el.append(h('span', { className: 'time' }, h('span', { className: 'dot' }), fmt(s.secs || 0)),
       btn('■ 结束', 'stop', () => stop(s)), btn('✕ 不要了', '', () => stop(s, true)));
@@ -227,35 +238,57 @@ function draw(s) {
   if (s.state === 'error') {
     s.el.append(h('span', { className: 'status err', textContent: s.error }));
     if (s.blob) s.el.append(btn('重试保存', '', () => upload(s, s.blob)));
-    s.el.append(btn('↻ 重录', '', () => start(s)));
-  }
-  if (s.state === 'saved') {
-    // 同一个 audio 元素同步移回 DOM，别的题位重绘时不打断正在回放的录音
-    if (!s.audio || s.audio.dataset.v !== String(s.version || 0)) {
-      s.audio = h('audio', { controls: true, preload: 'none', src: `/api/rec/${paperId}/${s.key}?t=${s.version || 0}` });
-      s.audio.dataset.v = String(s.version || 0);
-    }
-    s.el.append(s.audio, btn('↻ 重录', '', () => start(s)), btn('✕ 删除', '', () => remove(s)));
+    s.el.append(again());
   }
   if (s.state === 'asking') s.el.append(h('span', { className: 'status', textContent: '等待麦克风授权…第一次用请在浏览器弹窗里点「允许」' }));
   if (s.notice) s.el.append(h('span', { className: 'status err', textContent: s.notice }));
-  drawFeedback(s);
+  // 最新一版在上面、展开；旧版折成一行，点开看反馈
+  const list = s.takes.slice().reverse().map((t, i) => drawTake(s, t, i === 0));
+  if (s.takes.length >= ENOUGH && s.state === 'idle') {
+    list.unshift(h('p', { className: 'enough', textContent: `这一段已经 ${s.takes.length} 版了，够了，去下一题吧` }));
+  }
+  s.takesEl.replaceChildren(...list);
 }
 
-// 即时反馈：只给英文段；s.fbState = loading | error | ''
-function drawFeedback(s) {
-  const box = s.fbEl;
-  box.replaceChildren();
-  if (s.key.endsWith('-zh') || s.state !== 'saved') return;
-  if (s.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 20 秒，可以先录下一段' }));
-  if (s.fbState === 'error') {
-    return box.append(h('p', { className: 'err-banner', textContent: s.fbErr }), h('button', { textContent: '重试反馈', onclick: () => getFeedback(s) }));
+function drawTake(s, t, latest) {
+  const open = latest || t.open;
+  // 同一个 audio 元素同步移回 DOM，别的题位重绘时不打断正在回放的录音
+  t.audio ??= h('audio', { controls: true, preload: 'none', src: `/api/rec/${paperId}/${s.key}/${t.n}` });
+  const row = h('div', { className: 'row' }, h('span', { className: 'v', textContent: `第 ${t.n} 版` }), t.audio);
+  if (!latest) row.append(h('button', { textContent: open ? '收起' : '展开', onclick: () => { t.open = !t.open; refresh(); } }));
+  row.append(h('button', { textContent: '✕ 删除', disabled: !!active, onclick: () => remove(s, t) }));
+  if (!open) row.append(h('span', { className: 'sum', textContent: takeSummary(s, t) }));
+  const el = h('div', { className: 'take' + (open ? '' : ' folded') }, row);
+  if (open) {
+    const box = h('div', { className: 'fb' });
+    drawFeedback(s, t, box);
+    el.append(box);
   }
-  const f = s.fb;
-  if (!f) return box.append(h('button', { textContent: '生成反馈', onclick: () => getFeedback(s) }));
-  if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一遍' }));
-  // 先说进步，再给往上走的台阶；不划红线
-  if (f.cheer) box.append(h('p', { className: 'cheer' }, '💬 ', f.cheer));
+  return el;
+}
+
+// 折起来的那一行：一眼看出这一版的样子
+function takeSummary(s, t) {
+  const f = t.fb;
+  if (t.fbState === 'loading') return '反馈生成中…';
+  if (!f || f.repeats == null) return '';
+  const total = s.takes.find(x => x.n === f.prev)?.fb?.upgrades?.length; // 上一版被删了就不知道总数
+  const carried = f.carried == null || total === 0 ? '' : ` · 用上上一版台阶 ${f.carried}${total ? '/' + total : ' 条'}`;
+  return `口头禅 ${f.fillers} · 重说 ${f.repeats}${carried}`;
+}
+
+// 即时反馈：只给英文段；t.fbState = loading | error | ''
+function drawFeedback(s, t, box) {
+  if (s.key.endsWith('-zh')) return;
+  if (t.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 20 秒，可以先录下一段' }));
+  if (t.fbState === 'error') {
+    return box.append(h('p', { className: 'err-banner', textContent: t.fbErr }), h('button', { textContent: '重试反馈', onclick: () => getFeedback(s, t) }));
+  }
+  const f = t.fb;
+  if (!f) return box.append(h('button', { textContent: '生成反馈', onclick: () => getFeedback(s, t) }));
+  if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一版' }));
+  // 先说进步（有上一版就说比上一版好在哪），再给往上走的台阶；不划红线
+  if (f.cheer) box.append(h('p', { className: 'cheer' }, '💬 ', f.prev ? `比第 ${f.prev} 版：` : '', f.cheer));
   if (f.repeats != null) {
     const trend = (f.trend || []).length > 1 ? `（最近几段的重说：${f.trend.join(' → ')}）` : '';
     box.append(h('p', { className: 'muted' }, `🗣 这段口头禅 ${f.fillers} 次 · 原样重说 ${f.repeats} 次${trend}`));
@@ -271,19 +304,19 @@ function drawFeedback(s) {
   box.append(h('p', { className: 'said' }, '转写：', f.transcript));
 }
 
-async function getFeedback(s) {
-  const v = s.version;
-  Object.assign(s, { fbState: 'loading', fb: null });
+async function getFeedback(s, t) {
+  if (!s.takes.includes(t)) return; // 排队时这一版被删了
+  Object.assign(t, { fbState: 'loading', fb: null });
   refresh();
   try {
-    const fb = await api(`feedback/${paperId}/${s.key}`, { method: 'POST' });
-    if (s.version === v) Object.assign(s, { fb, fbState: '' }); // 等反馈期间重录了：这份作废
+    const fb = await api(`feedback/${paperId}/${s.key}/${t.n}`, { method: 'POST' });
+    Object.assign(t, { fb, fbState: '' });
   } catch (e) {
     let msg = e.message.replace(/^\d+ /, '');
     try { msg = JSON.parse(msg).error || msg; } catch {}
-    if (s.version === v) Object.assign(s, { fbState: 'error', fbErr: '反馈没出来：' + msg });
+    Object.assign(t, { fbState: 'error', fbErr: '反馈没出来：' + msg });
   }
-  refresh();
+  refresh(); // 等反馈期间这一版被删了也没关系：它已经不在 s.takes 里，不会画出来
 }
 
 async function start(s) {
@@ -329,24 +362,34 @@ function stop(s, cancel = false) {
 
 async function upload(s, blob) {
   s.state = 'uploading'; s.blob = blob; refresh();
+  let t = null;
   try {
-    await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
-    Object.assign(s, { state: 'saved', blob: null, version: Date.now(), fb: null, fbState: '' });
+    const { take } = await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
+    t = { n: take, fb: null };
+    s.takes.push(t);
+    for (const x of s.takes) x.open = false; // 新的一版展开，旧的都折起来
+    Object.assign(s, { state: 'idle', blob: null });
     $('#done').hidden = true; // 改了录音就要重新提交
   } catch (e) {
     Object.assign(s, { state: 'error', error: '保存失败：' + e.message });
   }
   refresh();
-  if (s.state === 'saved' && !s.key.endsWith('-zh')) getFeedback(s);
+  if (t && !s.key.endsWith('-zh')) {
+    // 同一段的反馈排队出：上一版的反馈出来了，这一版才能和它比
+    t.fbState = 'loading';
+    s.fbChain = (s.fbChain || Promise.resolve()).then(() => getFeedback(s, t)).catch(() => {}); // 链断了后面的版就永远排不上
+  }
 }
 
-async function remove(s) {
+async function remove(s, t) {
   try {
-    await api(`rec/${paperId}/${s.key}`, { method: 'DELETE' });
-    Object.assign(s, { state: 'empty', fb: null, fbState: '', version: Date.now() });
+    await api(`rec/${paperId}/${s.key}/${t.n}`, { method: 'DELETE' });
+    t.audio?.pause(); // 不然摘出页面的 audio 还会在后台接着放
+    s.takes = s.takes.filter(x => x !== t);
+    s.notice = '';
     $('#done').hidden = true;
   } catch (e) {
-    Object.assign(s, { state: 'error', error: '删除失败：' + e.message, blob: null });
+    s.notice = '删除失败：' + e.message;
   }
   refresh();
 }
