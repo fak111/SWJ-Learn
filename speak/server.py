@@ -177,7 +177,7 @@ def claude(prompt):
 
 FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 {"cheer": "一句话：这次具体进步在哪；他说对了以前出过问题的说法就点出来",
- "good": ["0-2 条：只引用他英文里一字不改就是地道正确英语的原话片段，加一句中文说好在哪；没有就给空数组"],
+ "good": [{"quote": "0-2 条：他英文里的原话片段", "fixed": "把这段改成完全正确、地道的英语（本来就对就一字不改照抄）", "why": "一句中文：好在哪"}],
  "upgrades": [{"thought": "他想表达的意思（中文）", "said": "他的原话片段", "natural": "地道自然的英文说法，六级词汇能懂", "old": false}],
  "sounds": [{"heard": "转写里不像真实单词的片段", "word": "他应该是想说的英文词", "tip": "一句中文：怎么读"}]}
 规则：
@@ -185,7 +185,7 @@ FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 2. 先对照题目和中文猜他想表达什么；转写像某个词但写错了，归为 sounds，不归 upgrades。
 3. 每处只给一个自然说法，不给多个版本；不重写整段。
 4. 不用「错」「不对」这类字眼；先肯定，再给往上走的台阶。
-5. good 宁缺毋滥：有毛病的片段（哪怕意思对）不放进 good，鼓励的话放进 cheer。
+5. good 宁缺毋滥：fixed 和 quote 只要差一个词，这条就不会显示；有毛病的片段（哪怕意思对）别放，没有就给空数组，鼓励的话放进 cheer。
 6. uh、重复、回头重说是流利度问题，页面另有统计，不要当成用词问题去改。
 7. sounds 只放转写里不像真实单词、或和他想说的意思明显对不上的词；拿不准就不放，语法和用词问题不算发音。"""
 
@@ -283,7 +283,10 @@ def parse_feedback(content):
         segs = [words(x) for q in re.findall(r'[「"“](.+?)[」"”]', g) or [g] for x in re.split(r'…|\.\.\.', q)]
         within = lambda a, b: f' {a} ' in f' {b} '  # noqa: E731  按整词比，免得 it is 误中 bit is
         return any(len(sg.split()) >= 3 and within(sg, sw) for sg in segs for sw in saids) or any(within(sw, words(g)) for sw in saids)
-    good = [g for g in d.get('good') or [] if isinstance(g, str) and not clash(g)][:2]
+    # 「一字不改就对」不能信模型的感觉：让它自己写出改正版，差一个词就不算
+    good = [f"「{g['quote']}」——{s(g.get('why'))}" for g in d.get('good') or []
+            if isinstance(g, dict) and words(s(g.get('quote'))) and words(g['quote']) == words(s(g.get('fixed')))]
+    good = [g for g in good if not clash(g)][:2]
     sounds = [{'heard': s(x.get('heard')), 'word': s(x.get('word')), 'tip': s(x.get('tip'))}
               for x in d.get('sounds') or [] if isinstance(x, dict) and s(x.get('word'))][:3]
     return {'cheer': s(d.get('cheer')), 'good': good, 'upgrades': ups, 'sounds': sounds}

@@ -152,7 +152,7 @@ class TTSTest(unittest.TestCase):
 class FeedbackTest(unittest.TestCase):
     PAPER = {'id': 'fb', 'questions': [{'id': 'q1', 'prompt': '为什么学英语', 'hint': '试着用上：passive income',
                                         'mappings': [{'thought': '深挖', 'can': 'look into', 'natural': 'dig into'}]}]}
-    REPLY = {'cheer': '这次说得更完整了', 'good': ['"The goal is" 开头很自然'],
+    REPLY = {'cheer': '这次说得更完整了', 'good': [{'quote': 'The goal is', 'fixed': 'The goal is', 'why': '开头很自然'}],
              'upgrades': [{'thought': '被动收入', 'said': 'passing when come', 'natural': 'passive income', 'old': True}],
              'sounds': [{'heard': 'hurt black', 'word': 'headache', 'tip': '读 HED-ake'}]}
 
@@ -316,8 +316,11 @@ class FeedbackTest(unittest.TestCase):
             del os.environ['MINIMAX_API_KEY']
 
     def test_parse_feedback_rules(self):
-        reply = {'cheer': '进步了', 'good': ['I have dragged into it.', 'The biggest obstacle for me is sticking with it.',
-                                          'Once my English is good enough.', 'I can travel.'],
+        same = lambda q: {'quote': q, 'fixed': q, 'why': '好'}  # noqa: E731
+        reply = {'cheer': '进步了', 'good': ['plain string', {'quote': 'I has a car.', 'fixed': 'I have a car.', 'why': '好'},
+                                          same('I have dragged into it.'), same('The biggest obstacle for me is sticking with it.'),
+                                          {'quote': 'Once my English is good enough.', 'fixed': 'once my English is good enough', 'why': '好'},
+                                          same('I can travel.')],
                  'upgrades': [{'thought': '深挖', 'said': 'dragged into', 'natural': 'dug into', 'old': 'yes'},
                               {'said': 'runsleep', 'natural': 'while I sleep'}, {'said': 'a', 'natural': 'b', 'old': True},
                               {'said': 'm', 'natural': 'n'}, {'said': 'no natural here'}],
@@ -326,22 +329,26 @@ class FeedbackTest(unittest.TestCase):
         out = server.parse_feedback('```json\n' + json.dumps(reply) + '\n```')
         self.assertEqual([u['natural'] for u in out['upgrades']], ['dug into', 'while I sleep', 'b'])  # 最多 3 条
         self.assertEqual([u['old'] for u in out['upgrades']], [False, False, True])  # 只认真正的 true
-        self.assertEqual(out['good'], ['The biggest obstacle for me is sticking with it.', 'Once my English is good enough.'])
+        # 不是对象、改正版差了词、和台阶冲突的都不要；只按单词比（不管大小写和标点）；最多 2 条
+        self.assertEqual(out['good'], ['「The biggest obstacle for me is sticking with it.」——好', '「Once my English is good enough.」——好'])
         self.assertEqual([x['word'] for x in out['sounds']], ['w1', 'w2', 'w3'])
         self.assertEqual(out['cheer'], '进步了')
         with self.assertRaises(server.ServiceError):
             server.parse_feedback('抱歉，我无法回答')
 
     def test_good_never_quotes_a_line_that_needs_upgrading(self):  # 主人 10-06 实际遇到的：病句被夸成做对的
-        reply = {'good': ['「I have a holiday and … I spend most time at home」——意思很清楚，at home 也用对了。',
-                          '「The most header thing is to use my code uses」——句子骨架已经搭起来了。',
-                          '"most of the time" 用得很地道。'],
+        same = lambda q, why: {'quote': q, 'fixed': q, 'why': why}  # noqa: E731  模型把病句原样抄成「改正版」时，还得靠冲突过滤兜住
+        reply = {'good': [same('I have a holiday and … I spend most time at home', '意思很清楚，at home 也用对了。'),
+                          same('The most header thing is to use my code uses', '句子骨架已经搭起来了。'),
+                          same('most of the time', '用得很地道。')],
                  'upgrades': [{'said': 'I have a holiday and most I spend most time at home to realize and working with my computer.',
                                'natural': 'I had a seven-day holiday.'},
                               {'said': 'The most header thing is to use my code uses.', 'natural': 'My biggest headache was …'}]}
-        self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], ['"most of the time" 用得很地道。'])
-        reply = {'good': ['most time at home'], 'upgrades': [{'said': 'most I spend uh most time uh at home to relax', 'natural': 'x'}]}
+        self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], ['「most of the time」——用得很地道。'])
+        reply = {'good': [same('most time at home', '')], 'upgrades': [{'said': 'most I spend uh most time uh at home to relax', 'natural': 'x'}]}
         self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], [])  # 原话夹着 uh 也认得出是同一处
+        reply = {'good': [{'quote': 'I have seven days holiday', 'fixed': 'I had a seven-day holiday', 'why': '意思清楚'}]}
+        self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], [])  # 主人 10-06 第二次遇到的：意思对但不地道
 
     def test_replies_carry_page_version(self):  # 页面据此发现自己过期
         _, _, _ = call('GET', '/api/papers')
