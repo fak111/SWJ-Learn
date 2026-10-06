@@ -7,7 +7,7 @@
     papers/<paper>.json               试卷，AI 写入
     sessions/<paper>/<slot>.<ext>     录音，页面上传
     sessions/<paper>/submitted.json   提交标记，AI 侧据此开始分析
-    sessions/<paper>/<slot>.feedback.json  即时反馈（本机 Whisper 转写 + 本机 claude -p 写反馈）
+    sessions/<paper>/<slot>.feedback.json  即时反馈（MiniMax 听写 + 本机 claude -p 写反馈）
     profile.md / mappings.md / pronunciation.md  学生背景与学过的说法（Claude 维护，写反馈时带上）
     history.jsonl                     每次即时反馈出过的问题，写反馈时带上
     tts/<sha1>.mp3                    英文发音缓存（MiniMax，需环境变量 MINIMAX_API_KEY）
@@ -17,11 +17,11 @@ import json
 import os
 import re
 import subprocess
-import tempfile
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -65,18 +65,20 @@ class ServiceError(Exception):
         self.status = status
 
 
-def minimax_post(path, payload, timeout):
+def minimax_request(path, body, content_type, timeout):
     key = os.environ.get('MINIMAX_API_KEY')
     if not key:
         raise ServiceError('服务没拿到 MINIMAX_API_KEY')
-    req = urllib.request.Request(f'https://api.minimaxi.com{path}', data=json.dumps(payload).encode(), headers={
-        'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'})
+    req = urllib.request.Request(f'https://api.minimaxi.com{path}', data=body, headers={
+        'Authorization': f'Bearer {key}', 'Content-Type': content_type})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             d = json.load(r)
     except (urllib.error.URLError, TimeoutError, ValueError) as e:
         raise ServiceError(f'MiniMax 请求失败：{e}') from e
-    base = d.get('base_resp') or {}
+    base = d.get('base_resp')
+    if base is None:  # 听写成功时只回 text，不带 base_resp
+        return d
     if base.get('status_code') == 1008:
         raise ServiceError('MiniMax 余额不足，充值后再点')
     if base.get('status_code') == 1002:
@@ -84,6 +86,10 @@ def minimax_post(path, payload, timeout):
     if base.get('status_code') != 0:
         raise ServiceError(f"MiniMax 返回错误 {base.get('status_code')} {base.get('status_msg')}")
     return d
+
+
+def minimax_post(path, payload, timeout):
+    return minimax_request(path, json.dumps(payload).encode(), 'application/json', timeout)
 
 
 def minimax(text):
@@ -109,7 +115,7 @@ def tts(text):
 
 
 def is_silent(audio):
-    """Whisper 遇到静音会编出「Thank you.」之类，先用音量挡掉。"""
+    """识别模型遇到静音可能编句子（Whisper 实测会编「Thank you.」），先用音量挡掉，也省一次调用。"""
     try:
         p = subprocess.run(['ffmpeg', '-v', 'info', '-i', str(audio), '-af', 'volumedetect', '-f', 'null', '-'],
                            capture_output=True, text=True, timeout=60)
@@ -121,19 +127,39 @@ def is_silent(audio):
     return float(m.group(1)) < SILENCE_DB
 
 
-def transcribe(audio, lang='en'):
-    """本机 Whisper 转写（mlx-whisper，模型已缓存在本机，不联网）。"""
-    with tempfile.TemporaryDirectory() as tmp:
-        cmd = ['uvx', '--from', 'mlx-whisper', '--with', 'httpx[socks]', 'mlx_whisper', str(audio),
-               '--model', 'mlx-community/whisper-large-v3-turbo-q4', '--language', lang,
-               '--output-format', 'txt', '--output-dir', tmp, '--output-name', 'out',
-               '--condition-on-previous-text', 'False', '--verbose', 'False']
-        try:
-            subprocess.run(cmd, env={**os.environ, 'HF_HUB_OFFLINE': '1', 'UV_HTTP_TIMEOUT': '300'},
-                           capture_output=True, timeout=180, check=True)
-            return Path(tmp, 'out.txt').read_text().strip().replace('\n', ' ')
-        except (OSError, subprocess.SubprocessError) as e:
-            raise ServiceError(f'本机转写失败：{e}') from e
+def transcribe(audio):
+    """MiniMax asr-1.0 听写：原样保留 uh、重复和回头重说，中英混说也能认（实测比本机 Whisper 准）。"""
+    try:
+        mp3 = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(audio), '-ac', '1', '-ar', '16000', '-b:a', '48k', '-f', 'mp3', '-'],
+                             capture_output=True, timeout=60, check=True).stdout
+    except (OSError, subprocess.SubprocessError) as e:
+        raise ServiceError(f'录音转 mp3 失败：{e}') from e
+    b = uuid.uuid4().hex
+    body = (f'--{b}\r\nContent-Disposition: form-data; name="model"\r\n\r\nasr-1.0\r\n'
+            f'--{b}\r\nContent-Disposition: form-data; name="file"; filename="take.mp3"\r\nContent-Type: audio/mpeg\r\n\r\n'
+            ).encode() + mp3 + f'\r\n--{b}--\r\n'.encode()
+    text = minimax_request('/v1/speech_to_text', body, f'multipart/form-data; boundary={b}', timeout=90).get('text')
+    if not isinstance(text, str):
+        raise ServiceError('MiniMax 没返回转写')
+    return text.strip()
+
+
+FILLERS = {'uh', 'um', 'er', 'eh', 'ah', 'hmm', 'mm'}
+
+
+def disfluency(text):
+    """口头禅次数，和原样重说的次数（相邻 1–3 个词再说一遍，如 the big, the big / obstacle, obstacle）。"""
+    words_ = re.findall(r"[a-z']+", text.lower())
+    c = [w for w in words_ if w not in FILLERS]
+    i, repeats = 0, 0
+    while i < len(c):  # ponytail: 只数原样重说，the biggest, the bigger 这种改词重说数不到
+        for n in (1, 2, 3):  # 先短后长：the the the the 算 3 次
+            if i + 2 * n <= len(c) and c[i:i + n] == c[i + n:i + 2 * n]:
+                repeats, i = repeats + 1, i + n
+                break
+        else:
+            i += 1
+    return len(words_) - len(c), repeats
 
 
 def claude(prompt):
@@ -159,7 +185,9 @@ FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 2. 先对照题目和中文猜他想表达什么；转写像某个词但写错了，归为 sounds，不归 upgrades。
 3. 每处只给一个自然说法，不给多个版本；不重写整段。
 4. 不用「错」「不对」这类字眼；先肯定，再给往上走的台阶。
-5. good 宁缺毋滥：有毛病的片段（哪怕意思对）不放进 good，鼓励的话放进 cheer。"""
+5. good 宁缺毋滥：有毛病的片段（哪怕意思对）不放进 good，鼓励的话放进 cheer。
+6. uh、重复、回头重说是流利度问题，页面另有统计，不要当成用词问题去改。
+7. sounds 只放转写里不像真实单词、或和他想说的意思明显对不上的词；拿不准就不放，语法和用词问题不算发音。"""
 
 
 def read_data(name):
@@ -183,9 +211,22 @@ def history_digest():
     return '\n'.join(lines[-60:]) or '暂无'  # ponytail: 只带最近 60 条，记录多了再按问题去重
 
 
+def recent_repeats(limit=4):
+    """最近几段的重说次数，给页面画「越来越少」的趋势。"""
+    f = DATA / 'history.jsonl'
+    out = []
+    for line in f.read_text().splitlines() if f.exists() else []:
+        try:
+            out.append(int(json.loads(line)['repeats']))
+        except (ValueError, KeyError, TypeError):
+            continue
+    return out[-limit:]
+
+
 def append_history(paper, slot, q, said, result):
     rec = {'time': time.strftime('%Y-%m-%dT%H:%M:%S'), 'paper': paper, 'slot': slot, 'question': q.get('prompt', ''),
-           'said': said, 'upgrades': result['upgrades'], 'sounds': result['sounds']}
+           'said': said, 'upgrades': result['upgrades'], 'sounds': result['sounds'],
+           'fillers': result['fillers'], 'repeats': result['repeats']}
     with (DATA / 'history.jsonl').open('a') as f:
         f.write(json.dumps(rec, ensure_ascii=False) + '\n')
 
@@ -213,14 +254,14 @@ def feedback_prompt(q, zh, en):
 本题想让他用上的说法（只用来理解他的意思，不要硬塞进改写里）：
 {targets(q) or '无'}
 他先用中文说的（转写，可能有错字）：{zh or '（没录中文）'}
-他接着用英文说的（语音转写，发音不清的词可能被写错）：{en}
+他接着用英文说的（MiniMax 语音识别原样转写：保留了 uh、重复和回头重说；发音不清的词可能被写成别的词）：{en}
 
 {FEEDBACK_RULES}"""
 
 
 def words(text):
-    """只留英文单词，比对时不受标点、引号、大小写影响。"""
-    return ' '.join(re.findall(r"[a-z0-9']+", text.lower().replace('’', "'")))
+    """只留英文单词（去掉 uh 这类口头禅），比对时不受标点、引号、大小写和卡顿影响。"""
+    return ' '.join(w for w in re.findall(r"[a-z0-9']+", text.lower().replace('’', "'")) if w not in FILLERS)
 
 
 def parse_feedback(content):
@@ -262,10 +303,12 @@ def feedback(paper, slot):
     if q is None:  # 题位对不上题目：别带着空上下文悄悄出反馈
         raise ServiceError('试卷里找不到这道题', 404)
     said = '' if is_silent(rec) else transcribe(rec)
-    result = {'transcript': said, 'cheer': '', 'good': [], 'upgrades': [], 'sounds': []}
+    fillers, repeats = disfluency(said)
+    result = {'transcript': said, 'cheer': '', 'good': [], 'upgrades': [], 'sounds': [],
+              'fillers': fillers, 'repeats': repeats, 'trend': recent_repeats() + [repeats]}
     if re.search(r'[A-Za-z]{2}', said):
         zh_recs = rec_files(paper, slot_key(q, i, {'id': 'zh'}))
-        zh = '' if not zh_recs or is_silent(zh_recs[0]) else transcribe(zh_recs[0], 'zh')
+        zh = '' if not zh_recs or is_silent(zh_recs[0]) else transcribe(zh_recs[0])
         result.update(parse_feedback(claude(feedback_prompt(q, zh, said))))
     # 转写期间被重录或删了：这份反馈作废，不落盘、不进历史
     if rec_files(paper, slot) == [rec] and rec.stat().st_mtime == mtime:

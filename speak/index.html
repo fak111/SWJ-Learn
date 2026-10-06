@@ -256,6 +256,10 @@ function drawFeedback(s) {
   if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一遍' }));
   // 先说进步，再给往上走的台阶；不划红线
   if (f.cheer) box.append(h('p', { className: 'cheer' }, '💬 ', f.cheer));
+  if (f.repeats != null) {
+    const trend = (f.trend || []).length > 1 ? `（最近几段的重说：${f.trend.join(' → ')}）` : '';
+    box.append(h('p', { className: 'muted' }, `🗣 这段口头禅 ${f.fillers} 次 · 原样重说 ${f.repeats} 次${trend}`));
+  }
   for (const g of f.good || []) box.append(h('p', { className: 'good' }, '✓ ', g));
   for (const u of f.upgrades || []) {
     box.append(h('p', {}, '↑ ', u.thought ? `${u.thought}：` : '', speakable(u.natural),

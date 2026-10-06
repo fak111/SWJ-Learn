@@ -163,7 +163,7 @@ class FeedbackTest(unittest.TestCase):
         self.real = (server.transcribe, server.claude, server.is_silent)
         self.said, self.prompts = 'The goal is passing when come.', []
         server.is_silent = lambda audio: False
-        server.transcribe = lambda audio, lang='en': '我想说被动收入' if lang == 'zh' else self.said
+        server.transcribe = lambda audio: '我想说被动收入' if str(audio).endswith('-zh.webm') else self.said
         server.claude = lambda prompt: self.prompts.append(prompt) or '```json\n' + json.dumps(self.REPLY) + '\n```'
         call('PUT', '/api/rec/fb/q1-en', b'webm', 'audio/webm')
 
@@ -223,7 +223,7 @@ class FeedbackTest(unittest.TestCase):
 
     def test_silent_recording_is_not_transcribed(self):  # Whisper 对静音会编句子
         server.is_silent = lambda audio: True
-        server.transcribe = lambda audio, lang='en': self.fail('静音不该转写')
+        server.transcribe = lambda audio: self.fail('静音不该转写')
         self.assertEqual(json.loads(call('POST', '/api/feedback/fb/q1-en')[1])['transcript'], '')
 
     def test_is_silent_threshold(self):  # 真 ffmpeg：静音判静音，正弦波不判，坏文件报错而不是当静音
@@ -245,7 +245,7 @@ class FeedbackTest(unittest.TestCase):
             self.assertIn(want, self.prompts[-1], slot)
 
     def test_rerecorded_while_transcribing_is_not_saved(self):
-        def transcribe(audio, lang='en'):
+        def transcribe(audio):
             call('PUT', '/api/rec/fb/q1-en', b'webm-new', 'audio/webm')
             return self.said
         server.transcribe = transcribe
@@ -268,6 +268,52 @@ class FeedbackTest(unittest.TestCase):
                 self.real[1]('hi')
         finally:
             os.environ['PATH'] = old_path
+
+    def test_disfluency_counts(self):  # 主人第 2 份第 3 题的真实转写片段
+        said = 'the big, the big obstacle, obstacle. Is sticking, uh, sticking with uh, the biggest obstacle for me'
+        self.assertEqual(server.disfluency(said), (2, 3))  # uh ×2；the big / obstacle / sticking 各原样重说一次
+        self.assertEqual(server.disfluency(''), (0, 0))
+
+    def test_trend_of_repeats(self):  # 每段反馈带上最近几段的重说次数
+        self.said = 'the the the the most uh headache'
+        first = json.loads(call('POST', '/api/feedback/fb/q1-en')[1])
+        self.said = 'the most headache'
+        second = json.loads(call('POST', '/api/feedback/fb/q1-en')[1])
+        self.assertEqual((first['fillers'], first['repeats'], first['trend']), (1, 3, [3]))
+        self.assertEqual(second['trend'], [3, 0])
+
+    def test_minimax_transcribe(self):  # 真 ffmpeg 转 mp3，假 MiniMax 接口看收到的请求
+        f = tmp / 'speech.wav'
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'lavfi', '-i', 'sine=frequency=440:sample_rate=16000',
+                        '-t', '1', str(f)], check=True)
+        os.environ['MINIMAX_API_KEY'] = 'test-key'
+        real_open, seen = urllib.request.urlopen, {}
+
+        class Resp(io.BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                pass
+
+        def fake(payload):
+            def handler(req, timeout):
+                seen.update(url=req.full_url, ctype=req.headers['Content-type'], body=req.data)
+                return Resp(json.dumps(payload).encode())
+            return handler
+        try:
+            urllib.request.urlopen = fake({'text': ' Uh, the real goal is passive income. '})
+            self.assertEqual(self.real[0](f), 'Uh, the real goal is passive income.')
+            self.assertTrue(seen['url'].endswith('/v1/speech_to_text'))
+            self.assertIn('multipart/form-data; boundary=', seen['ctype'])
+            self.assertIn(b'name="model"\r\n\r\nasr-1.0', seen['body'])
+            self.assertIn(b'Content-Type: audio/mpeg', seen['body'])
+            urllib.request.urlopen = fake({'base_resp': {'status_code': 1008, 'status_msg': 'insufficient balance'}})
+            with self.assertRaisesRegex(server.ServiceError, '余额不足'):
+                self.real[0](f)
+        finally:
+            urllib.request.urlopen = real_open
+            del os.environ['MINIMAX_API_KEY']
 
     def test_parse_feedback_rules(self):
         reply = {'cheer': '进步了', 'good': ['I have dragged into it.', 'The biggest obstacle for me is sticking with it.',
@@ -294,6 +340,8 @@ class FeedbackTest(unittest.TestCase):
                                'natural': 'I had a seven-day holiday.'},
                               {'said': 'The most header thing is to use my code uses.', 'natural': 'My biggest headache was …'}]}
         self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], ['"most of the time" 用得很地道。'])
+        reply = {'good': ['most time at home'], 'upgrades': [{'said': 'most I spend uh most time uh at home to relax', 'natural': 'x'}]}
+        self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], [])  # 原话夹着 uh 也认得出是同一处
 
     def test_replies_carry_page_version(self):  # 页面据此发现自己过期
         _, _, _ = call('GET', '/api/papers')
