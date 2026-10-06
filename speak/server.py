@@ -2,6 +2,7 @@
 """口语试卷录音页的本地服务：零依赖，只监听 127.0.0.1。
 
     python3 speak/server.py        # 打开 http://127.0.0.1:8765
+    sh speak/sync.sh push|pull     # 数据和 R2 swj-learn-audio/eng/ 同步；换电脑先 pull（见数据目录 README.md）
 
 数据目录默认 ~/temp/eng（SPEAK_DATA 可覆盖），不进仓库：
     papers/<paper>.json               试卷，AI 写入
