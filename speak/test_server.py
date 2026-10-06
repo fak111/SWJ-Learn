@@ -1,5 +1,7 @@
 """python3 -m unittest speak/test_server.py —— 起一个临时数据目录的服务，走一遍接口。"""
+import hashlib
 import http.client
+import io
 import json
 import os
 import socket
@@ -7,6 +9,7 @@ import tempfile
 import threading
 import unittest
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -76,6 +79,72 @@ class ServerTest(unittest.TestCase):
             sock.shutdown(socket.SHUT_WR)  # 发了 10 字节就断
             self.assertIn(b' 400 ', sock.recv(1024))
         self.assertEqual(call('GET', '/api/rec/p2/q9-zh')[1], b'GOOD')
+
+
+class TTSTest(unittest.TestCase):
+    def setUp(self):
+        self.real = server.minimax
+        self.calls = []
+        server.minimax = lambda text: self.calls.append(text) or b'MP3:' + text.encode()
+
+    def tearDown(self):
+        server.minimax = self.real
+
+    def test_generates_once_then_serves_cache(self):
+        q = '/api/tts?text=' + urllib.parse.quote("I've got this.")
+        self.assertEqual(call('GET', q), (200, b"MP3:I've got this.", 'audio/mpeg'))
+        self.assertEqual(call('GET', q)[1], b"MP3:I've got this.")
+        self.assertEqual(self.calls, ["I've got this."])
+
+    def test_rejects_non_english_or_empty(self):
+        for text in ['你好', '', 'a' * 301, 'hi<script>']:
+            self.assertEqual(call('GET', '/api/tts?text=' + urllib.parse.quote(text))[0], 400, text)
+        self.assertEqual(self.calls, [])
+
+    def test_api_error_reaches_page_and_is_not_cached(self):
+        def broke(text):
+            raise server.TTSError('MiniMax 余额不足，充值后再点')
+        server.minimax = broke
+        code, body, _ = call('GET', '/api/tts?text=passive%20income')
+        self.assertEqual((code, json.loads(body)['error']), (502, 'MiniMax 余额不足，充值后再点'))
+        key = hashlib.sha1(f'{server.VOICE}|passive income'.encode()).hexdigest()
+        self.assertFalse((tmp / 'tts' / f'{key}.mp3').exists())
+
+    def test_rejects_cross_site(self):  # 外部网页嵌 <audio> 刷余额
+        conn = http.client.HTTPConnection('127.0.0.1', httpd.server_address[1])
+        conn.request('GET', '/api/tts?text=hi', headers={'Sec-Fetch-Site': 'cross-site'})
+        self.assertEqual(conn.getresponse().status, 404)
+        self.assertEqual(self.calls, [])
+
+    def test_minimax_response_parsing(self):
+        os.environ['MINIMAX_API_KEY'] = 'test-key'
+        real_open = urllib.request.urlopen
+
+        class Resp(io.BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                pass
+
+        def fake(payload):
+            return lambda req, timeout: Resp(json.dumps(payload).encode())
+        try:
+            urllib.request.urlopen = fake({'base_resp': {'status_code': 0}, 'data': {'audio': b'ID3'.hex()}})
+            self.assertEqual(self.real('hello'), b'ID3')
+            urllib.request.urlopen = fake({'base_resp': {'status_code': 1008, 'status_msg': 'insufficient balance'}})
+            with self.assertRaisesRegex(server.TTSError, '余额不足'):
+                self.real('hello')
+            urllib.request.urlopen = fake({'base_resp': {'status_code': 1002, 'status_msg': 'rate limit exceeded(RPM)'}})
+            with self.assertRaisesRegex(server.TTSError, '限流') as cm:
+                self.real('hello')
+            self.assertEqual(cm.exception.status, 429)
+            urllib.request.urlopen = fake({'base_resp': {'status_code': 2013, 'status_msg': 'invalid params'}})
+            with self.assertRaisesRegex(server.TTSError, '2013'):
+                self.real('hello')
+        finally:
+            urllib.request.urlopen = real_open
+            del os.environ['MINIMAX_API_KEY']
 
 
 if __name__ == '__main__':

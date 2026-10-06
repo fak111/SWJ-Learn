@@ -46,6 +46,10 @@
   footer .inner { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   #done { color: var(--ok); font-weight: 600; }
   .err-banner { color: var(--rec); }
+  .say { cursor: pointer; border-bottom: 1px dotted var(--accent); border-radius: 3px; }
+  .say::after { content: ' 🔊'; font-size: .75em; opacity: .55; }
+  .say:hover, .say:focus-visible { background: var(--soft); outline: none; }
+  .say.playing { background: var(--soft); color: var(--accent); }
 </style>
 </head>
 <body>
@@ -56,7 +60,7 @@
   <div id="questions"></div>
 </main>
 <footer><div class="inner">
-  <span id="progress"></span>
+  <span><span id="progress"></span> <span id="ttsmsg" class="err-banner"></span></span>
   <span><span id="done" hidden>已提交 ✓ 我开始分析了</span> <button class="primary" id="submit" disabled>提交给 AI</button></span>
 </div></footer>
 
@@ -81,6 +85,68 @@ async function api(path, opts) {
 
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
+// 文本里的英文片段（被中文、→、/、句末标点隔开）都变成可点击发音，一句一段；单个字母不读
+const EN = /[A-Za-z][A-Za-z0-9 ,'’:;()-]*[.?!]*/g;
+const ttsUrl = text => '/api/tts?text=' + encodeURIComponent(text);
+const player = new Audio();
+let playing = null;
+
+function speakable(text = '') {
+  const frag = document.createDocumentFragment();
+  let last = 0;
+  for (const m of text.matchAll(EN)) {
+    const phrase = m[0].replace(/[\s,:;(-]+$/, '');
+    if (!/[A-Za-z]{2}/.test(phrase) || phrase.length > 300) continue; // 300 = 服务端上限
+    const el = h('span', { className: 'say', textContent: phrase, title: '点击听发音', tabIndex: 0 });
+    el.dataset.text = phrase;
+    el.onclick = () => say(el);
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); say(el); } };
+    frag.append(text.slice(last, m.index), el);
+    last = m.index + phrase.length;
+  }
+  frag.append(text.slice(last));
+  return frag;
+}
+
+// 返回 null = 已生成；否则 { busy: 是否限流, msg }
+async function ttsCheck(text) {
+  const r = await fetch(ttsUrl(text)).catch(() => null);
+  if (r?.ok) return null;
+  if (!r) return { busy: false, msg: '连不上本地服务' };
+  return { busy: r.status === 429, msg: (await r.json().catch(() => ({}))).error || `发音生成失败（${r.status}）` };
+}
+
+function say(el) {
+  playing?.classList.remove('playing');
+  playing = el;
+  el.classList.add('playing');
+  player.onended = () => el.classList.remove('playing');
+  player.onerror = async () => {
+    el.classList.remove('playing');
+    $('#ttsmsg').textContent = (await ttsCheck(el.dataset.text))?.msg || '';
+  };
+  player.src = ttsUrl(el.dataset.text);
+  // 换句时上一句的 play() 会 AbortError，正常；其他失败（解码等）不一定触发 onerror，这里收掉高亮
+  player.play().catch(e => { if (e.name !== 'AbortError') el.classList.remove('playing'); });
+}
+
+// 页面加载后逐句预先生成，点的时候就是本地缓存；限流就等一会儿接着来，其他错误（比如余额不足）停下并提示
+async function warmTts() {
+  const texts = [...new Set([...document.querySelectorAll('.say')].map(e => e.dataset.text))];
+  const msg = $('#ttsmsg');
+  for (const [i, text] of texts.entries()) {
+    for (;;) {
+      msg.className = '';
+      msg.textContent = `发音准备中 ${i + 1}/${texts.length}`;
+      const err = await ttsCheck(text);
+      if (!err) break;
+      if (!err.busy) { msg.className = 'err-banner'; msg.textContent = err.msg; return; }
+      await new Promise(r => setTimeout(r, 15000)); // ponytail: 固定退避，不猜 MiniMax 的 RPM
+    }
+  }
+  msg.textContent = '';
+}
+
 async function load() {
   const ids = await api('papers');
   paperId = new URLSearchParams(location.search).get('p') || ids.at(-1);
@@ -94,27 +160,28 @@ async function load() {
   const { paper, recordings, submitted } = await api('paper/' + paperId);
   document.title = paper.title || '口语试卷';
   $('#title').textContent = paper.title || paperId;
-  $('#intro').textContent = paper.intro || '';
-  if (paper.summary) { $('#summary').textContent = paper.summary; $('#summary').hidden = false; }
+  $('#intro').append(speakable(paper.intro));
+  if (paper.summary) { $('#summary').append(speakable(paper.summary)); $('#summary').hidden = false; }
   const box = $('#questions');
   paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, recordings)));
   $('#done').hidden = !submitted;
   refresh();
+  warmTts();
 }
 
 function renderQuestion(q, i, recordings) {
-  const card = h('section', { className: 'q' }, h('h2', { textContent: `${i + 1}. ${q.prompt}` }));
-  if (q.hint) card.append(h('p', { className: 'hint', textContent: q.hint }));
+  const card = h('section', { className: 'q' }, h('h2', {}, `${i + 1}. `, speakable(q.prompt)));
+  if (q.hint) card.append(h('p', { className: 'hint' }, speakable(q.hint)));
   if (q.points?.length) {
     card.append(h('div', { className: 'label', textContent: '要点（看着它说，不要背句子）' }),
-      h('ul', { className: 'points' }, ...q.points.map(p => h('li', { textContent: p }))));
+      h('ul', { className: 'points' }, ...q.points.map(p => h('li', {}, speakable(p)))));
   }
   if (q.mappings?.length) {
-    const rows = q.mappings.map(m => h('tr', {}, ...[m.thought, m.can, m.natural].map(t => h('td', { textContent: t || '' }))));
+    const rows = q.mappings.map(m => h('tr', {}, ...[m.thought, m.can, m.natural].map(t => h('td', {}, speakable(t)))));
     card.append(h('div', { className: 'label', textContent: '映射：你想说的 → 能说版 → 自然版' }),
       h('table', {}, h('tr', {}, ...['想说的', '能说版', '自然版'].map(t => h('th', { textContent: t }))), ...rows));
   }
-  if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note', textContent: q.note }));
+  if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note' }, speakable(q.note)));
   for (const s of q.slots || [{ id: 'zh', label: '中文' }, { id: 'en', label: 'English' }]) {
     const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, el: h('div', { className: 'slot' }) };
     slot.state = recordings.includes(slot.key) ? 'saved' : 'empty';
