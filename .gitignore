@@ -36,3 +36,4 @@ Vibe
 public/ui/
 test/
 .next
+__pycache__/

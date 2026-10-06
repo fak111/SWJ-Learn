@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>口语试卷</title>
+<style>
+  :root { --bg:#f6f5f1; --card:#fff; --fg:#1d1d1f; --muted:#6e6e73; --line:#e2e0d8; --accent:#2563eb; --rec:#dc2626; --ok:#15803d; --warn:#b45309; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141414; --card:#1e1e20; --fg:#ececec; --muted:#9a9aa0; --line:#34343a; --accent:#60a5fa; --rec:#f87171; --ok:#4ade80; --warn:#fbbf24; --soft:#1e2433; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.65 -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 28px 16px 120px; }
+  header { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; }
+  select { font: inherit; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  .intro, .summary { color: var(--muted); margin: 8px 0 20px; white-space: pre-line; }
+  .summary { color: var(--fg); background: var(--soft); border-radius: 12px; padding: 12px 16px; }
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+  .q h2 { font-size: 18px; margin: 0 0 4px; }
+  .hint { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .label { font-size: 13px; font-weight: 600; color: var(--muted); margin: 14px 0 4px; letter-spacing: .02em; }
+  ul.points { margin: 0; padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .note { font-size: 14px; white-space: pre-line; }
+  .slot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px dashed var(--line); }
+  .slot:first-of-type { margin-top: 12px; }
+  .slot .name { width: 72px; font-weight: 600; }
+  .slot .time { font-variant-numeric: tabular-nums; min-width: 48px; color: var(--muted); }
+  .slot.recording .time { color: var(--rec); font-weight: 600; }
+  .slot.recording .time.long { color: var(--warn); }
+  .slot .status { font-size: 13px; color: var(--muted); }
+  .slot .status.err { color: var(--rec); }
+  .slot audio { height: 34px; max-width: 100%; }
+  button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.start { border-color: var(--rec); color: var(--rec); }
+  button.stop { background: var(--rec); border-color: var(--rec); color: #fff; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 10px 22px; font-size: 16px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); margin-right: 6px; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  footer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); }
+  footer .inner { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  #done { color: var(--ok); font-weight: 600; }
+  .err-banner { color: var(--rec); }
+  .stale { position: sticky; top: 0; z-index: 10; margin: 0; padding: 10px 16px; text-align: center; background: var(--warn); color: #fff; font-weight: 600; }
+  .say { cursor: pointer; border-bottom: 1px dotted var(--accent); border-radius: 3px; }
+  .say::after { content: ' 🔊'; font-size: .75em; opacity: .55; }
+  .say:hover, .say:focus-visible { background: var(--soft); outline: none; }
+  .say.playing { background: var(--soft); color: var(--accent); }
+  .take { margin: 0 0 6px 82px; }
+  .take .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .take .v { font-size: 13px; font-weight: 600; color: var(--muted); min-width: 44px; }
+  .take.folded .row { opacity: .8; }
+  .take .sum { font-size: 13px; color: var(--muted); }
+  .take button { font-size: 13px; padding: 4px 12px; }
+  .enough { margin: 0 0 8px 82px; font-size: 13px; color: var(--warn); }
+  .fb { margin: 4px 0 10px; font-size: 14px; }
+  .fb:empty { display: none; }
+  .fb p { margin: 4px 0; }
+  .fb .said, .fb .muted { color: var(--muted); }
+  .fb .good { color: var(--ok); }
+  .fb .cheer { font-weight: 600; }
+  .fb .old { margin-left: 6px; font-size: 12px; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 0 6px; }
+  .fb button { font-size: 13px; padding: 4px 12px; }
+  @media (max-width: 600px) { .take, .enough { margin-left: 0; } }
+</style>
+</head>
+<body>
+<p class="stale" id="stale" hidden>页面已更新，按 ⌘R 刷新后再继续（已录的不会丢）</p>
+<main>
+  <header><h1 id="title">口语试卷</h1><select id="picker" hidden aria-label="切换试卷"></select></header>
+  <p class="summary" id="summary" hidden></p>
+  <p class="intro" id="intro"></p>
+  <div id="questions"></div>
+</main>
+<footer><div class="inner">
+  <span><span id="progress"></span> <span id="ttsmsg" class="err-banner"></span></span>
+  <span><span id="done" hidden>已提交 ✓ 我开始分析了</span> <button class="primary" id="submit" disabled>提交给 AI</button></span>
+</div></footer>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const MAX_SECONDS = 300; // ponytail: 忘了点结束时的兜底
+const SOFT_SECONDS = 60;
+let paperId, active = null; // active = 正在录的题位
+const ENOUGH = 3; // 同一段录到第 3 版就提示去下一题，别陷进追求完美
+const slots = []; // { key, el, state: idle|asking|recording|uploading|error, takes: [{ n, fb, fbState, open, audio }], blob }
+
+function h(tag, props = {}, ...kids) {
+  const el = Object.assign(document.createElement(tag), props);
+  el.append(...kids.filter(k => k != null));
+  return el;
+}
+
+let pageVersion = null; // 服务端换了页面代码，旧页面会渲染不全：提示刷新
+async function api(path, opts) {
+  const r = await fetch('/api/' + path, opts);
+  const v = r.headers.get('X-Page');
+  if (v) { pageVersion ??= v; if (v !== pageVersion) $('#stale').hidden = false; }
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+// 文本里的英文片段（被中文、→、/、句末标点隔开）都变成可点击发音，一句一段；单个字母不读；Opus 5.5 的小数点不算句末
+const EN = /[A-Za-z](?:[A-Za-z0-9 ,'’:;()-]|\.(?=\d))*[.?!]*/g;
+const ttsUrl = text => '/api/tts?text=' + encodeURIComponent(text);
+const player = new Audio();
+let playing = null;
+
+function speakable(text = '') {
+  const frag = document.createDocumentFragment();
+  let last = 0;
+  for (const m of text.matchAll(EN)) {
+    const phrase = m[0].replace(/[\s,:;(-]+$/, '');
+    if (!/[A-Za-z]{2}/.test(phrase) || phrase.length > 300) continue; // 300 = 服务端上限
+    const el = h('span', { className: 'say', textContent: phrase, title: '点击听发音', tabIndex: 0 });
+    el.dataset.text = phrase;
+    el.onclick = () => say(el);
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); say(el); } };
+    frag.append(text.slice(last, m.index), el);
+    last = m.index + phrase.length;
+  }
+  frag.append(text.slice(last));
+  return frag;
+}
+
+// 返回 null = 已生成；否则 { busy: 是否限流, msg }
+async function ttsCheck(text) {
+  const r = await fetch(ttsUrl(text)).catch(() => null);
+  if (r?.ok) return null;
+  if (!r) return { busy: false, msg: '连不上本地服务' };
+  return { busy: r.status === 429, msg: (await r.json().catch(() => ({}))).error || `发音生成失败（${r.status}）` };
+}
+
+function say(el) {
+  playing?.classList.remove('playing');
+  playing = el;
+  el.classList.add('playing');
+  player.onended = () => el.classList.remove('playing');
+  player.onerror = async () => {
+    el.classList.remove('playing');
+    $('#ttsmsg').textContent = (await ttsCheck(el.dataset.text))?.msg || '';
+  };
+  player.src = ttsUrl(el.dataset.text);
+  // 换句时上一句的 play() 会 AbortError，正常；其他失败（解码等）不一定触发 onerror，这里收掉高亮
+  player.play().catch(e => { if (e.name !== 'AbortError') el.classList.remove('playing'); });
+}
+
+// 页面加载后逐句预先生成，点的时候就是本地缓存；限流就等一会儿接着来，其他错误（比如余额不足）停下并提示
+async function warmTts() {
+  const texts = [...new Set([...document.querySelectorAll('.say')].map(e => e.dataset.text))];
+  const msg = $('#ttsmsg');
+  for (const [i, text] of texts.entries()) {
+    for (;;) {
+      msg.className = '';
+      msg.textContent = `发音准备中 ${i + 1}/${texts.length}`;
+      const err = await ttsCheck(text);
+      if (!err) break;
+      if (!err.busy) { msg.className = 'err-banner'; msg.textContent = err.msg; return; }
+      await new Promise(r => setTimeout(r, 15000)); // ponytail: 固定退避，不猜 MiniMax 的 RPM
+    }
+  }
+  msg.textContent = '';
+}
+
+async function load() {
+  const ids = await api('papers');
+  paperId = new URLSearchParams(location.search).get('p') || ids.at(-1);
+  if (!paperId) { $('#intro').textContent = '还没有试卷。'; return; }
+  if (ids.length > 1) {
+    const picker = $('#picker');
+    picker.append(...ids.map(id => h('option', { value: id, textContent: id, selected: id === paperId })));
+    picker.hidden = false;
+    picker.onchange = () => { location.search = '?p=' + picker.value; };
+  }
+  const { paper, takes, submitted } = await api('paper/' + paperId);
+  document.title = paper.title || '口语试卷';
+  $('#title').textContent = paper.title || paperId;
+  $('#intro').append(speakable(paper.intro));
+  if (paper.summary) { $('#summary').append(speakable(paper.summary)); $('#summary').hidden = false; }
+  const box = $('#questions');
+  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, takes || {})));
+  $('#done').hidden = !submitted;
+  refresh();
+  warmTts();
+}
+
+function renderQuestion(q, i, takes) {
+  const card = h('section', { className: 'q' }, h('h2', {}, `${i + 1}. `, speakable(q.prompt)));
+  if (q.hint) card.append(h('p', { className: 'hint' }, speakable(q.hint)));
+  if (q.points?.length) {
+    card.append(h('div', { className: 'label', textContent: '要点（看着它说，不要背句子）' }),
+      h('ul', { className: 'points' }, ...q.points.map(p => h('li', {}, speakable(p)))));
+  }
+  if (q.mappings?.length) {
+    const can = q.mappings.some(m => m.can); // 只给自然版时不显示「能说版」这一列
+    const cols = can ? ['thought', 'can', 'natural'] : ['thought', 'natural'];
+    const rows = q.mappings.map(m => h('tr', {}, ...cols.map(c => h('td', {}, speakable(m[c])))));
+    card.append(h('div', { className: 'label', textContent: can ? '映射：你想说的 → 能说版 → 自然版' : '映射：你想说的 → 自然说法' }),
+      h('table', {}, h('tr', {}, ...(can ? ['想说的', '能说版', '自然版'] : ['想说的', '自然说法']).map(t => h('th', { textContent: t }))), ...rows));
+  }
+  if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note' }, speakable(q.note)));
+  for (const s of q.slots || [{ id: 'zh', label: '中文' }, { id: 'en', label: 'English' }]) {
+    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, state: 'idle',
+      el: h('div', { className: 'slot' }), takesEl: h('div') };
+    slot.takes = (takes[slot.key] || []).map(t => ({ n: t.n, fb: t.fb }));
+    slots.push(slot);
+    card.append(slot.el, slot.takesEl);
+  }
+  return card;
+}
+
+function refresh() {
+  for (const s of slots) draw(s);
+  const n = slots.filter(s => s.takes.length).length;
+  $('#progress').textContent = `已录 ${n} / ${slots.length} 段`;
+  $('#submit').disabled = !n || !!active || slots.some(s => s.state === 'uploading');
+}
+
+function draw(s) {
+  const busy = active && active !== s;
+  const btn = (text, cls, fn) => h('button', { className: cls, textContent: text, disabled: busy, onclick: fn });
+  const zh = s.key.endsWith('-zh'); // 中文段只留一版：重录顶掉旧的
+  const again = () => btn(!s.takes.length ? '● 开始' : zh ? '↻ 重录' : '● 再录一版', 'start', () => start(s));
+  s.el.className = 'slot ' + s.state;
+  s.el.replaceChildren(h('span', { className: 'name', textContent: s.label }));
+  if (s.state === 'idle') s.el.append(again());
+  if (s.state === 'recording') {
+    s.el.append(h('span', { className: 'time' }, h('span', { className: 'dot' }), fmt(s.secs || 0)),
+      btn('■ 结束', 'stop', () => stop(s)), btn('✕ 不要了', '', () => stop(s, true)));
+  }
+  if (s.state === 'uploading') s.el.append(h('span', { className: 'status', textContent: '保存中…' }));
+  if (s.state === 'error') {
+    s.el.append(h('span', { className: 'status err', textContent: s.error }));
+    if (s.blob) s.el.append(btn('重试保存', '', () => upload(s, s.blob)));
+    s.el.append(again());
+  }
+  if (s.state === 'asking') s.el.append(h('span', { className: 'status', textContent: '等待麦克风授权…第一次用请在浏览器弹窗里点「允许」' }));
+  if (s.notice) s.el.append(h('span', { className: 'status err', textContent: s.notice }));
+  // 最新一版在上面、展开；旧版折成一行，点开看反馈
+  const list = s.takes.slice().reverse().map((t, i) => drawTake(s, t, i === 0));
+  if (s.takes.length >= ENOUGH && s.state === 'idle') {
+    list.unshift(h('p', { className: 'enough', textContent: `这一段已经 ${s.takes.length} 版了，够了，去下一题吧` }));
+  }
+  s.takesEl.replaceChildren(...list);
+}
+
+function drawTake(s, t, latest) {
+  const open = latest || t.open;
+  // 同一个 audio 元素同步移回 DOM，别的题位重绘时不打断正在回放的录音
+  t.audio ??= h('audio', { controls: true, preload: 'none', src: `/api/rec/${paperId}/${s.key}/${t.n}` });
+  const row = h('div', { className: 'row' }, h('span', { className: 'v', textContent: s.key.endsWith('-zh') ? '' : `第 ${t.n} 版` }), t.audio);
+  if (!latest) row.append(h('button', { textContent: open ? '收起' : '展开', onclick: () => { t.open = !t.open; refresh(); } }));
+  row.append(h('button', { textContent: '✕ 删除', disabled: !!active, onclick: () => remove(s, t) }));
+  if (!open) row.append(h('span', { className: 'sum', textContent: takeSummary(s, t) }));
+  const el = h('div', { className: 'take' + (open ? '' : ' folded') }, row);
+  if (open) {
+    const box = h('div', { className: 'fb' });
+    drawFeedback(s, t, box);
+    el.append(box);
+  }
+  return el;
+}
+
+// 折起来的那一行：一眼看出这一版的样子
+function takeSummary(s, t) {
+  const f = t.fb;
+  if (t.fbState === 'loading') return '反馈生成中…';
+  if (!f || f.repeats == null) return '';
+  const total = s.takes.find(x => x.n === f.prev)?.fb?.upgrades?.length; // 上一版被删了就不知道总数
+  const carried = f.carried == null || total === 0 ? '' : ` · 用上上一版台阶 ${f.carried}${total ? '/' + total : ' 条'}`;
+  return `口头禅 ${f.fillers} · 重说 ${f.repeats}${carried}`;
+}
+
+// 即时反馈：只给英文段；t.fbState = loading | error | ''
+function drawFeedback(s, t, box) {
+  if (s.key.endsWith('-zh')) return;
+  if (t.fbState === 'loading') return box.append(h('p', { className: 'muted', textContent: '反馈生成中…约 20 秒，可以先录下一段' }));
+  if (t.fbState === 'error') {
+    return box.append(h('p', { className: 'err-banner', textContent: t.fbErr }), h('button', { textContent: '重试反馈', onclick: () => getFeedback(s, t) }));
+  }
+  const f = t.fb;
+  if (!f) return box.append(h('button', { textContent: '生成反馈', onclick: () => getFeedback(s, t) }));
+  if (!/[A-Za-z]{2}/.test(f.transcript)) return box.append(h('p', { className: 'muted', textContent: '没听到英文内容，检查一下麦克风或再录一版' }));
+  // 先说进步（有上一版就说比上一版好在哪），再给往上走的台阶；不划红线
+  if (f.cheer) box.append(h('p', { className: 'cheer' }, '💬 ', f.prev ? `比第 ${f.prev} 版：` : '', f.cheer));
+  if (f.repeats != null) {
+    const trend = (f.trend || []).length > 1 ? `（最近几段的重说：${f.trend.join(' → ')}）` : '';
+    box.append(h('p', { className: 'muted' }, `🗣 这段口头禅 ${f.fillers} 次 · 原样重说 ${f.repeats} 次${trend}`));
+  }
+  for (const g of f.good || []) box.append(h('p', { className: 'good' }, '✓ ', g));
+  for (const u of f.upgrades || []) {
+    box.append(h('p', {}, '↑ ', u.thought ? `${u.thought}：` : '', speakable(u.natural),
+      u.old ? h('span', { className: 'old', textContent: '老问题' }) : '',
+      u.said ? h('span', { className: 'muted' }, `（你说的：${u.said}）`) : ''));
+  }
+  for (const x of f.sounds || []) box.append(h('p', { className: 'muted' }, '🔈 ', x.heard ? `${x.heard} → ` : '', speakable(x.word), x.tip ? `：${x.tip}` : ''));
+  if (!f.good?.length && !f.upgrades?.length) box.append(h('p', { className: 'good', textContent: '✓ 没发现影响听懂的地方' }));
+  box.append(h('p', { className: 'said' }, '转写：', f.transcript));
+}
+
+async function getFeedback(s, t) {
+  if (!s.takes.includes(t)) return; // 排队时这一版被删了
+  Object.assign(t, { fbState: 'loading', fb: null });
+  refresh();
+  try {
+    const fb = await api(`feedback/${paperId}/${s.key}/${t.n}`, { method: 'POST' });
+    Object.assign(t, { fb, fbState: '' });
+  } catch (e) {
+    let msg = e.message.replace(/^\d+ /, '');
+    try { msg = JSON.parse(msg).error || msg; } catch {}
+    Object.assign(t, { fbState: 'error', fbErr: '反馈没出来：' + msg });
+  }
+  refresh(); // 等反馈期间这一版被删了也没关系：它已经不在 s.takes 里，不会画出来
+}
+
+async function start(s) {
+  if (active) return;
+  const prev = s.state;
+  active = s;
+  Object.assign(s, { state: 'asking', notice: '' });
+  refresh();
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    // 退回原状态：已录好的那段还在，只提示拿不到麦克风
+    active = null;
+    Object.assign(s, { state: prev, notice: `拿不到麦克风（${e.name}），请在浏览器地址栏允许麦克风后重试` });
+    return refresh();
+  }
+  const rec = new MediaRecorder(stream);
+  const chunks = [];
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    clearInterval(s.timer);
+    active = null;
+    if (s.cancelled) { s.state = s.prev; return refresh(); }
+    upload(s, new Blob(chunks, { type: rec.mimeType }));
+  };
+  Object.assign(s, { rec, prev, cancelled: false, state: 'recording', secs: 0, t0: Date.now() });
+  s.timer = setInterval(() => {
+    s.secs = (Date.now() - s.t0) / 1000;
+    if (s.secs >= MAX_SECONDS) return stop(s);
+    const t = $('.time', s.el);
+    if (t) { t.lastChild.textContent = fmt(s.secs); t.classList.toggle('long', s.secs >= SOFT_SECONDS); }
+  }, 250);
+  rec.start();
+  refresh();
+}
+
+function stop(s, cancel = false) {
+  s.cancelled = cancel;
+  if (s.rec.state !== 'inactive') s.rec.stop();
+}
+
+async function upload(s, blob) {
+  s.state = 'uploading'; s.blob = blob; refresh();
+  let t = null;
+  try {
+    const { take } = await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
+    t = { n: take, fb: null };
+    if (s.key.endsWith('-zh')) { s.takes.forEach(x => x.audio?.pause()); s.takes = []; } // 服务端已经顶掉旧的
+    s.takes.push(t);
+    for (const x of s.takes) x.open = false; // 新的一版展开，旧的都折起来
+    Object.assign(s, { state: 'idle', blob: null });
+    $('#done').hidden = true; // 改了录音就要重新提交
+  } catch (e) {
+    Object.assign(s, { state: 'error', error: '保存失败：' + e.message });
+  }
+  refresh();
+  if (t && !s.key.endsWith('-zh')) {
+    // 同一段的反馈排队出：上一版的反馈出来了，这一版才能和它比
+    t.fbState = 'loading';
+    s.fbChain = (s.fbChain || Promise.resolve()).then(() => getFeedback(s, t)).catch(() => {}); // 链断了后面的版就永远排不上
+  }
+}
+
+async function remove(s, t) {
+  try {
+    await api(`rec/${paperId}/${s.key}/${t.n}`, { method: 'DELETE' });
+    t.audio?.pause(); // 不然摘出页面的 audio 还会在后台接着放
+    s.takes = s.takes.filter(x => x !== t);
+    s.notice = '';
+    $('#done').hidden = true;
+  } catch (e) {
+    s.notice = '删除失败：' + e.message;
+  }
+  refresh();
+}
+
+$('#submit').onclick = async () => {
+  try {
+    await api('submit/' + paperId, { method: 'POST' });
+    $('#done').hidden = false;
+  } catch (e) {
+    $('#progress').textContent = '提交失败：' + e.message;
+  }
+};
+
+// s.blob 只在上传中或上传失败时有值：这时离开页面录音就丢了
+window.addEventListener('beforeunload', e => { if (active || slots.some(s => s.blob)) e.preventDefault(); });
+load().catch(e => $('#intro').replaceChildren(h('span', { className: 'err-banner', textContent: '加载失败：' + e.message })));
+</script>
+</body>
+</html>
