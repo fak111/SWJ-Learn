@@ -151,14 +151,15 @@ def claude(prompt):
 
 FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 {"cheer": "一句话：这次具体进步在哪；他说对了以前出过问题的说法就点出来",
- "good": ["1-2 条：引用他英文里真的说对的原话，加一句中文说好在哪"],
+ "good": ["0-2 条：只引用他英文里一字不改就是地道正确英语的原话片段，加一句中文说好在哪；没有就给空数组"],
  "upgrades": [{"thought": "他想表达的意思（中文）", "said": "他的原话片段", "natural": "地道自然的英文说法，六级词汇能懂", "old": false}],
  "sounds": [{"heard": "转写里不像真实单词的片段", "word": "他应该是想说的英文词", "tip": "一句中文：怎么读"}]}
 规则：
 1. upgrades 最多 3 条，只挑影响听懂的；old 为 true 表示他以前出过同样的问题。
 2. 先对照题目和中文猜他想表达什么；转写像某个词但写错了，归为 sounds，不归 upgrades。
 3. 每处只给一个自然说法，不给多个版本；不重写整段。
-4. 不用「错」「不对」这类字眼；先肯定，再给往上走的台阶。"""
+4. 不用「错」「不对」这类字眼；先肯定，再给往上走的台阶。
+5. good 宁缺毋滥：有毛病的片段（哪怕意思对）不放进 good，鼓励的话放进 cheer。"""
 
 
 def read_data(name):
@@ -217,6 +218,11 @@ def feedback_prompt(q, zh, en):
 {FEEDBACK_RULES}"""
 
 
+def words(text):
+    """只留英文单词，比对时不受标点、引号、大小写影响。"""
+    return ' '.join(re.findall(r"[a-z0-9']+", text.lower().replace('’', "'")))
+
+
 def parse_feedback(content):
     """模型回复 → {cheer, good, upgrades, sounds}。做对的最多 2 条且不能和台阶冲突；台阶、发音各最多 3 条。"""
     m = re.search(r'\{.*\}', content, re.S)
@@ -229,9 +235,14 @@ def parse_feedback(content):
     s = lambda v: v if isinstance(v, str) else ''  # noqa: E731
     ups = [{'thought': s(u.get('thought')), 'said': s(u.get('said')), 'natural': s(u.get('natural')), 'old': u.get('old') is True}
            for u in d.get('upgrades') or [] if isinstance(u, dict) and s(u.get('natural'))][:3]
-    said = [u['said'].lower() for u in ups if len(u['said']) >= 4]  # 太短的片段（如 a、it）几乎每句都含，会误删表扬
-    good = [g for g in d.get('good') or [] if isinstance(g, str)
-            and not any(x in g.lower() or g.lower() in x for x in said)][:2]
+    saids = [words(u['said']) for u in ups if len(words(u['said'])) >= 4]  # 太短的片段（如 a、it）几乎每句都含，会误删表扬
+
+    def clash(g):
+        # 「做对的」引用的原话（按引号、省略号切段），只要有一段（≥3 词）落在某处要改的原话里，就不算做对
+        segs = [words(x) for q in re.findall(r'[「"“](.+?)[」"”]', g) or [g] for x in re.split(r'…|\.\.\.', q)]
+        within = lambda a, b: f' {a} ' in f' {b} '  # noqa: E731  按整词比，免得 it is 误中 bit is
+        return any(len(sg.split()) >= 3 and within(sg, sw) for sg in segs for sw in saids) or any(within(sw, words(g)) for sw in saids)
+    good = [g for g in d.get('good') or [] if isinstance(g, str) and not clash(g)][:2]
     sounds = [{'heard': s(x.get('heard')), 'word': s(x.get('word')), 'tip': s(x.get('tip'))}
               for x in d.get('sounds') or [] if isinstance(x, dict) and s(x.get('word'))][:3]
     return {'cheer': s(d.get('cheer')), 'good': good, 'upgrades': ups, 'sounds': sounds}
@@ -285,6 +296,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', ctype)
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Cache-Control', 'no-store')
+        self.send_header('X-Page', str(int((HERE / 'index.html').stat().st_mtime)))  # 页面据此发现自己过期了
         self.end_headers()
         self.wfile.write(body)
 

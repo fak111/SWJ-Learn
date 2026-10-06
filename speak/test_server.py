@@ -286,6 +286,21 @@ class FeedbackTest(unittest.TestCase):
         with self.assertRaises(server.ServiceError):
             server.parse_feedback('抱歉，我无法回答')
 
+    def test_good_never_quotes_a_line_that_needs_upgrading(self):  # 主人 10-06 实际遇到的：病句被夸成做对的
+        reply = {'good': ['「I have a holiday and … I spend most time at home」——意思很清楚，at home 也用对了。',
+                          '「The most header thing is to use my code uses」——句子骨架已经搭起来了。',
+                          '"most of the time" 用得很地道。'],
+                 'upgrades': [{'said': 'I have a holiday and most I spend most time at home to realize and working with my computer.',
+                               'natural': 'I had a seven-day holiday.'},
+                              {'said': 'The most header thing is to use my code uses.', 'natural': 'My biggest headache was …'}]}
+        self.assertEqual(server.parse_feedback(json.dumps(reply))['good'], ['"most of the time" 用得很地道。'])
+
+    def test_replies_carry_page_version(self):  # 页面据此发现自己过期
+        _, _, _ = call('GET', '/api/papers')
+        conn = http.client.HTTPConnection('127.0.0.1', httpd.server_address[1])
+        conn.request('GET', '/api/papers')
+        self.assertEqual(conn.getresponse().getheader('X-Page'), str(int((Path(server.__file__).parent / 'index.html').stat().st_mtime)))
+
 
 if __name__ == '__main__':
     unittest.main()
