@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>口语试卷</title>
+<style>
+  :root { --bg:#f6f5f1; --card:#fff; --fg:#1d1d1f; --muted:#6e6e73; --line:#e2e0d8; --accent:#2563eb; --rec:#dc2626; --ok:#15803d; --warn:#b45309; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141414; --card:#1e1e20; --fg:#ececec; --muted:#9a9aa0; --line:#34343a; --accent:#60a5fa; --rec:#f87171; --ok:#4ade80; --warn:#fbbf24; --soft:#1e2433; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.65 -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 28px 16px 120px; }
+  header { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; }
+  select { font: inherit; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  .intro, .summary { color: var(--muted); margin: 8px 0 20px; white-space: pre-line; }
+  .summary { color: var(--fg); background: var(--soft); border-radius: 12px; padding: 12px 16px; }
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+  .q h2 { font-size: 18px; margin: 0 0 4px; }
+  .hint { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .label { font-size: 13px; font-weight: 600; color: var(--muted); margin: 14px 0 4px; letter-spacing: .02em; }
+  ul.points { margin: 0; padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .note { font-size: 14px; white-space: pre-line; }
+  .slot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px dashed var(--line); }
+  .slot:first-of-type { margin-top: 12px; }
+  .slot .name { width: 72px; font-weight: 600; }
+  .slot .time { font-variant-numeric: tabular-nums; min-width: 48px; color: var(--muted); }
+  .slot.recording .time { color: var(--rec); font-weight: 600; }
+  .slot.recording .time.long { color: var(--warn); }
+  .slot .status { font-size: 13px; color: var(--muted); }
+  .slot .status.err { color: var(--rec); }
+  .slot audio { height: 34px; max-width: 100%; }
+  button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.start { border-color: var(--rec); color: var(--rec); }
+  button.stop { background: var(--rec); border-color: var(--rec); color: #fff; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 10px 22px; font-size: 16px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); margin-right: 6px; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  footer { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); }
+  footer .inner { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  #done { color: var(--ok); font-weight: 600; }
+  .err-banner { color: var(--rec); }
+</style>
+</head>
+<body>
+<main>
+  <header><h1 id="title">口语试卷</h1><select id="picker" hidden aria-label="切换试卷"></select></header>
+  <p class="summary" id="summary" hidden></p>
+  <p class="intro" id="intro"></p>
+  <div id="questions"></div>
+</main>
+<footer><div class="inner">
+  <span id="progress"></span>
+  <span><span id="done" hidden>已提交 ✓ 我开始分析了</span> <button class="primary" id="submit" disabled>提交给 AI</button></span>
+</div></footer>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const MAX_SECONDS = 300; // ponytail: 忘了点结束时的兜底
+const SOFT_SECONDS = 60;
+let paperId, active = null; // active = 正在录的题位
+const slots = []; // { key, el, state, blob }
+
+function h(tag, props = {}, ...kids) {
+  const el = Object.assign(document.createElement(tag), props);
+  el.append(...kids.filter(k => k != null));
+  return el;
+}
+
+async function api(path, opts) {
+  const r = await fetch('/api/' + path, opts);
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+async function load() {
+  const ids = await api('papers');
+  paperId = new URLSearchParams(location.search).get('p') || ids.at(-1);
+  if (!paperId) { $('#intro').textContent = '还没有试卷。'; return; }
+  if (ids.length > 1) {
+    const picker = $('#picker');
+    picker.append(...ids.map(id => h('option', { value: id, textContent: id, selected: id === paperId })));
+    picker.hidden = false;
+    picker.onchange = () => { location.search = '?p=' + picker.value; };
+  }
+  const { paper, recordings, submitted } = await api('paper/' + paperId);
+  document.title = paper.title || '口语试卷';
+  $('#title').textContent = paper.title || paperId;
+  $('#intro').textContent = paper.intro || '';
+  if (paper.summary) { $('#summary').textContent = paper.summary; $('#summary').hidden = false; }
+  const box = $('#questions');
+  paper.questions.forEach((q, i) => box.append(renderQuestion(q, i, recordings)));
+  $('#done').hidden = !submitted;
+  refresh();
+}
+
+function renderQuestion(q, i, recordings) {
+  const card = h('section', { className: 'q' }, h('h2', { textContent: `${i + 1}. ${q.prompt}` }));
+  if (q.hint) card.append(h('p', { className: 'hint', textContent: q.hint }));
+  if (q.points?.length) {
+    card.append(h('div', { className: 'label', textContent: '要点（看着它说，不要背句子）' }),
+      h('ul', { className: 'points' }, ...q.points.map(p => h('li', { textContent: p }))));
+  }
+  if (q.mappings?.length) {
+    const rows = q.mappings.map(m => h('tr', {}, ...[m.thought, m.can, m.natural].map(t => h('td', { textContent: t || '' }))));
+    card.append(h('div', { className: 'label', textContent: '映射：你想说的 → 能说版 → 自然版' }),
+      h('table', {}, h('tr', {}, ...['想说的', '能说版', '自然版'].map(t => h('th', { textContent: t }))), ...rows));
+  }
+  if (q.note) card.append(h('div', { className: 'label', textContent: '点评' }), h('p', { className: 'note', textContent: q.note }));
+  for (const s of q.slots || [{ id: 'zh', label: '中文' }, { id: 'en', label: 'English' }]) {
+    const slot = { key: `${q.id ?? 'q' + (i + 1)}-${s.id}`, label: s.label, el: h('div', { className: 'slot' }) };
+    slot.state = recordings.includes(slot.key) ? 'saved' : 'empty';
+    slots.push(slot);
+    card.append(slot.el);
+  }
+  return card;
+}
+
+function refresh() {
+  for (const s of slots) draw(s);
+  const n = slots.filter(s => s.state === 'saved').length;
+  $('#progress').textContent = `已录 ${n} / ${slots.length} 段`;
+  $('#submit').disabled = !n || !!active || slots.some(s => s.state === 'uploading');
+}
+
+function draw(s) {
+  const busy = active && active !== s;
+  const btn = (text, cls, fn) => h('button', { className: cls, textContent: text, disabled: busy, onclick: fn });
+  s.el.className = 'slot ' + s.state;
+  s.el.replaceChildren(h('span', { className: 'name', textContent: s.label }));
+  if (s.state === 'empty') s.el.append(btn('● 开始', 'start', () => start(s)));
+  if (s.state === 'recording') {
+    s.el.append(h('span', { className: 'time' }, h('span', { className: 'dot' }), fmt(s.secs || 0)),
+      btn('■ 结束', 'stop', () => stop(s)), btn('✕ 不要了', '', () => stop(s, true)));
+  }
+  if (s.state === 'uploading') s.el.append(h('span', { className: 'status', textContent: '保存中…' }));
+  if (s.state === 'error') {
+    s.el.append(h('span', { className: 'status err', textContent: s.error }));
+    if (s.blob) s.el.append(btn('重试保存', '', () => upload(s, s.blob)));
+    s.el.append(btn('↻ 重录', '', () => start(s)));
+  }
+  if (s.state === 'saved') {
+    // 同一个 audio 元素同步移回 DOM，别的题位重绘时不打断正在回放的录音
+    if (!s.audio || s.audio.dataset.v !== String(s.version || 0)) {
+      s.audio = h('audio', { controls: true, preload: 'none', src: `/api/rec/${paperId}/${s.key}?t=${s.version || 0}` });
+      s.audio.dataset.v = String(s.version || 0);
+    }
+    s.el.append(s.audio, btn('↻ 重录', '', () => start(s)), btn('✕ 删除', '', () => remove(s)));
+  }
+  if (s.state === 'asking') s.el.append(h('span', { className: 'status', textContent: '等待麦克风授权…第一次用请在浏览器弹窗里点「允许」' }));
+  if (s.notice) s.el.append(h('span', { className: 'status err', textContent: s.notice }));
+}
+
+async function start(s) {
+  if (active) return;
+  const prev = s.state;
+  active = s;
+  Object.assign(s, { state: 'asking', notice: '' });
+  refresh();
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    // 退回原状态：已录好的那段还在，只提示拿不到麦克风
+    active = null;
+    Object.assign(s, { state: prev, notice: `拿不到麦克风（${e.name}），请在浏览器地址栏允许麦克风后重试` });
+    return refresh();
+  }
+  const rec = new MediaRecorder(stream);
+  const chunks = [];
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    clearInterval(s.timer);
+    active = null;
+    if (s.cancelled) { s.state = s.prev; return refresh(); }
+    upload(s, new Blob(chunks, { type: rec.mimeType }));
+  };
+  Object.assign(s, { rec, prev, cancelled: false, state: 'recording', secs: 0, t0: Date.now() });
+  s.timer = setInterval(() => {
+    s.secs = (Date.now() - s.t0) / 1000;
+    if (s.secs >= MAX_SECONDS) return stop(s);
+    const t = $('.time', s.el);
+    if (t) { t.lastChild.textContent = fmt(s.secs); t.classList.toggle('long', s.secs >= SOFT_SECONDS); }
+  }, 250);
+  rec.start();
+  refresh();
+}
+
+function stop(s, cancel = false) {
+  s.cancelled = cancel;
+  if (s.rec.state !== 'inactive') s.rec.stop();
+}
+
+async function upload(s, blob) {
+  s.state = 'uploading'; s.blob = blob; refresh();
+  try {
+    await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
+    Object.assign(s, { state: 'saved', blob: null, version: Date.now() });
+    $('#done').hidden = true; // 改了录音就要重新提交
+  } catch (e) {
+    Object.assign(s, { state: 'error', error: '保存失败：' + e.message });
+  }
+  refresh();
+}
+
+async function remove(s) {
+  try {
+    await api(`rec/${paperId}/${s.key}`, { method: 'DELETE' });
+    s.state = 'empty';
+    $('#done').hidden = true;
+  } catch (e) {
+    Object.assign(s, { state: 'error', error: '删除失败：' + e.message, blob: null });
+  }
+  refresh();
+}
+
+$('#submit').onclick = async () => {
+  try {
+    await api('submit/' + paperId, { method: 'POST' });
+    $('#done').hidden = false;
+  } catch (e) {
+    $('#progress').textContent = '提交失败：' + e.message;
+  }
+};
+
+// s.blob 只在上传中或上传失败时有值：这时离开页面录音就丢了
+window.addEventListener('beforeunload', e => { if (active || slots.some(s => s.blob)) e.preventDefault(); });
+load().catch(e => $('#intro').replaceChildren(h('span', { className: 'err-banner', textContent: '加载失败：' + e.message })));
+</script>
+</body>
+</html>
