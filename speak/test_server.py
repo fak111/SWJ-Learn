@@ -43,24 +43,30 @@ class ServerTest(unittest.TestCase):
 
     def test_takes_append_delete_submit(self):
         self.assertEqual(call('POST', '/api/submit/p1')[0], 400)  # 没录不能交
-        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-zh', b'webm-1', 'audio/webm;codecs=opus')[1])['take'], 1)
-        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-zh', b'mp4-2', 'audio/mp4')[1])['take'], 2)  # 再录一版，旧版留着
-        self.assertEqual(sorted(p.name for p in (tmp / 'sessions' / 'p1').iterdir()), ['q1-zh.v1.webm', 'q1-zh.v2.mp4'])
-        self.assertEqual(call('GET', '/api/rec/p1/q1-zh/1'), (200, b'webm-1', 'audio/webm'))
-        self.assertEqual(call('GET', '/api/rec/p1/q1-zh/2'), (200, b'mp4-2', 'audio/mp4'))
+        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-en', b'webm-1', 'audio/webm;codecs=opus')[1])['take'], 1)
+        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-en', b'mp4-2', 'audio/mp4')[1])['take'], 2)  # 再录一版，旧版留着
+        self.assertEqual(sorted(p.name for p in (tmp / 'sessions' / 'p1').iterdir()), ['q1-en.v1.webm', 'q1-en.v2.mp4'])
+        self.assertEqual(call('GET', '/api/rec/p1/q1-en/1'), (200, b'webm-1', 'audio/webm'))
+        self.assertEqual(call('GET', '/api/rec/p1/q1-en/2'), (200, b'mp4-2', 'audio/mp4'))
         state = json.loads(call('GET', '/api/paper/p1')[1])
-        self.assertEqual((state['takes'], state['submitted']), ({'q1-zh': [{'n': 1, 'fb': None}, {'n': 2, 'fb': None}]}, False))
-        self.assertEqual(json.loads(call('POST', '/api/submit/p1')[1])['slots'], ['q1-zh.v1', 'q1-zh.v2'])
+        self.assertEqual((state['takes'], state['submitted']), ({'q1-en': [{'n': 1, 'fb': None}, {'n': 2, 'fb': None}]}, False))
+        self.assertEqual(json.loads(call('POST', '/api/submit/p1')[1])['slots'], ['q1-en.v1', 'q1-en.v2'])
         self.assertTrue(json.loads(call('GET', '/api/paper/p1')[1])['submitted'])
-        call('PUT', '/api/rec/p1/q1-zh', b'webm-3', 'audio/webm')  # 交了又录一版：旧提交作废
+        call('PUT', '/api/rec/p1/q1-en', b'webm-3', 'audio/webm')  # 交了又录一版：旧提交作废
         self.assertFalse(json.loads(call('GET', '/api/paper/p1')[1])['submitted'])
-        self.assertEqual(call('DELETE', '/api/rec/p1/q1-zh/2')[0], 200)  # 只删这一版
-        self.assertEqual(call('GET', '/api/rec/p1/q1-zh/2')[0], 404)
-        self.assertEqual(call('GET', '/api/rec/p1/q1-zh/1')[1], b'webm-1')
-        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-zh', b'webm-4', 'audio/webm')[1])['take'], 4)  # 接着最大的版号
-        self.assertEqual(call('DELETE', '/api/rec/p1/q1-zh')[0], 404)  # 不说删哪一版就不删
-        self.assertEqual(call('PUT', '/api/rec/p1/q1-zh/9', b'x', 'audio/webm')[0], 404)  # 版号由服务端定
-        self.assertEqual(len(server.take_files('p1', 'q1-zh')), 3)
+        self.assertEqual(call('DELETE', '/api/rec/p1/q1-en/2')[0], 200)  # 只删这一版
+        self.assertEqual(call('GET', '/api/rec/p1/q1-en/2')[0], 404)
+        self.assertEqual(call('GET', '/api/rec/p1/q1-en/1')[1], b'webm-1')
+        self.assertEqual(json.loads(call('PUT', '/api/rec/p1/q1-en', b'webm-4', 'audio/webm')[1])['take'], 4)  # 接着最大的版号
+        self.assertEqual(call('DELETE', '/api/rec/p1/q1-en')[0], 404)  # 不说删哪一版就不删
+        self.assertEqual(call('PUT', '/api/rec/p1/q1-en/9', b'x', 'audio/webm')[0], 404)  # 版号由服务端定
+        self.assertEqual(len(server.take_files('p1', 'q1-en')), 3)
+
+    def test_chinese_rerecord_replaces(self):  # 中文段过一遍就够，不留多版
+        call('PUT', '/api/rec/p10/q5-zh', b'zh-1', 'audio/webm')
+        self.assertEqual(json.loads(call('PUT', '/api/rec/p10/q5-zh', b'zh-2', 'audio/mp4')[1])['take'], 2)
+        self.assertEqual(list(server.take_files('p10', 'q5-zh')), [('q5-zh', 2)])
+        self.assertEqual(call('GET', '/api/rec/p10/q5-zh/2')[1], b'zh-2')
 
     def test_rejects_bad_input(self):
         self.assertEqual(call('PUT', '/api/rec/p1/..%2Fescape', b'x', 'audio/webm')[0], 404)
@@ -229,12 +235,12 @@ class FeedbackTest(unittest.TestCase):
         call('POST', '/api/feedback/fb/q1-en/1')
         call('PUT', '/api/rec/fb/q1-en', b'webm-2', 'audio/webm')
         self.assertIsNotNone(json.loads(call('GET', '/api/paper/fb')[1])['takes']['q1-en'][0]['fb'])  # 第 1 版的反馈还在
-        # 用上了要有证据：是上一版某条台阶的一部分、在这一版里、不在上一版里；按台阶数
+        # 用上了要有证据：原话在这一版里，和上一版某条台阶连续重合够长，且这段上一版没说过；按台阶数
         self.REPLY = {**self.REPLY, 'carried': [{'natural': 'passive income', 'quote': 'passive income'},
                                                 {'natural': 'passive income', 'quote': 'Passive income.'},  # 同一条台阶不重复算
-                                                {'natural': 'x', 'quote': 'The goal is'},  # 上一版就有，不算新用上
-                                                {'natural': 'y', 'quote': 'dig into it'},  # 这一版没说
-                                                {'natural': 'z', 'quote': 'goal is passive'},  # 新说的，但不是哪条台阶
+                                                {'natural': 'dig into it', 'quote': 'I dig into it more'},  # 第 2 版没说这句
+                                                {'natural': 'x', 'quote': 'The goal is'},  # 和台阶不重合
+                                                {'natural': 'z', 'quote': 'goal is passive'},  # 只重合一个词
                                                 {'natural': 'w', 'quote': 'income'}]}  # 一个词不算
         self.said = 'The goal is passive income.'
         v2 = json.loads(call('POST', '/api/feedback/fb/q1-en/2')[1])
@@ -245,13 +251,16 @@ class FeedbackTest(unittest.TestCase):
         self.assertIn('上一版有、这一版没了的：passing when come', self.prompts[-1])
         self.assertNotIn('他说「passing when come」', self.prompts[-1].split('## 这一题')[0])  # 上一版不当「以前的问题」
         self.assertEqual((v2['prev'], v2['carried']), (1, 1))
-        call('PUT', '/api/rec/fb/q1-en', b'webm-3', 'audio/webm')  # 和第 2 版说得一字不差
+        self.said = 'My goal is passive income and I dig into it more.'
+        call('PUT', '/api/rec/fb/q1-en', b'webm-3', 'audio/webm')  # 原话比台阶长也算；passive income 上一版已经说过，不算新用上
         v3 = json.loads(call('POST', '/api/feedback/fb/q1-en/3')[1])
+        self.assertEqual((v3['prev'], v3['carried']), (2, 1))
+        call('PUT', '/api/rec/fb/q1-en', b'webm-4', 'audio/webm')  # 和第 3 版说得一字不差
+        call('POST', '/api/feedback/fb/q1-en/4')
         self.assertIn('两版转写一字不差', self.prompts[-1])
-        self.assertEqual((v3['prev'], v3['carried']), (2, 0))  # 模型说用上了也不算
         call('DELETE', '/api/rec/fb/q1-en/2')
         takes = json.loads(call('GET', '/api/paper/fb')[1])['takes']['q1-en']
-        self.assertEqual([t['n'] for t in takes], [1, 3])
+        self.assertEqual([t['n'] for t in takes], [1, 3, 4])
         self.assertFalse((tmp / 'sessions' / 'fb' / 'q1-en.v2.feedback.json').exists())
 
     def test_compares_with_latest_take_that_has_feedback(self):
@@ -451,6 +460,15 @@ class FeedbackTest(unittest.TestCase):
     def test_carried_only_takes_quotes(self):
         for raw, want in [([{'quote': 'a b'}, {'quote': ''}, 'x', {'natural': 'n'}], ['a b']), (2, []), (None, [])]:
             self.assertEqual(server.parse_feedback(json.dumps({'carried': raw}))['carried'], want, raw)
+
+    def test_new_overlap(self):  # 主人 p3 第 1 题第 2 版：原话比台阶长，重合的是 my biggest headache was
+        natural = server.words('My biggest headache was trying to use up my Claude Code quota.').split()
+        said = server.words('My biggest headache was try to use up my cloud code quota.').split()
+        self.assertTrue(server.new_overlap(said, natural, ' x '))
+        self.assertFalse(server.new_overlap(said, natural, ' my biggest headache was so bad '))  # 上一版就说过
+        self.assertFalse(server.new_overlap(['use', 'up', 'it'], natural, ' x '))  # 只重合两个词，台阶又更长
+        self.assertTrue(server.new_overlap(['passive', 'income'], ['passive', 'income'], ' x '))  # 台阶短就要整条
+        self.assertFalse(server.new_overlap(['goal', 'is', 'passive'], ['passive', 'income'], ' x '))
 
     def test_take_diff(self):
         self.assertEqual(server.take_diff('The uh goal is passing when come.', 'The goal is passive income.'),

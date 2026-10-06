@@ -5,7 +5,7 @@
 
 数据目录默认 ~/temp/eng（SPEAK_DATA 可覆盖），不进仓库：
     papers/<paper>.json               试卷，AI 写入
-    sessions/<paper>/<slot>.v<n>.<ext>     录音，页面上传；每再录一版 n 加 1，旧版保留
+    sessions/<paper>/<slot>.v<n>.<ext>     录音，页面上传；每再录一版 n 加 1，旧版保留（中文段重录顶掉旧的）
     sessions/<paper>/submitted.json   提交标记，AI 侧据此开始分析
     sessions/<paper>/<slot>.v<n>.feedback.json  这一版的即时反馈（MiniMax 听写 + 本机 claude -p 写反馈）
     profile.md / mappings.md / pronunciation.md  学生背景与学过的说法（Claude 维护，写反馈时带上）
@@ -222,7 +222,7 @@ FEEDBACK_RULES = """只输出 JSON，不要其他文字：
 5. good 宁缺毋滥：fixed 和 quote 只要差一个词，这条就不会显示；有毛病的片段（哪怕意思对）别放，没有就给空数组，鼓励的话放进 cheer。
 6. uh、重复、回头重说是流利度问题，页面另有统计，不要当成用词问题去改。
 7. sounds 只放转写里不像真实单词、或和他想说的意思明显对不上的词；拿不准就不放，语法和用词问题不算发音。
-8. 有上一版时，cheer 只说这一版比上一版好在哪，以下面代码算的逐词对比为准：只有这一版新说出来的才算进步，零散一两个词的差别可能是听写波动，不算进步；对比里没有的进步不许说，没进步就说保住了什么，并提醒他每版只改一处。没有上一版、或一条台阶都没用上，carried 给空数组。"""
+8. 有上一版时，cheer 只说这一版比上一版好在哪，以下面代码算的逐词对比为准：只有这一版新说出来的才算进步，零散一两个词的差别可能是听写波动，不算进步；对比里没有的进步不许说，用自然的中文概括，别逐个罗列对比里的单词；没进步就说保住了什么，并提醒他每版只改一处。没有上一版、或一条台阶都没用上，carried 给空数组。"""
 
 
 def read_data(name):
@@ -331,6 +331,12 @@ def take_diff(before, now):
     return added, dropped
 
 
+def new_overlap(quote, natural, before):
+    """原话和台阶最长的一段连续重合够长（3 个词，台阶更短就要整条），而且这段上一版没说过。"""
+    m = difflib.SequenceMatcher(None, quote, natural, autojunk=False).find_longest_match(0, len(quote), 0, len(natural))
+    return m.size >= min(3, len(natural)) and f" {' '.join(quote[m.a:m.a + m.size])} " not in before
+
+
 def words(text):
     """只留英文单词（去掉 uh 这类口头禅），比对时不受标点、引号、大小写和卡顿影响。"""
     return ' '.join(w for w in re.findall(r"[a-z0-9']+", text.lower().replace('’', "'")) if w not in FILLERS)
@@ -393,11 +399,11 @@ def feedback(paper, slot, n):
         result.update(parse_feedback(claude(feedback_prompt(q, zh, said, prev, (paper, slot))), said))
         quotes, result['carried'] = result['carried'], None
         if prev:
-            # 「用上了」要有证据：原话（至少两个词）是上一版某条台阶的一部分，在这一版里、不在上一版里；按台阶数，不按句数
+            # 「用上了」要有证据：原话在这一版里，且和上一版某条台阶有一段连续重合（3 个词，台阶更短就整条），这段上一版没说过；按台阶数
             now, before = f' {words(said)} ', f" {words(prev[1].get('transcript', ''))} "
-            naturals = [f" {words(u.get('natural', ''))} " for u in prev[1].get('upgrades') or []]
-            used = {i for w in map(words, quotes) if len(w.split()) >= 2 and f' {w} ' in now and f' {w} ' not in before
-                    for i, nat in enumerate(naturals) if f' {w} ' in nat}
+            naturals = [words(u.get('natural', '')).split() for u in prev[1].get('upgrades') or []]
+            used = {i for w in map(words, quotes) if w and f' {w} ' in now
+                    for i, nat in enumerate(naturals) if nat and new_overlap(w.split(), nat, before)}
             result['prev'], result['carried'] = prev[0], len(used)
     result['fillers'], result['repeats'] = disfluency(said, [words(x['heard']) for x in result['sounds']])
     result['trend'] = recent_repeats((paper, slot)) + [result['repeats']]
@@ -521,6 +527,10 @@ class Handler(BaseHTTPRequestHandler):
         n = max((m for (_, m) in take_files(paper, slot)), default=0) + 1
         new = d / f'{slot}.v{n}.{ext}'
         atomic_write(new, body)
+        if slot.endswith('-zh'):  # 中文段只是理思路，过一遍就够：重录直接顶掉旧的，不留多版
+            for (_, m), f in take_files(paper, slot).items():
+                if m != n:
+                    f.unlink()
         unsubmit(paper)
         self.reply(200, {'saved': new.name, 'take': n, 'bytes': size})
 

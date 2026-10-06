@@ -226,7 +226,8 @@ function refresh() {
 function draw(s) {
   const busy = active && active !== s;
   const btn = (text, cls, fn) => h('button', { className: cls, textContent: text, disabled: busy, onclick: fn });
-  const again = () => btn(s.takes.length ? '● 再录一版' : '● 开始', 'start', () => start(s));
+  const zh = s.key.endsWith('-zh'); // 中文段只留一版：重录顶掉旧的
+  const again = () => btn(!s.takes.length ? '● 开始' : zh ? '↻ 重录' : '● 再录一版', 'start', () => start(s));
   s.el.className = 'slot ' + s.state;
   s.el.replaceChildren(h('span', { className: 'name', textContent: s.label }));
   if (s.state === 'idle') s.el.append(again());
@@ -254,7 +255,7 @@ function drawTake(s, t, latest) {
   const open = latest || t.open;
   // 同一个 audio 元素同步移回 DOM，别的题位重绘时不打断正在回放的录音
   t.audio ??= h('audio', { controls: true, preload: 'none', src: `/api/rec/${paperId}/${s.key}/${t.n}` });
-  const row = h('div', { className: 'row' }, h('span', { className: 'v', textContent: `第 ${t.n} 版` }), t.audio);
+  const row = h('div', { className: 'row' }, h('span', { className: 'v', textContent: s.key.endsWith('-zh') ? '' : `第 ${t.n} 版` }), t.audio);
   if (!latest) row.append(h('button', { textContent: open ? '收起' : '展开', onclick: () => { t.open = !t.open; refresh(); } }));
   row.append(h('button', { textContent: '✕ 删除', disabled: !!active, onclick: () => remove(s, t) }));
   if (!open) row.append(h('span', { className: 'sum', textContent: takeSummary(s, t) }));
@@ -366,6 +367,7 @@ async function upload(s, blob) {
   try {
     const { take } = await api(`rec/${paperId}/${s.key}`, { method: 'PUT', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob });
     t = { n: take, fb: null };
+    if (s.key.endsWith('-zh')) { s.takes.forEach(x => x.audio?.pause()); s.takes = []; } // 服务端已经顶掉旧的
     s.takes.push(t);
     for (const x of s.takes) x.open = false; // 新的一版展开，旧的都折起来
     Object.assign(s, { state: 'idle', blob: null });
